@@ -37,6 +37,9 @@
         <loc>https://docs.tapyr.eu/dev/alerts/</loc>
       </url>
       <url>
+        <loc>https://docs.tapyr.eu/dev/concepts/</loc>
+      </url>
+      <url>
         <loc>https://docs.tapyr.eu/dev/examples/compose/</loc>
       </url>
       <url>
@@ -49,7 +52,13 @@
         <loc>https://docs.tapyr.eu/dev/examples/systemd/</loc>
       </url>
       <url>
+        <loc>https://docs.tapyr.eu/dev/getting-started/</loc>
+      </url>
+      <url>
         <loc>https://docs.tapyr.eu/dev/install/</loc>
+      </url>
+      <url>
+        <loc>https://docs.tapyr.eu/dev/operations/</loc>
       </url>
       <url>
         <loc>https://docs.tapyr.eu/dev/outputs/</loc>
@@ -77,6 +86,9 @@
       </url>
       <url>
         <loc>https://docs.tapyr.eu/dev/reference/account/</loc>
+      </url>
+      <url>
+        <loc>https://docs.tapyr.eu/dev/reference/cli/</loc>
       </url>
       <url>
         <loc>https://docs.tapyr.eu/dev/reference/job/</loc>
@@ -128,5 +140,8 @@
       </url>
       <url>
         <loc>https://docs.tapyr.eu/dev/spec/10-providers/</loc>
+      </url>
+      <url>
+        <loc>https://docs.tapyr.eu/dev/troubleshooting/</loc>
       </url>
 </urlset>
