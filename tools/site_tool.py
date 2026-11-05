@@ -28,16 +28,19 @@ STABLE = re.compile(r"^v(\d+)\.(\d+)\.(\d+)$")
 FIRST = (0, 1, 1)  # first tag with docs/site.yml
 SHOWN = 3  # minors listed in the version selector, plus dev
 SKIP_CLASS = "tapyr-version-link"  # links to other versions, outside a single build
+ENGINE_PATHS = ["mkdocs.yml", "home", "theme", "tools/site_tool.py", "requirements.txt"]  # what changes the output
 
 
 # ---------- plan ----------
 
-def plan(tags, main_sha, deployed, deployed_default=None):
+def plan(tags, main_sha, deployed, deployed_default=None, engine=None):
     """What to do so that every minor shows its latest stable tag and dev shows main.
 
     deployed is the versions.json of the published site (mike); each version keeps the
     ref it was built from in its "source" property and "hidden" when the version
     selector leaves it out. deployed_default is the version the site root redirects to.
+    engine is the last commit of this repository that changed the output: a version
+    built by another engine is rebuilt, so a theme or home page change reaches every version.
     Only changes are planned, so a day without a new tag or commit does nothing.
     """
     latest_of = {}
@@ -53,6 +56,8 @@ def plan(tags, main_sha, deployed, deployed_default=None):
             latest_of[minor] = v
     minors = sorted(latest_of, reverse=True)
     sources = {d["version"]: d.get("properties", {}).get("source") for d in deployed}
+    engines = {d["version"]: d.get("properties", {}).get("engine") for d in deployed}
+    stale = (lambda name: engine is not None and engines.get(name) != engine)
     aliased = {d["version"]: d.get("aliases", []) for d in deployed}
 
     builds = []
@@ -62,13 +67,13 @@ def plan(tags, main_sha, deployed, deployed_default=None):
         aliases = ["latest"] if i == 0 else []
         # An older minor losing "latest" needs no build: deploying the new one with
         # --update-aliases moves the alias.
-        if sources.get(name) != tag or (aliases and "latest" not in aliased.get(name, [])):
+        if sources.get(name) != tag or stale(name) or (aliases and "latest" not in aliased.get(name, [])):
             builds.append({"version": name, "ref": tag, "source": tag, "aliases": aliases})
     # dev is rebuilt when main moved, or when a first release appears or disappears:
     # its banner links the latest release only if there is one.
     dev = next((d for d in deployed if d["version"] == "dev"), {})
     dev_had_release = dev.get("properties", {}).get("has_release", False)
-    if sources.get("dev") != main_sha or dev_had_release != bool(minors):
+    if sources.get("dev") != main_sha or dev_had_release != bool(minors) or stale("dev"):
         builds.append({"version": "dev", "ref": "main", "source": main_sha, "aliases": []})
 
     names = [f"{m[0]}.{m[1]}" for m in minors]
@@ -192,7 +197,7 @@ def check_links(site_dir):
 
 # ---------- publish ----------
 
-def publish(the_plan, tapyr, work, push, run=subprocess.run, prepare=prepare, links=check_links):
+def publish(the_plan, tapyr, work, push, engine=None, run=subprocess.run, prepare=prepare, links=check_links):
     """Carries out a plan: each build is exported, built in strict mode, link checked,
     then deployed with mike to the gh-pages branch of this repository."""
     target = ["-r", "origin", "-b", "gh-pages"] + (["--push"] if push else [])
@@ -211,6 +216,7 @@ def publish(the_plan, tapyr, work, push, run=subprocess.run, prepare=prepare, li
         run(["mike", "deploy", "-F", config, *target, "--update-aliases",
              "--prop-set-string", f"source={b['source']}",
              "--prop-set", f"has_release={'true' if has_release else 'false'}",
+             *(["--prop-set-string", f"engine={engine}"] if engine else []),
              "-m", f"docs: {b['version']} from {b['ref']} ({b['source']})",
              b["version"], *b["aliases"]], check=True)
     if not (the_plan["hide"] or the_plan["unhide"] or the_plan["set_default"]):
@@ -249,11 +255,16 @@ def deployed_state(repo=ROOT):
     return versions, default
 
 
+def engine_commit(repo=ROOT):
+    """The last commit of this repository that changed the built site."""
+    return _git("log", "-1", "--format=%H", "--", *ENGINE_PATHS, cwd=repo).strip()
+
+
 def current_plan(tapyr):
     tags = _git("tag", "--list", "v*", cwd=tapyr).split()
     main_sha = _git("rev-parse", "origin/main", cwd=tapyr).strip()
     deployed, default = deployed_state()
-    return plan(tags, main_sha, deployed, default)
+    return plan(tags, main_sha, deployed, default, engine=engine_commit())
 
 
 def main(argv=None):
@@ -282,7 +293,7 @@ def main(argv=None):
     elif args.cmd == "publish":
         the_plan = current_plan(args.tapyr)
         print(json.dumps(the_plan, indent=2))
-        publish(the_plan, args.tapyr, args.work, args.push)
+        publish(the_plan, args.tapyr, args.work, args.push, engine=engine_commit())
     elif args.cmd == "check-links":
         problems = check_links(args.site)
         for line in problems:

@@ -5,7 +5,7 @@ Tapyr is an open source, self-hosted gateway that turns the REST APIs of cloud-m
 <div class="tapyr-cards">
 
 <a href="install/"><strong>Install</strong><span>Binaries, container image and deployment.</span></a>
-<a href="examples/compose/"><strong>Try the demo</strong><span>Simulators, Tapyr, VictoriaMetrics and Grafana with Docker Compose.</span></a>
+<a href="getting-started/"><strong>Getting started</strong><span>Collect metrics from a simulated API in ten minutes, with the binary alone.</span></a>
 <a href="providers/"><strong>Providers</strong><span>Aruba Central, Cisco Meraki, Teltonika RMS and RutOS.</span></a>
 <a href="https://github.com/Kentrow/tapyr"><strong>GitHub</strong><span>Source, releases and issues.</span></a>
 
