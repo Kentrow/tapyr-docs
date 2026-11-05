@@ -105,6 +105,11 @@ def generated_config(index, version, channel, has_release):
         "nav": [{"Home": "index.md"}] + index["nav"],
         "extra": {
             "version": {"provider": "mike", "default": "latest", "alias": True},
+            # Footer icons. They live here because the generated extra replaces any in mkdocs.yml.
+            "social": [
+                {"icon": "lucide/globe", "link": "https://tapyr.eu", "name": "tapyr.eu, the project site"},
+                {"icon": "fontawesome/brands/github", "link": "https://github.com/Kentrow/tapyr", "name": "Tapyr on GitHub"},
+            ],
             "tapyr": {
                 "version": version,
                 "channel": channel,

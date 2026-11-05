@@ -206,6 +206,8 @@ class ConfigTest(unittest.TestCase):
             "providers/meraki-dashboard/": "providers/meraki-dashboard/README.md",
         })
         self.assertEqual(extra["extra"]["version"], {"provider": "mike", "default": "latest", "alias": True})
+        # footer icons: the project site first, then the repository
+        self.assertEqual([s["link"] for s in extra["extra"]["social"]], ["https://tapyr.eu", "https://github.com/Kentrow/tapyr"])
         json.dumps(extra)
 
 
