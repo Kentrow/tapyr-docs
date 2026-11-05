@@ -24,7 +24,7 @@ class PlanTest(unittest.TestCase):
     def test_nothing_to_build_when_deployed_sources_match(self):
         deployed = [
             {"version": "0.1", "aliases": ["latest"], "properties": {"source": "v0.1.2"}},
-            {"version": "dev", "aliases": [], "properties": {"source": "abc"}},
+            {"version": "dev", "aliases": [], "properties": {"source": "abc", "has_release": True}},
         ]
         p = site.plan(tags=["v0.1.1", "v0.1.2"], main_sha="abc", deployed=deployed)
         self.assertEqual(p["builds"], [])
@@ -33,7 +33,7 @@ class PlanTest(unittest.TestCase):
         deployed = [
             {"version": "0.2", "aliases": ["latest"], "properties": {"source": "v0.2.0"}},
             {"version": "0.1", "aliases": [], "properties": {"source": "v0.1.2"}},
-            {"version": "dev", "aliases": [], "properties": {"source": "abc"}},
+            {"version": "dev", "aliases": [], "properties": {"source": "abc", "has_release": True}},
         ]
         p = site.plan(tags=["v0.1.2", "v0.1.3", "v0.2.0"], main_sha="abc", deployed=deployed)
         self.assertEqual(p["builds"], [{"version": "0.1", "ref": "v0.1.3", "source": "v0.1.3", "aliases": []}])
@@ -47,6 +47,11 @@ class PlanTest(unittest.TestCase):
         self.assertEqual([b["version"] for b in p["builds"]], ["0.2", "dev"])
         self.assertEqual(p["builds"][0]["aliases"], ["latest"])
 
+    def test_dev_is_rebuilt_when_the_first_release_appears_so_its_banner_links_it(self):
+        deployed = [{"version": "dev", "aliases": [], "properties": {"source": "abc", "has_release": False}}]
+        p = site.plan(tags=["v0.1.1"], main_sha="abc", deployed=deployed, deployed_default="dev")
+        self.assertEqual([b["version"] for b in p["builds"]], ["0.1", "dev"])
+
     def test_the_selector_keeps_the_last_three_minors(self):
         tags = ["v0.1.1", "v0.2.0", "v0.3.0", "v0.4.0", "v1.0.0"]
         p = site.plan(tags=tags, main_sha="abc", deployed=[])
@@ -58,7 +63,7 @@ class PlanTest(unittest.TestCase):
             {"version": v, "aliases": ["latest"] if v == "1.0" else [],
              "properties": {"source": f"v{v}.1", **({"hidden": True} if v in ("0.1", "0.3") else {})}}
             for v in ("1.0", "0.4", "0.3", "0.2", "0.1")
-        ] + [{"version": "dev", "aliases": [], "properties": {"source": "abc"}}]
+        ] + [{"version": "dev", "aliases": [], "properties": {"source": "abc", "has_release": True}}]
         tags = ["v0.1.1", "v0.2.1", "v0.3.1", "v0.4.1", "v1.0.1"]
         p = site.plan(tags=tags, main_sha="abc", deployed=deployed, deployed_default="latest")
         self.assertEqual(p["builds"], [])
@@ -99,6 +104,7 @@ class PublishTest(unittest.TestCase):
         self.assertEqual(deploy[:2], ["mike", "deploy"])
         self.assertIn("--update-aliases", deploy)
         self.assertIn("source=v0.1.1", deploy)
+        self.assertIn("has_release=true", deploy)
         self.assertIn("--push", deploy)
         self.assertEqual(deploy[-2:], ["0.1", "latest"])
         props = next(c for c in calls if c[:2] == ["mike", "props"])

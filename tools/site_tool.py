@@ -64,7 +64,11 @@ def plan(tags, main_sha, deployed, deployed_default=None):
         # --update-aliases moves the alias.
         if sources.get(name) != tag or (aliases and "latest" not in aliased.get(name, [])):
             builds.append({"version": name, "ref": tag, "source": tag, "aliases": aliases})
-    if sources.get("dev") != main_sha:
+    # dev is rebuilt when main moved, or when a first release appears or disappears:
+    # its banner links the latest release only if there is one.
+    dev = next((d for d in deployed if d["version"] == "dev"), {})
+    dev_had_release = dev.get("properties", {}).get("has_release", False)
+    if sources.get("dev") != main_sha or dev_had_release != bool(minors):
         builds.append({"version": "dev", "ref": "main", "source": main_sha, "aliases": []})
 
     names = [f"{m[0]}.{m[1]}" for m in minors]
@@ -206,6 +210,7 @@ def publish(the_plan, tapyr, work, push, run=subprocess.run, prepare=prepare, li
             sys.exit(f"{b['version']}: {len(problems)} broken internal links, not deployed")
         run(["mike", "deploy", "-F", config, *target, "--update-aliases",
              "--prop-set-string", f"source={b['source']}",
+             "--prop-set", f"has_release={'true' if has_release else 'false'}",
              "-m", f"docs: {b['version']} from {b['ref']} ({b['source']})",
              b["version"], *b["aliases"]], check=True)
     if not (the_plan["hide"] or the_plan["unhide"] or the_plan["set_default"]):
