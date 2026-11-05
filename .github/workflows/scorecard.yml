@@ -1,0 +1,41 @@
+name: Scorecard
+
+# OpenSSF Scorecard (https://scorecard.dev): checks the security practices of
+# the repository and publishes the score. Results
+# are only published for a public repository.
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "31 4 * * 1"
+  branch_protection_rule:
+
+permissions: read-all
+
+# Actions are pinned by commit; Dependabot keeps them up to date.
+jobs:
+  analysis:
+    name: Scorecard analysis
+    if: github.event.repository.private == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      security-events: write # upload the results to code scanning
+      id-token: write # publish the results
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ossf/scorecard-action@fa7117db83c52d787ae5a89f350999701505d78e # v2.5.0
+        with:
+          results_file: results.sarif
+          results_format: sarif
+          publish_results: true
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: scorecard
+          path: results.sarif
+          retention-days: 7
+      - uses: github/codeql-action/upload-sarif@1fc58d04a4d4374f921bdac573c3811c240f9c26 # v4.39.2
+        with:
+          sarif_file: results.sarif

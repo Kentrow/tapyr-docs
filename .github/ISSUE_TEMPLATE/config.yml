@@ -1,0 +1,9 @@
+# Issues here are about the site itself (build, theme, search, versions, deployment).
+blank_issues_enabled: true
+contact_links:
+  - name: A page of the documentation is wrong or missing
+    url: https://github.com/Kentrow/tapyr/issues/new/choose
+    about: The content is written in Kentrow/tapyr. Report or fix it there; this repository never edits it.
+  - name: Security vulnerability
+    url: https://github.com/Kentrow/tapyr-docs/security/advisories/new
+    about: Report security issues privately, never in a public issue.
