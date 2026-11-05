@@ -101,8 +101,13 @@ class PublishTest(unittest.TestCase):
         self.assertIn("source=v0.1.1", deploy)
         self.assertIn("--push", deploy)
         self.assertEqual(deploy[-2:], ["0.1", "latest"])
-        self.assertIn(["mike", "props", "-r", "origin", "-b", "gh-pages", "--push", "--set", "hidden=true", "0.0"], calls)
-        self.assertEqual(calls[-1], ["mike", "set-default", "-r", "origin", "-b", "gh-pages", "--push", "latest"])
+        props = next(c for c in calls if c[:2] == ["mike", "props"])
+        self.assertEqual(props[-3:], ["--set", "hidden=true", "0.0"])
+        self.assertIn("-F", props)  # mike reads a configuration even when it builds nothing
+        self.assertIn("--push", props)
+        self.assertEqual(calls[-1][:2], ["mike", "set-default"])
+        self.assertEqual(calls[-1][-1], "latest")
+        self.assertIn("-F", calls[-1])
 
     def test_dev_builds_from_origin_main_and_nothing_is_pushed_in_a_dry_run(self):
         the_plan = {"builds": [{"version": "dev", "ref": "main", "source": "abc", "aliases": []}],

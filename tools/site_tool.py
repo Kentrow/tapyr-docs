@@ -18,6 +18,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tempfile
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
@@ -207,12 +208,19 @@ def publish(the_plan, tapyr, work, push, run=subprocess.run, prepare=prepare, li
              "--prop-set-string", f"source={b['source']}",
              "-m", f"docs: {b['version']} from {b['ref']} ({b['source']})",
              b["version"], *b["aliases"]], check=True)
+    if not (the_plan["hide"] or the_plan["unhide"] or the_plan["set_default"]):
+        return
+    # mike loads a configuration even for commands that build nothing.
+    stub = Path(tempfile.mkdtemp(prefix="mike-"))
+    (stub / "docs").mkdir()
+    (stub / "mkdocs.yml").write_text("site_name: Tapyr docs\ndocs_dir: docs\n")
+    meta = ["-F", str(stub / "mkdocs.yml"), *target]
     for v in the_plan["hide"]:
-        run(["mike", "props", *target, "--set", "hidden=true", v], check=True)
+        run(["mike", "props", *meta, "--set", "hidden=true", v], check=True)
     for v in the_plan["unhide"]:
-        run(["mike", "props", *target, "--delete", "hidden", v], check=True)
+        run(["mike", "props", *meta, "--delete", "hidden", v], check=True)
     if the_plan["set_default"]:
-        run(["mike", "set-default", *target, the_plan["set_default"]], check=True)
+        run(["mike", "set-default", *meta, the_plan["set_default"]], check=True)
 
 
 # ---------- command line ----------
