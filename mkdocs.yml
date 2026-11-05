@@ -4,7 +4,7 @@ site_name: Tapyr docs
 site_url: https://docs.tapyr.eu/
 site_description: Documentation of Tapyr, the API to metrics gateway for Prometheus and OTLP.
 site_author: Kentrow
-copyright: Tapyr is open source under the Apache-2.0 license.
+copyright: 'Tapyr is open source under the Apache-2.0 license. Project site: <a href="https://tapyr.eu">tapyr.eu</a>.'
 repo_url: https://github.com/Kentrow/tapyr
 repo_name: Kentrow/tapyr
 docs_dir: docs
