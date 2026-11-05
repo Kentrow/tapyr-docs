@@ -52,6 +52,16 @@ class PlanTest(unittest.TestCase):
         p = site.plan(tags=["v0.1.1"], main_sha="abc", deployed=deployed, deployed_default="dev")
         self.assertEqual([b["version"] for b in p["builds"]], ["0.1", "dev"])
 
+    def test_a_change_of_the_engine_rebuilds_every_version(self):
+        deployed = [
+            {"version": "0.1", "aliases": ["latest"], "properties": {"source": "v0.1.1", "engine": "old"}},
+            {"version": "dev", "aliases": [], "properties": {"source": "abc", "has_release": True, "engine": "old"}},
+        ]
+        p = site.plan(tags=["v0.1.1"], main_sha="abc", deployed=deployed, deployed_default="latest", engine="new")
+        self.assertEqual([b["version"] for b in p["builds"]], ["0.1", "dev"])
+        same = site.plan(tags=["v0.1.1"], main_sha="abc", deployed=deployed, deployed_default="latest", engine="old")
+        self.assertEqual(same["builds"], [])
+
     def test_the_selector_keeps_the_last_three_minors(self):
         tags = ["v0.1.1", "v0.2.0", "v0.3.0", "v0.4.0", "v1.0.0"]
         p = site.plan(tags=tags, main_sha="abc", deployed=[])
@@ -85,7 +95,7 @@ class PublishTest(unittest.TestCase):
     def run_publish(self, the_plan, push):
         calls = []
         site.publish(
-            the_plan, tapyr="/t", work="/w", push=push,
+            the_plan, tapyr="/t", work="/w", push=push, engine="e1",
             run=lambda cmd, **kw: calls.append(cmd),
             prepare=lambda *a, **kw: calls.append(["prepare", *a, kw.get("has_release")]),
             links=lambda d: [],
@@ -105,6 +115,7 @@ class PublishTest(unittest.TestCase):
         self.assertIn("--update-aliases", deploy)
         self.assertIn("source=v0.1.1", deploy)
         self.assertIn("has_release=true", deploy)
+        self.assertIn("engine=e1", deploy)
         self.assertIn("--push", deploy)
         self.assertEqual(deploy[-2:], ["0.1", "latest"])
         props = next(c for c in calls if c[:2] == ["mike", "props"])
