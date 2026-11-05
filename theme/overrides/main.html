@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{#- The development version always says so; "latest" may not exist yet. -#}
+{% block announce %}
+  {%- if config.extra.tapyr.channel == "dev" -%}
+    This is the development version of the documentation, built from <code>main</code>.
+    {%- if config.extra.tapyr.has_release %}
+      <a class="tapyr-version-link" href="{{ '../latest/' }}">Read the documentation of the latest release.</a>
+    {%- endif -%}
+  {%- endif -%}
+{% endblock %}
+
+{#- Shown by the theme on any version other than the default (latest). -#}
+{% block outdated %}
+  {%- if config.extra.tapyr.channel != "dev" -%}
+    You are reading the documentation of Tapyr {{ config.extra.tapyr.version }}, an older version.
+    <a class="tapyr-version-link" href="{{ '../latest/' }}"><strong>Read the latest.</strong></a>
+  {%- endif -%}
+{% endblock %}

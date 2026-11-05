@@ -1,0 +1,63 @@
+# Base configuration of docs.tapyr.eu. tools/site_tool.py prepare copies it into the
+# build directory and appends nav and extra, generated from the export of Kentrow/tapyr.
+site_name: Tapyr docs
+site_url: https://docs.tapyr.eu/
+site_description: Documentation of Tapyr, the API to metrics gateway for Prometheus and OTLP.
+site_author: Kentrow
+copyright: Tapyr is open source under the Apache-2.0 license.
+repo_url: https://github.com/Kentrow/tapyr
+repo_name: Kentrow/tapyr
+docs_dir: docs
+
+theme:
+  name: material
+  custom_dir: overrides
+  language: en
+  logo: tapyr-theme/images/logo-light.png
+  favicon: tapyr-theme/images/favicon.svg
+  font: false
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - navigation.footer
+    - navigation.indexes
+    - search.highlight
+    - content.action.edit
+    - content.code.copy
+    - toc.follow
+  icon:
+    repo: fontawesome/brands/github
+  # System, light, dark: the three states of the theme button of tapyr.eu
+  palette:
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: lucide/sun-moon
+        name: Switch to light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: lucide/sun
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: custom
+      accent: custom
+      toggle:
+        icon: lucide/moon
+        name: Switch to system preference
+
+extra_css:
+  - tapyr-theme/stylesheets/tapyr.css
+
+markdown_extensions:
+  - admonition
+  - tables
+  - pymdownx.superfences
+  - toc:
+      permalink: true
+      slugify: !!python/object/apply:pymdownx.slugs.slugify
+        kwds:
+          case: lower

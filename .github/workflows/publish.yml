@@ -1,0 +1,50 @@
+name: Publish
+
+# Once a day, and on demand: build the documentation versions whose source changed
+# (a new stable tag of a minor of Kentrow/tapyr, or a new commit on its main) and
+# deploy them with mike to the gh-pages branch of this repository.
+on:
+  schedule:
+    - cron: "17 4 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Build and deploy what changed
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write # mike commits and pushes the gh-pages branch
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0 # mike needs gh-pages; the plan reads its versions.json
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: Kentrow/tapyr
+          ref: main
+          path: tapyr
+          fetch-depth: 0 # every tag, to find the latest of each minor
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: tapyr/go.mod
+          cache: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.13"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Commit as the GitHub Actions bot
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      - name: Plan, build, check and deploy
+        run: python tools/site_tool.py publish --tapyr tapyr --push

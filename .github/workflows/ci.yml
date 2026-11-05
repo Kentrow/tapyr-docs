@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Build dev, strict, links checked
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: Kentrow/tapyr
+          ref: main
+          path: tapyr
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: tapyr/go.mod
+          cache: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.13"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Tool tests
+        run: python -m unittest discover -s tools -v
+      - name: Export main and build without warnings
+        run: |
+          python tools/site_tool.py prepare --tapyr tapyr --ref main --version dev --out build
+          zensical build --strict -f build/mkdocs.yml
+      - name: Every internal link reaches a page and an id
+        run: python tools/site_tool.py check-links build/site

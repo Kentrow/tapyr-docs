@@ -1,0 +1,19 @@
+{#-
+  "Edit this page" links to the source file in Kentrow/tapyr, on main: pages are
+  exported to other paths (docs/ dropped, README.md as index.md), so the link comes
+  from the export index (extra.tapyr.sources, keyed by page URL), not from
+  edit_uri. The home page belongs to this repository.
+-#}
+{%- set sources = config.extra.tapyr.sources -%}
+{%- set edit = none -%}
+{%- if page.url in sources -%}
+  {%- set edit = "https://github.com/Kentrow/tapyr/edit/main/" ~ sources[page.url] -%}
+{%- elif page.url in ["", "/", "./", "index.html"] -%}
+  {%- set edit = "https://github.com/Kentrow/tapyr-docs/edit/main/home/index.md" -%}
+{%- endif -%}
+{% if edit and "content.action.edit" in features %}
+  <a href="{{ edit }}" title="{{ lang.t('action.edit') }}" class="md-content__button md-icon" rel="edit">
+    {% set icon = config.theme.icon.edit or "material/file-edit-outline" %}
+    {% include ".icons/" ~ icon ~ ".svg" %}
+  </a>
+{% endif %}
