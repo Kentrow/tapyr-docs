@@ -1,6 +1,7 @@
 """Tests of tools/site.py. Run: python -m unittest discover -s tools"""
 
 import json
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
@@ -94,9 +95,14 @@ class PlanTest(unittest.TestCase):
 class PublishTest(unittest.TestCase):
     def run_publish(self, the_plan, push):
         calls = []
+
+        def run(cmd, **kw):
+            calls.append(cmd)
+            return subprocess.CompletedProcess(cmd, 1)  # git diff --quiet: there are changes
+
         site.publish(
             the_plan, tapyr="/t", work="/w", push=push, engine="e1",
-            run=lambda cmd, **kw: calls.append(cmd),
+            run=run,
             prepare=lambda *a, **kw: calls.append(["prepare", *a, kw.get("has_release")]),
             links=lambda d: [],
         )
@@ -122,9 +128,9 @@ class PublishTest(unittest.TestCase):
         self.assertEqual(props[-3:], ["--set", "hidden=true", "0.0"])
         self.assertIn("-F", props)  # mike reads a configuration even when it builds nothing
         self.assertIn("--push", props)
-        self.assertEqual(calls[-1][:2], ["mike", "set-default"])
-        self.assertEqual(calls[-1][-1], "latest")
-        self.assertIn("-F", calls[-1])
+        default = next(c for c in calls if c[:2] == ["mike", "set-default"])
+        self.assertEqual(default[-1], "latest")
+        self.assertIn("-F", default)
 
     def test_dev_builds_from_origin_main_and_nothing_is_pushed_in_a_dry_run(self):
         the_plan = {"builds": [{"version": "dev", "ref": "main", "source": "abc", "aliases": []}],
@@ -143,6 +149,69 @@ class PublishTest(unittest.TestCase):
                          run=lambda cmd, **kw: calls.append(cmd),
                          prepare=lambda *a, **kw: None, links=lambda d: ["x: no such page"])
         self.assertFalse(any(c[:2] == ["mike", "deploy"] for c in calls))
+
+
+    def test_robots_txt_at_the_root_points_at_the_sitemap_of_the_default_version(self):
+        the_plan = {"builds": [], "default": "latest", "set_default": None, "hide": [], "unhide": []}
+        written = {}
+        calls = []
+
+        def run(cmd, **kw):
+            calls.append(cmd)
+            if cmd[-2:] == ["add", "robots.txt"]:
+                written["robots"] = (Path(cmd[2]) / "robots.txt").read_text()
+            return subprocess.CompletedProcess(cmd, 1)
+
+        site.publish(the_plan, tapyr="/t", work="/w", push=True, run=run,
+                     prepare=lambda *a, **kw: None, links=lambda d: [])
+        self.assertEqual(written["robots"], "User-agent: *\nAllow: /\n\nSitemap: https://docs.tapyr.eu/latest/sitemap.xml\n")
+        add = next(c for c in calls if c[1:3] == ["worktree", "add"] or c[3:5] == ["worktree", "add"])
+        self.assertEqual(add[-1], "gh-pages")
+        self.assertTrue(any(c[-2:] == ["origin", "gh-pages"] and "push" in c for c in calls))
+
+    def test_robots_txt_is_neither_committed_nor_pushed_when_unchanged_or_in_a_dry_run(self):
+        the_plan = {"builds": [], "default": "latest", "set_default": None, "hide": [], "unhide": []}
+        for changed, push in [(False, True), (True, False)]:
+            calls = []
+
+            def run(cmd, **kw):
+                calls.append(cmd)
+                return subprocess.CompletedProcess(cmd, 1 if changed else 0)
+
+            site.publish(the_plan, tapyr="/t", work="/w", push=push, run=run,
+                         prepare=lambda *a, **kw: None, links=lambda d: [])
+            self.assertFalse(any("push" in c for c in calls), (changed, push))
+            self.assertEqual(any("commit" in c for c in calls), changed, (changed, push))
+
+
+class DescriptionTest(unittest.TestCase):
+    def test_the_first_paragraph_after_the_title_as_plain_text(self):
+        md = "# Concepts\n\nTapyr polls the [APIs](x.md) of `vendor`\n**platforms**.\n\n## More\n\nNot this.\n"
+        self.assertEqual(site.description(md), "Tapyr polls the APIs of vendor platforms.")
+
+    def test_comments_headings_lists_tables_code_and_html_are_skipped(self):
+        md = ("<!-- Generated. Do not edit. -->\n\n# ADR 0001\n\n- Status: accepted\n- Date: 2026\n\n"
+              "| a | b |\n|---|---|\n\n```sh\ntapyr version\n```\n\n<div class=\"x\">\n\n## Context\n\n"
+              "Tapyr is a long-running collector.\n")
+        self.assertEqual(site.description(md), "Tapyr is a long-running collector.")
+
+    def test_a_long_paragraph_is_cut_at_a_word_under_160_characters(self):
+        md = "# T\n\n" + " ".join(["quota"] * 60) + "\n"
+        d = site.description(md)
+        self.assertLessEqual(len(d), 160)
+        self.assertTrue(d.endswith("quota…"))
+
+    def test_no_paragraph_gives_none(self):
+        self.assertIsNone(site.description("# Reference\n\n```yaml\na: 1\n```\n"))
+
+    def test_descriptions_of_the_pages_keyed_by_url(self):
+        docs = Path(tempfile.mkdtemp())
+        (docs / "index.md").write_text("# Home\n\nThe home.\n")
+        (docs / "providers").mkdir()
+        (docs / "providers" / "index.md").write_text("# Providers\n\nFour packages.\n")
+        (docs / "cli.md").write_text("# CLI\n\n| a |\n")
+        index = {"pages": [{"path": "providers/index.md"}, {"path": "cli.md"}]}
+        self.assertEqual(site.page_descriptions(docs, index), {"": "The home.", "providers/": "Four packages."})
 
 
 class LinksTest(unittest.TestCase):
@@ -197,7 +266,9 @@ class ConfigTest(unittest.TestCase):
         index = {"ref": "v0.1.1", "nav": [{"Guides": ["install.md"]}],
                  "pages": [{"path": "install.md", "source": "docs/install.md", "title": "Install"},
                            {"path": "providers/meraki-dashboard/index.md", "source": "providers/meraki-dashboard/README.md", "title": "Meraki"}]}
-        extra = site.generated_config(index, version="0.1", channel="release", has_release=True)
+        extra = site.generated_config(index, version="0.1", channel="release", has_release=True,
+                                      descriptions={"install/": "How to install."})
+        self.assertEqual(extra["extra"]["tapyr"]["descriptions"], {"install/": "How to install."})
         self.assertEqual(extra["nav"][0], {"Home": "index.md"})
         self.assertEqual(extra["nav"][1], {"Guides": ["install.md"]})
         # keyed by page URL: the templates see page.url, not the source file

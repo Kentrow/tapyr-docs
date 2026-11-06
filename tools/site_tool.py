@@ -29,6 +29,9 @@ FIRST = (0, 1, 1)  # first tag with docs/site.yml
 SHOWN = 3  # minors listed in the version selector, plus dev
 SKIP_CLASS = "tapyr-version-link"  # links to other versions, outside a single build
 ENGINE_PATHS = ["mkdocs.yml", "home", "theme", "tools/site_tool.py", "requirements.txt"]  # what changes the output
+SITE = "https://docs.tapyr.eu"
+DESCRIPTION_MAX = 160  # characters of a meta description that search results show
+NOT_PROSE = re.compile(r"^(#|\||<|[-*+] |\d+\. |> |!\[|-{3,}$|!!! |\?\?\? |=== )")
 
 
 # ---------- plan ----------
@@ -99,7 +102,41 @@ def page_url(path):
         return stem[: -len("index")]
     return stem + "/"
 
-def generated_config(index, version, channel, has_release):
+def description(markdown):
+    """The first paragraph of a page as plain text, cut for a meta description; None if it has none."""
+    text = re.sub(r"<!--.*?-->", "", markdown, flags=re.S)
+    paragraph, fenced = [], False
+    for line in text.splitlines():
+        line = line.strip()
+        if line.startswith(("```", "~~~")):
+            fenced = not fenced
+        elif not fenced and line and not NOT_PROSE.match(line):
+            paragraph.append(line)
+            continue
+        if paragraph:
+            break
+    if not paragraph:
+        return None
+    plain = " ".join(paragraph)
+    plain = re.sub(r"!?\[([^\]]*)\]\([^)]*\)", r"\1", plain)  # links keep their text
+    plain = re.sub(r"`([^`]*)`|\*\*([^*]+)\*\*", lambda m: m.group(1) or m.group(2), plain)
+    plain = re.sub(r"\s+", " ", plain).strip()
+    if len(plain) > DESCRIPTION_MAX:
+        plain = plain[: DESCRIPTION_MAX - 1].rsplit(" ", 1)[0].rstrip(",;:") + "…"
+    return plain
+
+
+def page_descriptions(docs, index):
+    """The description of the home page and of every exported page, keyed by page URL."""
+    found = {}
+    for path in ["index.md"] + [p["path"] for p in index["pages"]]:
+        text = description((Path(docs) / path).read_text())
+        if text:
+            found[page_url(path)] = text
+    return found
+
+
+def generated_config(index, version, channel, has_release, descriptions=None):
     """The part of the Zensical configuration that comes from the export index."""
     return {
         "nav": [{"Home": "index.md"}] + index["nav"],
@@ -116,6 +153,7 @@ def generated_config(index, version, channel, has_release):
                 "ref": index["ref"],
                 "has_release": has_release,
                 "sources": {page_url(p["path"]): p["source"] for p in index["pages"]},
+                "descriptions": descriptions or {},
             },
         },
     }
@@ -140,7 +178,7 @@ def prepare(tapyr, ref, version, out, has_release=False):
     shutil.copytree(ROOT / "theme" / "overrides", out / "overrides")
     index = json.loads(index_file.read_text())
     channel = "dev" if ref == "main" else "release"
-    extra = generated_config(index, version, channel, has_release)
+    extra = generated_config(index, version, channel, has_release, page_descriptions(docs, index))
     # The base configuration stays text: its slug function is a Python tag that a
     # YAML round trip would not keep. JSON is valid YAML for the generated part.
     base = (ROOT / "mkdocs.yml").read_text()
@@ -224,19 +262,39 @@ def publish(the_plan, tapyr, work, push, engine=None, run=subprocess.run, prepar
              *(["--prop-set-string", f"engine={engine}"] if engine else []),
              "-m", f"docs: {b['version']} from {b['ref']} ({b['source']})",
              b["version"], *b["aliases"]], check=True)
-    if not (the_plan["hide"] or the_plan["unhide"] or the_plan["set_default"]):
-        return
-    # mike loads a configuration even for commands that build nothing.
-    stub = Path(tempfile.mkdtemp(prefix="mike-"))
-    (stub / "docs").mkdir()
-    (stub / "mkdocs.yml").write_text("site_name: Tapyr docs\ndocs_dir: docs\n")
-    meta = ["-F", str(stub / "mkdocs.yml"), *target]
-    for v in the_plan["hide"]:
-        run(["mike", "props", *meta, "--set", "hidden=true", v], check=True)
-    for v in the_plan["unhide"]:
-        run(["mike", "props", *meta, "--delete", "hidden", v], check=True)
-    if the_plan["set_default"]:
-        run(["mike", "set-default", *meta, the_plan["set_default"]], check=True)
+    if the_plan["hide"] or the_plan["unhide"] or the_plan["set_default"]:
+        # mike loads a configuration even for commands that build nothing.
+        stub = Path(tempfile.mkdtemp(prefix="mike-"))
+        (stub / "docs").mkdir()
+        (stub / "mkdocs.yml").write_text("site_name: Tapyr docs\ndocs_dir: docs\n")
+        meta = ["-F", str(stub / "mkdocs.yml"), *target]
+        for v in the_plan["hide"]:
+            run(["mike", "props", *meta, "--set", "hidden=true", v], check=True)
+        for v in the_plan["unhide"]:
+            run(["mike", "props", *meta, "--delete", "hidden", v], check=True)
+        if the_plan["set_default"]:
+            run(["mike", "set-default", *meta, the_plan["set_default"]], check=True)
+    write_root_files({"robots.txt": robots_txt(the_plan["default"])}, push, run=run)
+
+
+def robots_txt(default):
+    return f"User-agent: *\nAllow: /\n\nSitemap: {SITE}/{default}/sitemap.xml\n"
+
+
+def write_root_files(files, push, run=subprocess.run, repo=ROOT):
+    """Files at the root of the gh-pages branch that mike does not manage, committed only when they change."""
+    tree = tempfile.mkdtemp(prefix="gh-pages-")
+    run(["git", "-C", str(repo), "worktree", "add", "--quiet", tree, "gh-pages"], check=True)
+    try:
+        for name, content in files.items():
+            (Path(tree) / name).write_text(content)
+            run(["git", "-C", tree, "add", name], check=True)
+        if run(["git", "-C", tree, "diff", "--cached", "--quiet"]).returncode:
+            run(["git", "-C", tree, "commit", "--quiet", "-m", f"docs: update {', '.join(files)}"], check=True)
+            if push:
+                run(["git", "-C", tree, "push", "--quiet", "origin", "gh-pages"], check=True)
+    finally:
+        run(["git", "-C", str(repo), "worktree", "remove", "--force", tree], check=True)
 
 
 # ---------- command line ----------

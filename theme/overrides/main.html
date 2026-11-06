@@ -1,5 +1,31 @@
 {% extends "base.html" %}
 
+{#- The home page is named for search results, not "Home - Tapyr docs". -#}
+{% block htmltitle %}
+  {%- if page.url in ["", "/", "./", "index.html"] -%}
+    <title>Tapyr documentation</title>
+  {%- else -%}
+    {{ super() }}
+  {%- endif -%}
+{% endblock %}
+
+{#- Each page describes itself with its first paragraph (tools/site_tool.py, page_descriptions). -#}
+{% block site_meta %}
+  {%- set descriptions = config.extra.tapyr.descriptions -%}
+  {%- if page.url in descriptions -%}
+    {{ super() | replace('content="' ~ (config.site_description | e) ~ '"', 'content="' ~ (descriptions[page.url] | e) ~ '"') }}
+  {%- else -%}
+    {{ super() }}
+  {%- endif -%}
+{% endblock %}
+
+{#- Once a release is out, dev duplicates it: keep it out of search results. -#}
+{% block extrahead %}
+  {%- if config.extra.tapyr.channel == "dev" and config.extra.tapyr.has_release %}
+    <meta name="robots" content="noindex">
+  {%- endif %}
+{% endblock %}
+
 {#- The development version always says so; "latest" may not exist yet. -#}
 {% block announce %}
   {%- if config.extra.tapyr.channel == "dev" -%}
