@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Documentation of Tapyr, the API to metrics gateway for Prometheus and OTLP.">
+        <meta name="description" content="Tapyr sends what it collects through Output documents. A job sends to every output, or to the outputs listed in its spec.outputs. Each output has its own…">
       
       
         <meta name="author" content="Kentrow">
@@ -63,6 +63,8 @@
 
     
     
+    <meta name="robots" content="noindex">
+
   </head>
   
   
@@ -2668,7 +2670,14 @@
 <li>Network errors, <code>5xx</code> and <code>429</code> are retried with exponential backoff (1 second doubling up to 1 minute), honoring <code>Retry-After</code>. Other <code>4xx</code> drop the batch.</li>
 </ul>
 <h3 id="out-of-order-samples">Out-of-order samples<a class="headerlink" href="#out-of-order-samples" title="Permanent link">&para;</a></h3>
-<p>Source timestamps can be older than samples already ingested for a series, for example after a restart, when a job interval changes or when an API reports late data. Prometheus rejects such samples unless out-of-order ingestion is enabled (<code>storage.tsdb.out_of_order_time_window</code>); Mimir and Thanos have equivalent settings; VictoriaMetrics accepts them. Rejected batches are counted in <code>tapyr_output_samples_dropped_total{reason="out_of_order"}</code>.</p>
+<p>Source timestamps can be older than samples already ingested for a series, for example after a restart, when a job interval changes or when an API reports late data. They can also be older than what the backend still accepts at all: Prometheus refuses samples older than its in-memory head (about an hour) as "out of bounds", even on a fresh server, so any API reporting a timestamp of the day before hits it.</p>
+<p>Prometheus rejects such samples unless out-of-order ingestion is enabled, with a window longer than the age of the oldest source timestamp:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># prometheus.yml</span>
+<span class="nt">storage</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">tsdb</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">out_of_order_time_window</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">7d</span>
+</code></pre></div>
+<p>Without it, <strong>one</strong> sample out of bounds makes Prometheus refuse the whole request (<code>400</code>), over remote write and OTLP alike, and the whole batch is dropped: the fresh samples of the other jobs sent with it are lost too. Mimir and Thanos have equivalent settings; VictoriaMetrics accepts such samples. Rejected batches are counted in <code>tapyr_output_samples_dropped_total{reason="out_of_order"}</code>, and logged as <code>samples dropped: the backend rejected the batch</code> with <code>class=out_of_order</code>.</p>
 <h2 id="otlp"><code>otlp</code><a class="headerlink" href="#otlp" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tapyr/v1alpha1</span>
 <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Output</span>
@@ -2726,7 +2735,7 @@
 </table>
 <p><code>settings.selfMetrics.outputs</code> pushes Tapyr's own metrics through outputs too, every <code>settings.selfMetrics.interval</code> (30 seconds by default), for setups where nothing scrapes <code>/metrics/self</code>.</p>
 <h2 id="testing-against-real-backends">Testing against real backends<a class="headerlink" href="#testing-against-real-backends" title="Permanent link">&para;</a></h2>
-<p><code>make integration</code> starts VictoriaMetrics and an OpenTelemetry Collector with Docker Compose (<code>test/integration/compose.yaml</code>) and checks that samples and staleness markers land in both, over remote write, OTLP/HTTP and OTLP/gRPC.</p>
+<p><code>make integration</code> starts VictoriaMetrics, an OpenTelemetry Collector and Prometheus with Docker Compose (<code>test/integration/compose.yaml</code>) and checks that samples and staleness markers land in all of them: remote write to VictoriaMetrics and Prometheus, OTLP/HTTP and OTLP/gRPC to the collector, OTLP to Prometheus, and the scrape of <code>/metrics</code> and <code>/metrics/self</code> (with <code>honor_labels: true</code>) by Prometheus. The Prometheus of the test enables out-of-order ingestion, since the simulator fixtures carry fixed source timestamps.</p>
 
 
 
