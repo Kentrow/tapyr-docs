@@ -8,5 +8,17 @@
       "has_release": false,
       "engine": "f1a21647d11e212240a77d5e618f4905254c7021"
     }
+  },
+  {
+    "version": "0.1",
+    "title": "0.1",
+    "aliases": [
+      "latest"
+    ],
+    "properties": {
+      "source": "v0.1.1",
+      "has_release": true,
+      "engine": "f1a21647d11e212240a77d5e618f4905254c7021"
+    }
   }
 ]
