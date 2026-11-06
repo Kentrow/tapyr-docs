@@ -90,6 +90,7 @@
           <div class="md-banner__inner md-grid md-typeset">
             
             This is the development version of the documentation, built from <code>main</code>.
+      <a class="tapyr-version-link" href="../latest/">Read the documentation of the latest release.</a>
           </div>
           
         </aside>
@@ -2786,7 +2787,7 @@ tapyr sim --all --listen-base 127.0.0.1:8081   # one simulator per provider, at 
 <ul>
 <li>Every instance of the selected jobs runs once, through the budget engine. Children of fan-outs run once their parent has run.</li>
 <li><code>--out</code> receives one JSON file per page (<code>&lt;job&gt;/&lt;n&gt;.json</code>, anonymized), <code>index.yaml</code> (method, templated path, pseudonymized variables, status, rate-limit headers, file per page) and <code>report.txt</code>. Request credentials and response headers other than the rate-limit headers of the provider (<code>sync</code> headers and <code>Retry-After</code>) are never written.</li>
-<li>Default rules replace, by key name and by value pattern: serial numbers, MAC addresses, IMEI, IMSI, ICCID, IPv4 and IPv6 addresses, hostnames, emails, phone numbers, names (keys <code>name</code> or ending in <code>_name</code>/<code>Name</code>), identifiers (keys <code>id</code> or ending in <code>_id</code>/<code>Id</code>, with the same pseudonym in path variables, so that fixtures stay consistent), coordinates and addresses. Pseudonyms keep the format: MACs become locally administered, IPv4 addresses move to 192.0.2.0/24, 198.51.100.0/24 and 203.0.113.0/24, IPv6 to 2001:db8::/32, emails to example.com, serials keep their length and alphabet, numbers stay numbers. They come from an HMAC with a random per-recording key that is never written.</li>
+<li>Default rules replace, by key name and by value pattern: serial numbers, MAC addresses, IMEI, IMSI, ICCID, IPv4 and IPv6 addresses, hostnames, emails, phone numbers, names (keys <code>name</code> or ending in <code>_name</code>/<code>Name</code>), identifiers (keys <code>id</code> or ending in <code>_id</code>/<code>Id</code>, with the same pseudonym in path variables, so that fixtures stay consistent), coordinates and addresses. Pseudonyms keep the format: MACs become locally administered, IPv4 addresses move to 192.0.2.0/24, 198.51.100.0/24 and 203.0.113.0/24, IPv6 to 2001:db8::/32, emails to example.com, serials and identifiers keep their length and character classes (every letter and digit becomes an ASCII one, so no character of the value is kept), numbers stay numbers. They come from an HMAC with a random per-recording key that is never written.</li>
 <li><code>--anonymize</code> adds rules (<code>replace: [{path: "data[*].company_name", as: name}]</code>) and exceptions (<code>keep: ["data[*].model"]</code>); paths are dotted, with <code>[*]</code> for every element.</li>
 <li><code>report.txt</code> lists every replaced path with its rule and count, never an original value, for review before anything is committed. The recording is meant to be turned into static fixtures by hand (<code>file</code> routes).</li>
 </ul>

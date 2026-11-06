@@ -90,6 +90,7 @@
           <div class="md-banner__inner md-grid md-typeset">
             
             This is the development version of the documentation, built from <code>main</code>.
+      <a class="tapyr-version-link" href="../latest/">Read the documentation of the latest release.</a>
           </div>
           
         </aside>
@@ -752,6 +753,17 @@
     <span class="md-ellipsis">
       <span class="md-typeset">
         Verify the signatures
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verify-the-provenance" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Verify the provenance
       </span>
     </span>
   </a>
@@ -2538,6 +2550,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#verify-the-provenance" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Verify the provenance
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#from-source" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -2573,7 +2596,7 @@
 <p>Tapyr is a single static binary with the web UI embedded. Releases ship it for Linux, macOS and Windows (amd64, arm64), and as the multi-arch image <code>ghcr.io/kentrow/tapyr</code>.</p>
 <h2 id="binary">Binary<a class="headerlink" href="#binary" title="Permanent link">&para;</a></h2>
 <p>Download the archive of your platform and <code>checksums.txt</code> from the <a href="https://github.com/kentrow/tapyr/releases">releases page</a>, check it, then put <code>tapyr</code> in your <code>PATH</code>:</p>
-<div class="highlight"><pre><span></span><code><span class="nv">VERSION</span><span class="o">=</span><span class="m">0</span>.1.0
+<div class="highlight"><pre><span></span><code><span class="nv">VERSION</span><span class="o">=</span><span class="m">0</span>.1.1
 curl<span class="w"> </span>-LO<span class="w"> </span>https://github.com/kentrow/tapyr/releases/download/v<span class="nv">$VERSION</span>/tapyr_<span class="si">${</span><span class="nv">VERSION</span><span class="si">}</span>_linux_amd64.tar.gz
 curl<span class="w"> </span>-LO<span class="w"> </span>https://github.com/kentrow/tapyr/releases/download/v<span class="nv">$VERSION</span>/checksums.txt
 sha256sum<span class="w"> </span>--ignore-missing<span class="w"> </span>-c<span class="w"> </span>checksums.txt
@@ -2587,7 +2610,7 @@ tar<span class="w"> </span>xzf<span class="w"> </span>tapyr_<span class="si">${<
 <span class="w">  </span>-v<span class="w"> </span><span class="s2">"</span><span class="nv">$PWD</span><span class="s2">/config:/etc/tapyr:ro"</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-v<span class="w"> </span>tapyr-data:/home/nonroot/data<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-p<span class="w"> </span><span class="m">9790</span>:9790<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>ghcr.io/kentrow/tapyr:0.1.0
+<span class="w">  </span>ghcr.io/kentrow/tapyr:0.1.1
 </code></pre></div>
 <ul>
 <li>The image runs <code>tapyr run --config /etc/tapyr</code> as the <code>nonroot</code> user (uid 65532), on <code>gcr.io/distroless/static-debian12</code>.</li>
@@ -2617,6 +2640,19 @@ cosign<span class="w"> </span>verify<span class="w"> </span>ghcr.io/kentrow/tapy
 <p>The SBOM of the image is attached to it as an attestation:</p>
 <div class="highlight"><pre><span></span><code>docker<span class="w"> </span>buildx<span class="w"> </span>imagetools<span class="w"> </span>inspect<span class="w"> </span>ghcr.io/kentrow/tapyr:<span class="nv">$VERSION</span><span class="w"> </span>--format<span class="w"> </span><span class="s1">'{{ json .SBOM }}'</span>
 </code></pre></div>
+<h2 id="verify-the-provenance">Verify the provenance<a class="headerlink" href="#verify-the-provenance" title="Permanent link">&para;</a></h2>
+<p>From v0.1.1, every archive and the image carry their <a href="https://slsa.dev">SLSA</a> build provenance, as GitHub artifact attestations: the workflow that built them, from which commit and tag, on which runner. The <a href="https://cli.github.com">GitHub CLI</a> verifies them, and the options below make it refuse anything not built by the release workflow from the tag of the version:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># An archive.</span>
+gh<span class="w"> </span>attestation<span class="w"> </span>verify<span class="w"> </span><span class="s2">"tapyr_</span><span class="si">${</span><span class="nv">VERSION</span><span class="si">}</span><span class="s2">_linux_amd64.tar.gz"</span><span class="w"> </span>--repo<span class="w"> </span>Kentrow/tapyr<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--signer-workflow<span class="w"> </span>Kentrow/tapyr/.github/workflows/release.yml<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--source-ref<span class="w"> </span><span class="s2">"refs/tags/v</span><span class="nv">$VERSION</span><span class="s2">"</span><span class="w"> </span>--deny-self-hosted-runners
+
+<span class="c1"># The image.</span>
+gh<span class="w"> </span>attestation<span class="w"> </span>verify<span class="w"> </span><span class="s2">"oci://ghcr.io/kentrow/tapyr:</span><span class="nv">$VERSION</span><span class="s2">"</span><span class="w"> </span>--repo<span class="w"> </span>Kentrow/tapyr<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--signer-workflow<span class="w"> </span>Kentrow/tapyr/.github/workflows/release.yml<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--source-ref<span class="w"> </span><span class="s2">"refs/tags/v</span><span class="nv">$VERSION</span><span class="s2">"</span><span class="w"> </span>--deny-self-hosted-runners
+</code></pre></div>
+<p>The attestations of the archives are also a release asset, <code>tapyr_${VERSION}_provenance.intoto.jsonl</code>, to verify without the attestations API of GitHub: add <code>--bundle tapyr_${VERSION}_provenance.intoto.jsonl</code> to the command of an archive. For the image, <code>--bundle-from-oci</code> reads the attestation stored next to it in the registry.</p>
 <h2 id="from-source">From source<a class="headerlink" href="#from-source" title="Permanent link">&para;</a></h2>
 <p>Go 1.27 and Node.js 22 or later:</p>
 <div class="highlight"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/kentrow/tapyr.git
