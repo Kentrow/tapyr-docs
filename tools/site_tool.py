@@ -212,6 +212,8 @@ def check_links(site_dir):
         p = _Page()
         p.feed(f.read_text(errors="replace"))
         pages[f] = p
+    if not pages:  # a build that wrote nothing has no broken link, and must not pass
+        return [f"{root}: no HTML page"]
     problems = []
     for f, page in pages.items():
         for href in page.links:

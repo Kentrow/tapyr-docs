@@ -20,7 +20,7 @@ python tools/site_tool.py check-links build/site
 
 Look at the pages you changed in the light and the dark theme. For a change to versions or deployment, try `tools/site_tool.py publish` without `--push`: it commits to a local `gh-pages` branch only.
 
-Commits follow [Conventional Commits](https://www.conventionalcommits.org/). Agents follow [`AGENTS.md`](AGENTS.md).
+Commits follow [Conventional Commits](https://www.conventionalcommits.org/); the CI checks every commit of a pull request with `scripts/check-commits.sh`. Agents follow [`AGENTS.md`](AGENTS.md).
 
 ## Contributions assisted by AI
 

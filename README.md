@@ -1,5 +1,10 @@
 # tapyr-docs
 
+[![CI](https://github.com/Kentrow/tapyr-docs/actions/workflows/ci.yml/badge.svg)](https://github.com/Kentrow/tapyr-docs/actions/workflows/ci.yml)
+[![Publish](https://github.com/Kentrow/tapyr-docs/actions/workflows/publish.yml/badge.svg)](https://github.com/Kentrow/tapyr-docs/actions/workflows/publish.yml)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/Kentrow/tapyr-docs/badge)](https://scorecard.dev/viewer/?uri=github.com/Kentrow/tapyr-docs)
+[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
+
 The engine of [docs.tapyr.eu](https://docs.tapyr.eu), the documentation of [Tapyr](https://github.com/Kentrow/tapyr): Zensical configuration, theme, home page, build, versions and deployment.
 
 The documentation itself is written in [Kentrow/tapyr](https://github.com/Kentrow/tapyr) and frozen by its release tags. To fix or add a page, open a pull request there; this repository never edits the content ([ADR 0010](https://github.com/Kentrow/tapyr/blob/main/docs/adr/0010-documentation-site.md), [AGENTS.md](AGENTS.md)).

@@ -215,6 +215,11 @@ class DescriptionTest(unittest.TestCase):
 
 
 class LinksTest(unittest.TestCase):
+    def test_a_missing_or_empty_site_is_a_problem_not_a_pass(self):
+        empty = Path(tempfile.mkdtemp())
+        for d in [empty, empty / "missing"]:
+            self.assertEqual(site.check_links(d), [f"{d.resolve()}: no HTML page"])
+
     def site(self, files):
         root = Path(tempfile.mkdtemp())
         for name, html in files.items():
@@ -280,6 +285,36 @@ class ConfigTest(unittest.TestCase):
         # footer icons: the project site first, then the repository
         self.assertEqual([s["link"] for s in extra["extra"]["social"]], ["https://tapyr.eu", "https://github.com/Kentrow/tapyr"])
         json.dumps(extra)
+
+
+class CommitsTest(unittest.TestCase):
+    SCRIPT = Path(__file__).resolve().parent.parent / "scripts" / "check-commits.sh"
+
+    def repo(self, *messages):
+        d = tempfile.mkdtemp()
+        git = lambda *a: subprocess.run(["git", "-C", d, *a], check=True, capture_output=True)
+        git("init", "-q", "-b", "main")
+        git("-c", "user.name=t", "-c", "user.email=t@t", "commit", "-q", "--allow-empty", "-m", "chore: base")
+        for m in messages:
+            git("-c", "user.name=t", "-c", "user.email=t@t", "commit", "-q", "--allow-empty", "-m", m)
+        return d
+
+    def check(self, repo, rev_range):
+        return subprocess.run([str(self.SCRIPT), rev_range], cwd=repo, capture_output=True, text=True)
+
+    def test_conventional_subjects_pass(self):
+        r = self.check(self.repo("feat(seo): describe pages", "fix!: break", "build(deps): bump"), "HEAD~3..HEAD")
+        self.assertEqual(r.returncode, 0, r.stderr)
+
+    def test_other_subjects_and_ai_co_authors_fail(self):
+        repo = self.repo("Update README", "feat: ok\n\nCo-Authored-By: Claude <noreply@anthropic.com>")
+        r = self.check(repo, "HEAD~2..HEAD")
+        self.assertEqual(r.returncode, 1)
+        self.assertIn("does not follow Conventional Commits: Update README", r.stderr)
+        self.assertIn("AI co-author trailers are not allowed", r.stderr)
+
+    def test_an_unknown_range_fails_instead_of_checking_nothing(self):
+        self.assertEqual(self.check(self.repo(), "origin/nope..HEAD").returncode, 2)
 
 
 class ThemeTest(unittest.TestCase):
