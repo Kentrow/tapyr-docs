@@ -211,5 +211,13 @@ class ConfigTest(unittest.TestCase):
         json.dumps(extra)
 
 
+class ThemeTest(unittest.TestCase):
+    def test_outdated_banner_script_resolves_its_base_against_the_page(self):
+        # base_url is relative ("." or ".."): new URL() throws without a base, and the
+        # banner of an older version then waits for the main script to show it.
+        template = Path(__file__).parent.parent / "theme/overrides/partials/javascripts/outdated.html"
+        self.assertIn('base=new URL("{{ base_url }}",location)', template.read_text())
+
+
 if __name__ == "__main__":
     unittest.main()
