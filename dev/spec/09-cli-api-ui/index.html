@@ -354,6 +354,8 @@
       
         
       
+        
+      
     
     
     
@@ -963,6 +965,8 @@
       
         
       
+        
+      
     
     
     
@@ -1139,6 +1143,33 @@
     
   
   example-sim
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../provider-ideas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Provider ideas
 
     
   </span>
@@ -1992,6 +2023,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="CLI">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#provider-catalog-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Provider catalog output
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2138,6 +2186,8 @@
   
     
     
+      
+        
       
         
       
@@ -2476,6 +2526,33 @@
 
                 
               
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0011-provider-ecosystem/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0011 - Generic engine, network-first launch and a provider catalog
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
             </ul>
           </nav>
         
@@ -2541,6 +2618,23 @@
       </span>
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="CLI">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#provider-catalog-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Provider catalog output
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -2709,13 +2803,13 @@
 <td></td>
 </tr>
 <tr>
-<td><code>tapyr provider list</code></td>
-<td>List built-in and user provider packages with versions</td>
+<td><code>tapyr provider list [--output table\|json]</code></td>
+<td>List built-in and user provider packages with versions; <code>json</code> is the <a href="#provider-catalog-output">provider catalog output</a></td>
 <td></td>
 </tr>
 <tr>
-<td><code>tapyr provider lint &lt;dir&gt; [--update]</code></td>
-<td>Validate a provider package, lint its dashboards and run its contract tests (<code>--update</code> rewrites <code>tests/expected.prom</code>)</td>
+<td><code>tapyr provider lint &lt;dir&gt; [--update] [--catalog]</code></td>
+<td>Validate a provider package, lint its dashboards and run its contract tests (<code>--update</code> rewrites <code>tests/expected.prom</code>, <code>--catalog</code> also requires the catalog metadata)</td>
 <td>0 ok, 2 errors</td>
 </tr>
 <tr>
@@ -2737,6 +2831,21 @@ aruba-central-classic/daily  24h          4500           529                    
   job aruba-sites            desired 1h   effective 1h   24 runs x 1 page = 25
   job aruba-switches         desired 15m  effective 15m  96 runs x 1 page = 101
 </code></pre></div>
+<h3 id="provider-catalog-output">Provider catalog output<a class="headerlink" href="#provider-catalog-output" title="Permanent link">&para;</a></h3>
+<p><code>tapyr provider list --output json</code> describes the packages the command lists, in precedence order, for the provider catalog of tapyr.eu (<a href="../../adr/0011-provider-ecosystem/">ADR 0011</a>): the site repository builds the catalog from the output of a tagged release, as it builds the documentation from <code>docsite export</code> (<a href="../../adr/0010-documentation-site/">ADR 0010</a>). It is an interface of the site repository. The keys are the camelCase names of the configuration fields they come from; an optional field without a value is left out.</p>
+<ul>
+<li><code>schemaVersion</code> (1): changes when a field is removed, renamed or changes meaning, never when one is added. Readers ignore unknown fields.</li>
+<li><code>tapyrVersion</code>: the version of the binary.</li>
+<li><code>categories</code>: the controlled vocabulary of <a href="https://github.com/Kentrow/tapyr/blob/main/providers/categories.yaml"><code>providers/categories.yaml</code></a>, <code>name</code> and <code>description</code>.</li>
+<li><code>providers</code>: one entry per package:</li>
+<li>from <code>metadata</code>: <code>name</code>, <code>version</code>, <code>displayName</code>, <code>description</code>, <code>docs</code>, <code>categories</code>, <code>maintainers</code>, <code>tier</code>, <code>validation</code> (<code>status</code>, <code>date</code>, <code>platformVersion</code>, <code>notes</code>);</li>
+<li><code>origin</code>: <code>builtin</code>, or the directory of a user package; <code>status</code>: <code>active</code>, or <code>overridden</code> by a package of the same name listed before it;</li>
+<li><code>readme</code>: for a built-in package, the path of its README in this repository (<code>providers/&lt;name&gt;/README.md</code>); the site maps it to the page of the documentation version it publishes;</li>
+<li><code>simulator</code>: whether the package has one; <code>auth</code>: the auth type, <code>plugin:&lt;name&gt;</code> for an auth plugin;</li>
+<li><code>templates</code>: <code>name</code>, <code>description</code>, the request <code>path</code>, <code>defaultInterval</code> (<code>5m</code>, <code>1h</code>) and the sorted <code>metrics</code> names it produces;</li>
+<li><code>limits</code>: <code>name</code>, <code>kind</code>, <code>value</code> (for humans, defaults applied: <code>10/s, burst 20</code>, <code>4 concurrent requests</code>, <code>100000 per month, reset on day 1 at 00:00 UTC</code>, <code>auto (5000 until learned) per day, reset at 00:00 UTC</code>), <code>scope</code> (the dimensions of <code>scope.by</code>), <code>description</code> and <code>source</code> (<code>kind</code>, <code>url</code>, <code>date</code>).</li>
+</ul>
+<p>The output of the built-in packages is kept in <code>cmd/tapyr/testdata/provider-list.json</code> (<code>go test ./cmd/tapyr -run TestProviderListJSON -update</code>), so that a change of the interface shows in the diff of a pull request.</p>
 <h2 id="http-server">HTTP server<a class="headerlink" href="#http-server" title="Permanent link">&para;</a></h2>
 <p>One listener (<code>settings.server.listen</code>, default <code>127.0.0.1:9790</code>) serving:</p>
 <table>

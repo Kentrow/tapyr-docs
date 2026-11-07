@@ -354,6 +354,8 @@
       
         
       
+        
+      
     
     
     
@@ -963,6 +965,8 @@
       
         
       
+        
+      
     
     
     
@@ -1139,6 +1143,33 @@
     
   
   example-sim
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../provider-ideas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Provider ideas
 
     
   </span>
@@ -2164,6 +2195,8 @@
       
         
       
+        
+      
     
     
     
@@ -2469,6 +2502,33 @@
     
   
   ADR 0010 - Documentation site built from this repository
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0011-provider-ecosystem/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0011 - Generic engine, network-first launch and a provider catalog
 
     
   </span>
@@ -2797,7 +2857,7 @@ tapyr sim --all --listen-base 127.0.0.1:8081   # one simulator per provider, at 
 <p>Each provider package's <code>tests/</code> directory holds the expected samples of its templates run against the simulator with a fixed seed. <code>tapyr provider lint</code> and the CI run them: a change in mapping or fixtures that changes the produced series must update the expected file explicitly.</p>
 <ul>
 <li><code>tests/contract.yaml</code> holds the Account and Job documents run by the test; <code>$SIM_URL</code> is replaced by the URL of the simulator with its base path, and <code>$SIM_ADDR</code> by the URL without it (for base URLs that add the path themselves), before the documents are parsed; secrets are read from <code>tests/contract.env</code> (<code>KEY=VALUE</code> lines of simulator credentials), never from the environment, and the account uses the credentials accepted by the simulator.</li>
-<li><code>tapyr provider lint &lt;dir&gt;</code> validates the package, compiles its templates, lints its dashboards and runs the contract test: the simulator and the collector share a fake clock starting at <code>2026-01-01T00:00:00Z</code> with seed 42; every job instance runs once (children after their parents), and the samples are compared with <code>tests/expected.prom</code> (Prometheus exposition, sorted, without timestamps). <code>--update</code> writes the file instead. The CI runs the lint of every built-in package.</li>
+<li><code>tapyr provider lint &lt;dir&gt;</code> validates the package, compiles its templates, lints its dashboards and runs the contract test: the simulator and the collector share a fake clock starting at <code>2026-01-01T00:00:00Z</code> with seed 42; every job instance runs once (children after their parents), and the samples are compared with <code>tests/expected.prom</code> (Prometheus exposition, sorted, without timestamps). <code>--update</code> writes the file instead. The CI runs the lint of every built-in package, with <code>--catalog</code> (<a href="../03-configuration/#provider-packages"><code>03-configuration.md</code></a>).</li>
 <li>Dashboards (<code>dashboards/*.json</code>, Grafana) must parse, use a datasource variable, and query only metrics produced by the package templates or <code>tapyr_</code> self-metrics.</li>
 </ul>
 <h2 id="future">Future<a class="headerlink" href="#future" title="Permanent link">&para;</a></h2>

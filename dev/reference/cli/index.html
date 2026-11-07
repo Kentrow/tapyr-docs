@@ -354,6 +354,8 @@
       
         
       
+        
+      
     
     
     
@@ -963,6 +965,8 @@
       
         
       
+        
+      
     
     
     
@@ -1139,6 +1143,33 @@
     
   
   example-sim
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../provider-ideas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Provider ideas
 
     
   </span>
@@ -2175,6 +2206,8 @@
       
         
       
+        
+      
     
     
     
@@ -2489,6 +2522,33 @@
 
                 
               
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0011-provider-ecosystem/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0011 - Generic engine, network-first launch and a provider catalog
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
             </ul>
           </nav>
         
@@ -2751,7 +2811,7 @@
 </tbody>
 </table>
 <h2 id="tapyr-provider-lint">tapyr provider lint<a class="headerlink" href="#tapyr-provider-lint" title="Permanent link">&para;</a></h2>
-<p>Validate a provider package (or every package of a directory): schema, CEL compilation, dashboards, and the contract test of tests/contract.yaml, run once against the package simulator at a fixed simulated time. The samples must equal tests/expected.prom; --update rewrites it instead.</p>
+<p>Validate a provider package (or every package of a directory): schema, CEL compilation, dashboards, and the contract test of tests/contract.yaml, run once against the package simulator at a fixed simulated time. The samples must equal tests/expected.prom; --update rewrites it instead. --catalog also requires the catalog metadata: display name, categories, maintainers, tier, validation and the source of every limit.</p>
 <div class="highlight"><pre><span></span><code>tapyr provider lint &lt;dir&gt; [flags]
 </code></pre></div>
 <table>
@@ -2764,6 +2824,11 @@
 </thead>
 <tbody>
 <tr>
+<td><code>--catalog</code></td>
+<td></td>
+<td>also require the catalog metadata (ADR 0011)</td>
+</tr>
+<tr>
 <td><code>--update</code></td>
 <td></td>
 <td>write tests/expected.prom instead of comparing</td>
@@ -2771,9 +2836,25 @@
 </tbody>
 </table>
 <h2 id="tapyr-provider-list">tapyr provider list<a class="headerlink" href="#tapyr-provider-list" title="Permanent link">&para;</a></h2>
-<p>List the built-in provider packages and, when a configuration is given, the packages of its providerPaths, in precedence order.</p>
-<div class="highlight"><pre><span></span><code>tapyr provider list
+<p>List the built-in provider packages and, when a configuration is given, the packages of its providerPaths, in precedence order. --output json adds the catalog metadata, the templates and the limits of every package, and the catalog categories (the input of the provider catalog).</p>
+<div class="highlight"><pre><span></span><code>tapyr provider list [flags]
 </code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--output string</code></td>
+<td><code>table</code></td>
+<td>output format: table or json</td>
+</tr>
+</tbody>
+</table>
 <h2 id="tapyr-record">tapyr record<a class="headerlink" href="#tapyr-record" title="Permanent link">&para;</a></h2>
 <p>Run every instance of the selected jobs once, through the budget engine, and write the responses, anonymized, into --out: one JSON file per page, index.yaml and report.txt (the replaced paths, never the values). Parents of the selected fan-out jobs run too. Review report.txt before committing anything.</p>
 <div class="highlight"><pre><span></span><code>tapyr record --job J [--job ...] --out DIR [--anonymize FILE] [flags]

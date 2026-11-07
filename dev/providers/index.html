@@ -356,6 +356,8 @@
       
         
       
+        
+      
     
     
     
@@ -965,6 +967,8 @@
       
         
       
+        
+      
     
     
     
@@ -1268,6 +1272,33 @@
     
   
   example-sim
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../provider-ideas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Provider ideas
 
     
   </span>
@@ -2125,6 +2156,8 @@
       
         
       
+        
+      
     
     
     
@@ -2439,6 +2472,33 @@
 
                 
               
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0011-provider-ecosystem/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0011 - Generic engine, network-first launch and a provider catalog
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
             </ul>
           </nav>
         
@@ -2597,52 +2657,57 @@
 <h1 id="provider-packages">Provider packages<a class="headerlink" href="#provider-packages" title="Permanent link">&para;</a></h1>
 <p>A provider package holds everything Tapyr knows about an API: the <code>Provider</code> (base URL, auth, pagination, limits, errors), job templates, a simulator, scenarios, a contract test, a dashboard and examples. Packages are declarative: YAML and CEL, no Go, except for the rare auth flows written as plugins. The layout is described in <a href="../spec/03-configuration/#provider-packages"><code>03-configuration.md</code></a>.</p>
 <h2 id="built-in-packages">Built-in packages<a class="headerlink" href="#built-in-packages" title="Permanent link">&para;</a></h2>
+<!-- begin provider table: generated from the provider packages by TestProviderTables (go test ./cmd/tapyr -run TestProviderTables -update), do not edit -->
+
 <table>
 <thead>
 <tr>
 <th>Package</th>
 <th>API</th>
+<th>Tier</th>
 <th>Validation</th>
-<th>Notes</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><a href="../providers/teltonika-rms/"><code>teltonika-rms</code></a></td>
-<td>Teltonika RMS cloud API</td>
-<td>Real platform (e2e) and simulator</td>
-<td>Monthly quota synced from the <code>X-RateLimit-*</code> headers</td>
+<td><a href="../providers/aruba-central-classic/"><code>aruba-central-classic</code></a></td>
+<td>HPE Aruba Networking Central (classic platform) REST API</td>
+<td>Official</td>
+<td>Simulator only</td>
 </tr>
 <tr>
-<td><a href="../providers/teltonika-rutos/"><code>teltonika-rutos</code></a></td>
-<td>Local RutOS API of Teltonika routers (07.06+)</td>
-<td>Real router (e2e, RutOS 07.24.5) and simulator</td>
-<td>One target per router, <code>session_login</code> with logout, self-signed TLS</td>
+<td><a href="../providers/example-sim/"><code>example-sim</code></a></td>
+<td>Vendor-neutral example API, served by tapyr sim, for development, tests and demos</td>
+<td>Official</td>
+<td>Simulator only</td>
 </tr>
 <tr>
 <td><a href="../providers/meraki-dashboard/"><code>meraki-dashboard</code></a></td>
 <td>Cisco Meraki Dashboard API v1</td>
+<td>Official</td>
 <td>Simulator only</td>
-<td>Organization-wide endpoints, per-organization rate</td>
 </tr>
 <tr>
-<td><a href="../providers/aruba-central-classic/"><code>aruba-central-classic</code></a></td>
-<td>HPE Aruba Networking Central (classic)</td>
-<td>Simulator only</td>
-<td>Daily quota, <code>aruba_central_classic</code> auth plugin (rotating refresh tokens)</td>
+<td><a href="../providers/teltonika-rms/"><code>teltonika-rms</code></a></td>
+<td>Teltonika Remote Management System (RMS) cloud API</td>
+<td>Official</td>
+<td>Real platform (RMS API v3-BETA, 2026-11) and simulator</td>
 </tr>
 <tr>
-<td><a href="../providers/example-sim/"><code>example-sim</code></a></td>
-<td>Vendor-neutral example</td>
-<td>Simulator</td>
-<td>Reference for package authors</td>
+<td><a href="../providers/teltonika-rutos/"><code>teltonika-rutos</code></a></td>
+<td>Local REST API of Teltonika routers running RutOS 07.06 or later</td>
+<td>Official</td>
+<td>Real platform (RutOS 07.24.5, 2026-11) and simulator</td>
 </tr>
 </tbody>
 </table>
-<p><code>tapyr provider list</code> lists them with the packages of <code>providerPaths</code>, which override built-in packages of the same name.</p>
+<!-- end provider table -->
+
+<p><code>tapyr provider list</code> lists them with the packages of <code>providerPaths</code>, which override built-in packages of the same name; <code>--output json</code> adds their catalog metadata, templates and limits (<a href="../spec/09-cli-api-ui/#provider-catalog-output">provider catalog output</a>).</p>
+<p>Looking for an API to package? <a href="../provider-ideas/">Provider ideas</a> lists candidates in other domains, with their rate-limit patterns and the engine features some of them still need.</p>
 <h2 id="writing-a-package">Writing a package<a class="headerlink" href="#writing-a-package" title="Permanent link">&para;</a></h2>
 <ol>
-<li>Read the vendor documentation and write <code>provider.yaml</code>. <strong>Every limit cites its source</strong> in its <code>description</code> and in the README, or is marked as measured or assumed. Prefer endpoints that return many objects per request (organization-wide lists, large pages): the budget engine spends quota deliberately, the templates should too.</li>
+<li>Read the vendor documentation and write <code>provider.yaml</code>. <strong>Every limit cites its source</strong> in its <code>source</code> (<code>vendor-docs</code> with the link, <code>measured</code> with the date, or <code>assumed</code>), and in its <code>description</code> and the README for humans. The metadata describes the package in the catalog: <code>displayName</code>, <code>categories</code> from <a href="https://github.com/Kentrow/tapyr/blob/main/providers/categories.yaml"><code>providers/categories.yaml</code></a>, <code>maintainers</code> (GitHub handles), <code>tier</code> (<code>official</code> or <code>community</code>) and <code>validation</code> (<code>simulator</code>, or <code>real-platform</code> with a date and the platform version), see <a href="../spec/03-configuration/#provider"><code>03-configuration.md</code></a>. Prefer endpoints that return many objects per request (organization-wide lists, large pages): the budget engine spends quota deliberately, the templates should too.</li>
 <li>Write the job templates (<code>templates/*.yaml</code>) with <code>estimate.pagesPerRun</code>. Metric names follow <code>&lt;prefix&gt;_&lt;object&gt;_&lt;measure&gt;_&lt;unit&gt;</code> in base units, descriptive attributes go to <code>_info</code> metrics, and no high-cardinality label (client MAC addresses, IPs) is used.</li>
 <li>Build the simulator (<code>sim/sim.yaml</code>): a synthetic inventory with template fixtures (see <a href="../spec/08-simulator/#synthetic-inventory-and-templated-fixtures"><code>08-simulator.md</code></a>), or static fixtures from a recording. Ship the <code>default</code>, <code>quota-tight</code> and <code>bad-day</code> scenarios.</li>
 <li>Write the contract test (<code>tests/contract.yaml</code>, <code>tests/contract.env</code>) and generate <code>tests/expected.prom</code> with <code>tapyr provider lint --update &lt;dir&gt;</code>. Review the samples: they are the contract of the package.</li>
@@ -2654,7 +2719,7 @@
 <li><code>Limits</code>: a table <code>Limit | Value | Source</code>, then the quota maths with the default intervals;</li>
 <li><code>Simulator</code>: the command, with the port the simulator gets under <code>tapyr sim --all --listen-base 127.0.0.1:8081</code> (8081 plus its <code>portOffset</code>), the credentials it accepts and a <code>Scenario | Effect</code> table;</li>
 <li><code>Dashboard</code>, <code>Known caveats</code>, and <code>End-to-end test</code> when there is one.</li>
-<li><code>tapyr provider lint &lt;dir&gt;</code> must pass.</li>
+<li><code>tapyr provider lint --catalog &lt;dir&gt;</code> must pass.</li>
 </ol>
 <h2 id="cel-mapping-recipes">CEL mapping recipes<a class="headerlink" href="#cel-mapping-recipes" title="Permanent link">&para;</a></h2>
 <p>Patterns taken from the built-in templates. The CEL environment and its functions are described in <a href="../spec/06-mapping-and-outputs/#cel-environment"><code>06-mapping-and-outputs.md</code></a>.</p>
@@ -2712,8 +2777,9 @@
 <div class="highlight"><pre><span></span><code>tapyr<span class="w"> </span>provider<span class="w"> </span>lint<span class="w"> </span>providers/teltonika-rms<span class="w">        </span><span class="c1"># one package</span>
 tapyr<span class="w"> </span>provider<span class="w"> </span>lint<span class="w"> </span>providers<span class="w">                      </span><span class="c1"># every package of a directory</span>
 tapyr<span class="w"> </span>provider<span class="w"> </span>lint<span class="w"> </span>--update<span class="w"> </span>providers/my-api<span class="w">      </span><span class="c1"># accept the new samples</span>
+tapyr<span class="w"> </span>provider<span class="w"> </span>lint<span class="w"> </span>--catalog<span class="w"> </span>providers/my-api<span class="w">     </span><span class="c1"># also require the catalog metadata</span>
 </code></pre></div>
-<p>The lint loads the package, compiles every template, checks the dashboards (valid JSON, a datasource variable, only metrics of the package or <code>tapyr_</code> self-metrics), the examples, the required scenarios, then runs the contract test: the jobs of <code>tests/contract.yaml</code> run once against the simulator, on a fake clock starting at <code>2026-01-01T00:00:00Z</code>, and their samples must equal <code>tests/expected.prom</code>. Every template must be exercised. <code>make lint</code> and the CI lint the built-in packages.</p>
+<p>The lint loads the package, compiles every template, checks the dashboards (valid JSON, a datasource variable, only metrics of the package or <code>tapyr_</code> self-metrics), the examples, the required scenarios, then runs the contract test: the jobs of <code>tests/contract.yaml</code> run once against the simulator, on a fake clock starting at <code>2026-01-01T00:00:00Z</code>, and their samples must equal <code>tests/expected.prom</code>. Every template must be exercised. With <code>--catalog</code>, the catalog metadata of the package and the <code>source</code> of every limit are required too, with existing categories and dates. <code>make lint</code> and the CI lint the built-in packages with <code>--catalog</code>.</p>
 <h2 id="end-to-end-tests">End-to-end tests<a class="headerlink" href="#end-to-end-tests" title="Permanent link">&para;</a></h2>
 <p>The packages tested against real platforms have e2e tests in <code>test/e2e/</code> (build tag <code>e2e</code>), skipped unless their credentials are set:</p>
 <div class="highlight"><pre><span></span><code><span class="nv">TAPYR_E2E_RMS_TOKEN</span><span class="o">=</span>...<span class="w"> </span>make<span class="w"> </span>e2e

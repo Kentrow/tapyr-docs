@@ -354,6 +354,8 @@
       
         
       
+        
+      
     
     
     
@@ -963,6 +965,8 @@
       
         
       
+        
+      
     
     
     
@@ -1139,6 +1143,33 @@
     
   
   example-sim
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../provider-ideas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Provider ideas
 
     
   </span>
@@ -2175,6 +2206,8 @@
       
         
       
+        
+      
     
     
     
@@ -2492,6 +2525,33 @@
 
                 
               
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0011-provider-ecosystem/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0011 - Generic engine, network-first launch and a provider catalog
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
             </ul>
           </nav>
         
@@ -2797,6 +2857,16 @@
 <span class="w">  </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.1.0</span><span class="w">                       </span><span class="c1"># provider package version (semver)</span>
 <span class="w">  </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Cisco Meraki Dashboard API v1</span>
 <span class="w">  </span><span class="nt">docs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://developer.cisco.com/meraki/api-v1/</span>
+<span class="w">  </span><span class="c1"># Catalog metadata (ADR 0011): optional, required by tapyr provider lint --catalog</span>
+<span class="w">  </span><span class="nt">displayName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Cisco Meraki Dashboard</span>
+<span class="w">  </span><span class="nt">categories</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">network</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">wireless</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">sd-wan</span><span class="p p-Indicator">]</span><span class="w">   </span><span class="c1"># from providers/categories.yaml, the main one first</span>
+<span class="w">  </span><span class="nt">maintainers</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">Kentrow</span><span class="p p-Indicator">]</span><span class="w">               </span><span class="c1"># GitHub handles, without @</span>
+<span class="w">  </span><span class="nt">tier</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">official</span><span class="w">                       </span><span class="c1"># official | community</span>
+<span class="w">  </span><span class="nt">validation</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">status</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">simulator</span><span class="w">                  </span><span class="c1"># simulator | real-platform</span>
+<span class="w">    </span><span class="c1"># date: 2026-11-04                 # YYYY-MM-DD or YYYY-MM; with platformVersion, required for real-platform</span>
+<span class="w">    </span><span class="c1"># platformVersion: Dashboard API v1.75.1</span>
+<span class="w">    </span><span class="nt">notes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Built from the official documentation and OpenAPI description v1.75.1</span>
 <span class="nt">spec</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">baseURL</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">.params.baseURL</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default</span><span class="nv"> </span><span class="s">\"https://api.meraki.com/api/v1\"</span><span class="nv"> </span><span class="s">}}"</span>
 
@@ -2828,6 +2898,10 @@
 <span class="w">  </span><span class="nt">limits</span><span class="p">:</span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">org-rate</span>
 <span class="w">      </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Per-organization throughput</span>
+<span class="w">      </span><span class="nt">source</span><span class="p">:</span><span class="w">                          </span><span class="c1"># optional, required by tapyr provider lint --catalog</span>
+<span class="w">        </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">vendor-docs</span><span class="w">              </span><span class="c1"># vendor-docs (with url) | measured (with date) | assumed</span>
+<span class="w">        </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://developer.cisco.com/meraki/api-v1/rate-limit/</span>
+<span class="w">        </span><span class="nt">date</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2026-11-04</span><span class="w">               </span><span class="c1"># when the source was checked or the measurement made</span>
 <span class="w">      </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rate</span>
 <span class="w">      </span><span class="nt">rate</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10/s</span>
 <span class="w">      </span><span class="nt">burst</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
@@ -2863,6 +2937,7 @@
 <li><code>auth.type</code> is one of <code>none</code>, <code>header</code>, <code>bearer</code>, <code>basic</code>, <code>oauth2_client_credentials</code>, <code>session_login</code>, <code>plugin</code>. The configuration block of a type is named after the type in camelCase (<code>bearer</code>, <code>oauth2ClientCredentials</code>, <code>sessionLogin</code>, <code>plugin</code>). Pagination follows the same rule (<code>linkHeader</code> for <code>link_header</code>).</li>
 <li>Auth plugins (Go code, for flows that cannot be expressed declaratively) are selected with <code>type: plugin</code> and <code>plugin: { name: &lt;plugin&gt;, config: {...} }</code>. The core schema treats <code>config</code> as free-form; the plugin validates it at compile time. This keeps vendor names out of the core schema.</li>
 <li><code>params</code> and <code>secrets</code> declare what an Account may or must provide. An Account providing an undeclared param or secret is an error.</li>
+<li>The catalog metadata (<code>displayName</code>, <code>categories</code>, <code>maintainers</code>, <code>tier</code>, <code>validation</code>) and the <code>source</code> of the limits describe the package for the provider catalog (<a href="../../adr/0011-provider-ecosystem/">ADR 0011</a>); the engine ignores them. Two axes describe a package: <code>tier</code> says who maintains it (<code>official</code>: the Tapyr maintainers, <code>community</code>: the maintainers listed), <code>validation</code> how it was last tested. They are optional, so that user packages need none; <code>tapyr provider lint --catalog</code> requires them (see <a href="#provider-packages">Provider packages</a>).</li>
 </ul>
 <h2 id="jobtemplate">JobTemplate<a class="headerlink" href="#jobtemplate" title="Permanent link">&para;</a></h2>
 <p>A provider package ships job templates so users get a working setup with a few lines.</p>
@@ -3174,7 +3249,7 @@
 <li>Precedence, highest first: <code>Provider</code> documents written directly in the configuration paths, then packages from <code>providerPaths</code> (in order), then built-in packages. A package that is overridden is dropped entirely, its job templates included. Every override is reported as a warning by <code>validate</code> and <code>run</code>.</li>
 <li>Each <code>providerPaths</code> entry is either a package directory (it contains <code>provider.yaml</code>) or a directory of packages (each subdirectory containing a <code>provider.yaml</code> is a package).</li>
 <li>In a package, <code>provider.yaml</code> holds exactly one <code>Provider</code>, <code>templates/*.yaml</code> hold only <code>JobTemplate</code> documents whose <code>spec.provider</code> is the package name, and <code>sim/sim.yaml</code> holds at most one <code>Simulation</code>. The package directory name must equal the provider name.</li>
-<li><code>tapyr provider lint &lt;dir&gt;</code> validates a package and runs its contract test (see <a href="../08-simulator/#contract-tests"><code>08-simulator.md</code></a>).</li>
+<li><code>tapyr provider lint &lt;dir&gt;</code> validates a package and runs its contract test (see <a href="../08-simulator/#contract-tests"><code>08-simulator.md</code></a>). With <code>--catalog</code>, it also requires the catalog metadata: a <code>displayName</code>, at least one category of <a href="https://github.com/Kentrow/tapyr/blob/main/providers/categories.yaml"><code>providers/categories.yaml</code></a>, at least one maintainer, a <code>tier</code>, a <code>validation</code> (with its <code>date</code> and <code>platformVersion</code> when its status is <code>real-platform</code>), and a <code>source</code> on every limit (with its <code>url</code> for <code>vendor-docs</code>, its <code>date</code> for <code>measured</code>); dates must exist. The CI runs it on the built-in packages.</li>
 </ul>
 <h2 id="validation-rules-non-exhaustive">Validation rules (non-exhaustive)<a class="headerlink" href="#validation-rules-non-exhaustive" title="Permanent link">&para;</a></h2>
 <ul>

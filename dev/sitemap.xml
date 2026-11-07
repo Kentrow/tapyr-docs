@@ -34,6 +34,9 @@
         <loc>https://docs.tapyr.eu/dev/adr/0010-documentation-site/</loc>
       </url>
       <url>
+        <loc>https://docs.tapyr.eu/dev/adr/0011-provider-ecosystem/</loc>
+      </url>
+      <url>
         <loc>https://docs.tapyr.eu/dev/alerts/</loc>
       </url>
       <url>
@@ -62,6 +65,9 @@
       </url>
       <url>
         <loc>https://docs.tapyr.eu/dev/outputs/</loc>
+      </url>
+      <url>
+        <loc>https://docs.tapyr.eu/dev/provider-ideas/</loc>
       </url>
       <url>
         <loc>https://docs.tapyr.eu/dev/providers/</loc>

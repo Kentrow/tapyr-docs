@@ -354,6 +354,8 @@
       
         
       
+        
+      
     
     
     
@@ -963,6 +965,8 @@
       
         
       
+        
+      
     
     
     
@@ -1139,6 +1143,33 @@
     
   
   example-sim
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../provider-ideas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Provider ideas
 
     
   </span>
@@ -1609,6 +1640,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Validation
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#auth" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -1833,6 +1875,17 @@
     <span class="md-ellipsis">
       <span class="md-typeset">
         Scope
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#limitsource" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        LimitSource
       </span>
     </span>
   </a>
@@ -2463,6 +2516,8 @@
       
         
       
+        
+      
     
     
     
@@ -2777,6 +2832,33 @@
 
                 
               
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0011-provider-ecosystem/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0011 - Generic engine, network-first launch and a provider catalog
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
             </ul>
           </nav>
         
@@ -2861,6 +2943,17 @@
     <span class="md-ellipsis">
       <span class="md-typeset">
         Name
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Validation
       </span>
     </span>
   </a>
@@ -3099,6 +3192,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#limitsource" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        LimitSource
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#quotasync" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -3316,10 +3420,22 @@
 </thead>
 <tbody>
 <tr>
+<td><code>categories</code></td>
+<td>list of <a href="#name">Name</a></td>
+<td></td>
+<td>Categories of the provider, from providers/categories.yaml, the main one first. Unique items.</td>
+</tr>
+<tr>
 <td><code>description</code></td>
 <td>string</td>
 <td></td>
 <td>Description is free text for humans.</td>
+</tr>
+<tr>
+<td><code>displayName</code></td>
+<td>string</td>
+<td></td>
+<td><code>displayName</code> is the name of the provider in the catalog, for example "Cisco Meraki Dashboard". Like categories, maintainers, tier and validation, it is optional, and required by tapyr provider lint --catalog (ADR 0011).</td>
 </tr>
 <tr>
 <td><code>docs</code></td>
@@ -3328,10 +3444,28 @@
 <td>Docs links to the vendor API documentation. Format uri.</td>
 </tr>
 <tr>
+<td><code>maintainers</code></td>
+<td>list of string</td>
+<td></td>
+<td>Maintainers are the GitHub handles, without @, of the people who answer for the package. Unique items. Each item: pattern <code>^[A-Za-z0-9]([A-Za-z0-9-]{0,37}[A-Za-z0-9])?$</code>.</td>
+</tr>
+<tr>
 <td><code>name</code></td>
 <td><a href="#name">Name</a></td>
 <td>yes</td>
 <td>Name of the provider, unique across built-in and user packages.</td>
+</tr>
+<tr>
+<td><code>tier</code></td>
+<td>string</td>
+<td></td>
+<td>Tier says who maintains the package: official (the Tapyr maintainers) or community (the maintainers listed). One of <code>official</code>, <code>community</code>.</td>
+</tr>
+<tr>
+<td><code>validation</code></td>
+<td><a href="#validation">Validation</a></td>
+<td></td>
+<td>Validation says how the package was last tested.</td>
 </tr>
 <tr>
 <td><code>version</code></td>
@@ -3411,6 +3545,44 @@
 </table>
 <h2 id="name">Name<a class="headerlink" href="#name" title="Permanent link">&para;</a></h2>
 <p>Type: string. Pattern <code>^[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])?$</code>.</p>
+<h2 id="validation">Validation<a class="headerlink" href="#validation" title="Permanent link">&para;</a></h2>
+<p>Validation records the last validation of a provider package.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>date</code></td>
+<td>string</td>
+<td></td>
+<td>Date of the validation, YYYY-MM-DD or YYYY-MM. Required by tapyr provider lint --catalog with status real-platform. Pattern <code>^&#91;0-9&#93;{4}-(0&#91;1-9&#93;&#124;1&#91;0-2&#93;)(-(0&#91;1-9&#93;&#124;&#91;12&#93;&#91;0-9&#93;&#124;3&#91;01&#93;))?$</code>.</td>
+</tr>
+<tr>
+<td><code>notes</code></td>
+<td>string</td>
+<td></td>
+<td>Notes is free text: what was covered, what the package was built from.</td>
+</tr>
+<tr>
+<td><code>platformVersion</code></td>
+<td>string</td>
+<td></td>
+<td><code>platformVersion</code> is the version of the API, platform or firmware validated against, for example "RutOS 07.24.5". Required by tapyr provider lint --catalog with status real-platform.</td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td>string</td>
+<td>yes</td>
+<td>Status is simulator (tested against its simulator only) or real-platform (run against the real API). One of <code>simulator</code>, <code>real-platform</code>.</td>
+</tr>
+</tbody>
+</table>
 <h2 id="auth">Auth<a class="headerlink" href="#auth" title="Permanent link">&para;</a></h2>
 <p>Auth configures authentication.</p>
 <table>
@@ -3601,6 +3773,12 @@
 <td><a href="#scope">Scope</a></td>
 <td></td>
 <td>Scope partitions the limit (one counter per scope key).</td>
+</tr>
+<tr>
+<td><code>source</code></td>
+<td><a href="#limitsource">LimitSource</a></td>
+<td></td>
+<td>Source of the limit. Optional, and required on every limit by tapyr provider lint --catalog.</td>
 </tr>
 <tr>
 <td><code>sync</code></td>
@@ -4064,6 +4242,38 @@
 <td>list of string</td>
 <td></td>
 <td>By lists the scope dimensions: instance, provider, account, target, credential, endpoint or var:&lt;name&gt;. Empty means instance. Unique items. Each item: pattern <code>^(instance&#124;provider&#124;account&#124;target&#124;credential&#124;endpoint&#124;var:&#91;A-Za-z&#95;&#93;&#91;A-Za-z0-9&#95;&#93;&#42;)$</code>.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="limitsource">LimitSource<a class="headerlink" href="#limitsource" title="Permanent link">&para;</a></h2>
+<p>LimitSource says where a limit comes from.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>date</code></td>
+<td>string</td>
+<td></td>
+<td>Date the source was checked or the measurement made, YYYY-MM-DD or YYYY-MM. Pattern <code>^&#91;0-9&#93;{4}-(0&#91;1-9&#93;&#124;1&#91;0-2&#93;)(-(0&#91;1-9&#93;&#124;&#91;12&#93;&#91;0-9&#93;&#124;3&#91;01&#93;))?$</code>.</td>
+</tr>
+<tr>
+<td><code>kind</code></td>
+<td>string</td>
+<td>yes</td>
+<td>Kind is vendor-docs (the vendor documentation, with its url), measured (against the real API, with its date) or assumed (nothing documented). One of <code>vendor-docs</code>, <code>measured</code>, <code>assumed</code>.</td>
+</tr>
+<tr>
+<td><code>url</code></td>
+<td>string</td>
+<td></td>
+<td><code>url</code> of the vendor documentation, or of the notes of a measurement. Format uri.</td>
 </tr>
 </tbody>
 </table>

@@ -19,6 +19,8 @@
         <link rel="prev" href="../0009-window-values-as-gauges/">
       
       
+        <link rel="next" href="../0011-provider-ecosystem/">
+      
       
         
       
@@ -342,6 +344,8 @@
       
         
           
+        
+      
         
       
         
@@ -961,6 +965,8 @@
       
         
       
+        
+      
     
     
     
@@ -1137,6 +1143,33 @@
     
   
   example-sim
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../provider-ideas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Provider ideas
 
     
   </span>
@@ -2001,6 +2034,8 @@
       
         
       
+        
+      
     
     
     
@@ -2409,6 +2444,33 @@
 
                 
               
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0011-provider-ecosystem/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0011 - Generic engine, network-first launch and a provider catalog
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
             </ul>
           </nav>
         
@@ -2563,7 +2625,7 @@
 <ul>
 <li>Writing documentation does not change: Markdown here, relative links, <code>make lint</code> catches a broken link or anchor before the site does.</li>
 <li>A new Markdown file in <code>docs/</code> must be added to <code>docs/site.yml</code>, in <code>nav</code> or in <code>unpublished</code>.</li>
-<li>The output of <code>docsite export</code> (paths, link rewriting, index file) is an interface: changing it means a coordinated change of the site repository.</li>
+<li>The output of <code>docsite export</code> (paths, link rewriting, index file) is an interface: changing it means a coordinated change of the site repository. So is the output of <code>tapyr provider list --output json</code>, from which the site builds the provider catalog (<a href="../0011-provider-ecosystem/">ADR 0011</a>, versioned by its <code>schemaVersion</code>).</li>
 <li>Zensical is young (0.0.x) and its native versioning is on its roadmap; the site repository pins its version and uses the <code>mike</code> fork it documents meanwhile.</li>
 <li>v0.1.0 has no documentation version on the site.</li>
 </ul>
@@ -2619,6 +2681,22 @@
             </div>
           </a>
         
+        
+          
+          <a href="../0011-provider-ecosystem/" class="md-footer__link md-footer__link--next" aria-label="Next: ADR 0011 - Generic engine, network-first launch and a provider catalog">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                ADR 0011 - Generic engine, network-first launch and a provider catalog
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
+          </a>
         
       </nav>
     

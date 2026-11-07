@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Many network and infrastructure platforms are now cloud-managed and expose their telemetry only through REST APIs: Aruba Central, Cisco Meraki, Teltonika RMS…">
+        <meta name="description" content="Many platforms are now cloud-managed and expose their telemetry only through REST APIs: network equipment first (Aruba Central, Cisco Meraki, Teltonika RMS…">
       
       
         <meta name="author" content="Kentrow">
@@ -344,6 +344,8 @@
       
         
           
+        
+      
         
       
         
@@ -963,6 +965,8 @@
       
         
       
+        
+      
     
     
     
@@ -1139,6 +1143,33 @@
     
   
   example-sim
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../provider-ideas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Provider ideas
 
     
   </span>
@@ -2125,6 +2156,8 @@
       
         
       
+        
+      
     
     
     
@@ -2442,6 +2475,33 @@
 
                 
               
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0011-provider-ecosystem/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0011 - Generic engine, network-first launch and a provider catalog
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
             </ul>
           </nav>
         
@@ -2599,7 +2659,7 @@
 
 <h1 id="01---vision-and-scope">01 - Vision and scope<a class="headerlink" href="#01---vision-and-scope" title="Permanent link">&para;</a></h1>
 <h2 id="problem">Problem<a class="headerlink" href="#problem" title="Permanent link">&para;</a></h2>
-<p>Many network and infrastructure platforms are now cloud-managed and expose their telemetry only through REST APIs: Aruba Central, Cisco Meraki, Teltonika RMS, and many others. Getting that telemetry into an open observability stack (Prometheus, VictoriaMetrics, Mimir, any OTLP backend) is surprisingly painful:</p>
+<p>Many platforms are now cloud-managed and expose their telemetry only through REST APIs: network equipment first (Aruba Central, Cisco Meraki, Teltonika RMS, and many others), but also security services, Internet measurement, cloud costs, developer platforms and energy. Getting that telemetry into an open observability stack (Prometheus, VictoriaMetrics, Mimir, any OTLP backend) is surprisingly painful:</p>
 <ul>
 <li><strong>Vertical exporters</strong> exist for some vendors (one project per vendor, hardcoded endpoints, inconsistent quality). Many vendors have none.</li>
 <li><strong>Generic tools</strong> (Telegraf <code>inputs.http</code>, Redpanda Connect, Vector) can call HTTP APIs, but treat rate limits as an afterthought: at best a per-input interval or a simple token bucket. None of them understands a <strong>daily or monthly quota</strong>, a limit <strong>scoped per organization</strong>, a quota <strong>shared with other consumers</strong>, or the need to <strong>plan</strong> polling to fit a budget.</li>
@@ -2616,7 +2676,8 @@
 <li>Tapyr <strong>observes itself</strong> and exposes rich self-metrics.</li>
 <li>Every provider ships with a <strong>simulator</strong> driven by the same definition, enforcing the same limits, so that providers can be developed and tested without access to the vendor platform.</li>
 </ol>
-<p>Long-term, provider packages (definition + default jobs + simulator fixtures + dashboards + tests) become a <strong>community ecosystem</strong>, in the spirit of Terraform providers or snmp_exporter modules, but declarative and therefore accessible to network engineers who do not write Go.</p>
+<p><strong>Network first, not network only.</strong> Networks are the first use case: the built-in packages, the examples and the documentation start there. The core makes no network-specific assumption, and any metric-oriented API must be expressible as a provider package; a mechanism another domain needs is added to the engine as a generic feature (<a href="../../adr/0011-provider-ecosystem/">ADR 0011</a>).</p>
+<p>Long-term, provider packages (definition + default jobs + simulator fixtures + dashboards + tests) become a <strong>community ecosystem</strong>, in the spirit of Terraform providers or snmp_exporter modules, but declarative and therefore accessible to engineers who do not write Go. It grows in phases: first a static catalog on tapyr.eu generated from the packages of this repository, with catalog metadata on every package (who maintains it, how it was validated, the source of every limit); later, if justified, packages distributed as OCI artifacts.</p>
 <h2 id="positioning">Positioning<a class="headerlink" href="#positioning" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -2646,7 +2707,8 @@
 </table>
 <h2 id="target-users">Target users<a class="headerlink" href="#target-users" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Network and infrastructure engineers who manage cloud-managed equipment and run an open observability stack.</li>
+<li>Network and infrastructure engineers who manage cloud-managed equipment and run an open observability stack (the first use case).</li>
+<li>Engineers who monitor any other platform through a metric-oriented API with scarce quotas: security, energy, cloud costs, developer tools.</li>
 <li>Observability consultants who need to integrate many vendor APIs quickly and must size API consumption upfront.</li>
 <li>Contributors who know a vendor API well and want to package it for others.</li>
 </ul>
@@ -2687,12 +2749,11 @@
 <li>Push-based sources: webhooks (Meraki), streaming APIs (Aruba Central websocket/protobuf).</li>
 <li>Logs and events as outputs (metrics only).</li>
 <li>Write operations against provider APIs.</li>
-<li>Provider registry and distribution as OCI artifacts.</li>
+<li>Provider registry and distribution as OCI artifacts (phase 2 of the provider ecosystem, <a href="../../adr/0011-provider-ecosystem/">ADR 0011</a>).</li>
 <li>Generation of provider skeletons from OpenAPI specifications.</li>
 <li>Aruba Central "new" (HPE GreenLake-based) provider.</li>
 <li>Prometheus remote write 2.0.</li>
 <li>Tracing of Tapyr runs (OpenTelemetry traces).</li>
-<li>Static documentation website (agreed after v0.1.0: <a href="../../adr/0010-documentation-site/">ADR 0010</a>).</li>
 </ul>
 <p>These items need an issue and an agreement before any code, but the design must not prevent them. In particular: the status API is the only interface the UI uses; state access goes through an interface so another backend can be added; outputs are pluggable; the provider package format is versioned.</p>
 <h2 id="success-criteria-for-v010">Success criteria for v0.1.0<a class="headerlink" href="#success-criteria-for-v010" title="Permanent link">&para;</a></h2>
