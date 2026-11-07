@@ -2596,7 +2596,7 @@
 <p>Tapyr is a single static binary with the web UI embedded. Releases ship it for Linux, macOS and Windows (amd64, arm64), and as the multi-arch image <code>ghcr.io/kentrow/tapyr</code>.</p>
 <h2 id="binary">Binary<a class="headerlink" href="#binary" title="Permanent link">&para;</a></h2>
 <p>Download the archive of your platform and <code>checksums.txt</code> from the <a href="https://github.com/kentrow/tapyr/releases">releases page</a>, check it, then put <code>tapyr</code> in your <code>PATH</code>:</p>
-<div class="highlight"><pre><span></span><code><span class="nv">VERSION</span><span class="o">=</span><span class="m">0</span>.1.1
+<div class="highlight"><pre><span></span><code><span class="nv">VERSION</span><span class="o">=</span><span class="m">0</span>.1.2
 curl<span class="w"> </span>-LO<span class="w"> </span>https://github.com/kentrow/tapyr/releases/download/v<span class="nv">$VERSION</span>/tapyr_<span class="si">${</span><span class="nv">VERSION</span><span class="si">}</span>_linux_amd64.tar.gz
 curl<span class="w"> </span>-LO<span class="w"> </span>https://github.com/kentrow/tapyr/releases/download/v<span class="nv">$VERSION</span>/checksums.txt
 sha256sum<span class="w"> </span>--ignore-missing<span class="w"> </span>-c<span class="w"> </span>checksums.txt
@@ -2610,7 +2610,7 @@ tar<span class="w"> </span>xzf<span class="w"> </span>tapyr_<span class="si">${<
 <span class="w">  </span>-v<span class="w"> </span><span class="s2">"</span><span class="nv">$PWD</span><span class="s2">/config:/etc/tapyr:ro"</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-v<span class="w"> </span>tapyr-data:/home/nonroot/data<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-p<span class="w"> </span><span class="m">9790</span>:9790<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>ghcr.io/kentrow/tapyr:0.1.1
+<span class="w">  </span>ghcr.io/kentrow/tapyr:0.1.2
 </code></pre></div>
 <ul>
 <li>The image runs <code>tapyr run --config /etc/tapyr</code> as the <code>nonroot</code> user (uid 65532), on <code>gcr.io/distroless/static-debian12</code>.</li>

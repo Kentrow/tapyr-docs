@@ -2652,7 +2652,7 @@
 <h2 id="simulator">Simulator<a class="headerlink" href="#simulator" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code>tapyr<span class="w"> </span>sim<span class="w"> </span>--provider<span class="w"> </span>example-sim<span class="w"> </span>--listen<span class="w"> </span><span class="m">127</span>.0.0.1:8081
 </code></pre></div>
-<p>Unlike the other packages, the example uses 8081 standalone, not the port it gets from <code>tapyr sim --all --listen-base 127.0.0.1:8081</code> (8082, <code>portOffset: 1</code>): the default <code>baseURL</code> of the provider, <code>examples/example-sim.yaml</code> and <a href="https://github.com/Kentrow/tapyr/tree/v0.1.1/examples/config"><code>examples/config</code></a> expect it there.</p>
+<p>Unlike the other packages, the example uses 8081 standalone, not the port it gets from <code>tapyr sim --all --listen-base 127.0.0.1:8081</code> (8082, <code>portOffset: 1</code>): the default <code>baseURL</code> of the provider, <code>examples/example-sim.yaml</code> and <a href="https://github.com/Kentrow/tapyr/tree/v0.1.2/examples/config"><code>examples/config</code></a> expect it there.</p>
 <p>The simulator serves static fixtures under <code>/api/v1</code>: 3 sites, 5 devices, and the networks of each site with their devices.</p>
 <table>
 <thead>
