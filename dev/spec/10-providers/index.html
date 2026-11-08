@@ -2674,7 +2674,7 @@
 <tr>
 <td><code>meraki-dashboard</code></td>
 <td>Cloud, per-org rate limits, Link pagination</td>
-<td>Simulator only (docs + public OpenAPI spec)</td>
+<td>DevNet sandbox (e2e) + simulator (docs + public OpenAPI spec)</td>
 <td>Validates scoped rate limits and discovery chains</td>
 </tr>
 <tr>
@@ -2736,7 +2736,7 @@
 <li><code>meraki-device-availabilities</code> (<code>GET /organizations/{organizationId}/devices/availabilities</code>). It replaces <code>devices/statuses</code>, deprecated in October 2024 (<a href="https://developer.cisco.com/meraki/api-v1/deprecated-operations/">deprecated operations</a>);</li>
 <li><code>meraki-appliance-uplink-statuses</code> (<code>GET /organizations/{organizationId}/appliance/uplink/statuses</code>);</li>
 <li><code>meraki-wireless-client-counts</code> (<code>GET /organizations/{organizationId}/wireless/clients/overview/byDevice</code>, an enveloped list under <code>items</code>).</li>
-<li><strong>Deliverables</strong>: provider package, synthetic simulator (inventory generator sized by config), fixtures derived from the OpenAPI examples, dashboard, contract tests. No e2e test (no access); the README states clearly that the package is simulator-validated only and invites community validation.</li>
+<li><strong>Deliverables</strong>: provider package, synthetic simulator (inventory generator sized by config), fixtures derived from the OpenAPI examples, dashboard, contract tests, and an e2e test run against a DevNet sandbox organization (November 2026, every template; the sandbox appliance reports no uplink, so the uplink metrics are validated against the simulator only).</li>
 </ul>
 <h2 id="aruba-central-classic">aruba-central-classic<a class="headerlink" href="#aruba-central-classic" title="Permanent link">&para;</a></h2>
 <p>HPE Aruba Networking Central (classic platform) REST API. Checked in November 2026 against the <a href="https://developer.arubanetworks.com/aruba-central/">Aruba developer hub</a> and the official <code>pycentral</code> SDK.</p>

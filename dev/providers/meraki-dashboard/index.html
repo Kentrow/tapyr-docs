@@ -1210,6 +1210,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#end-to-end-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        End-to-end test
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2611,6 +2622,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#end-to-end-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        End-to-end test
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2634,7 +2656,7 @@
 
 <h1 id="meraki-dashboard">meraki-dashboard<a class="headerlink" href="#meraki-dashboard" title="Permanent link">&para;</a></h1>
 <p>Cisco Meraki <a href="https://developer.cisco.com/meraki/api-v1/">Dashboard API v1</a>: device availability, appliance uplinks and wireless clients of every organization the API key can read.</p>
-<p><strong>Validation status</strong>: simulator only. The package is built from the official documentation and <a href="https://github.com/meraki/openapi">OpenAPI description</a> (v1.75.1, November 2026) and tested against a synthetic simulator in CI; it has not been run against a real Dashboard yet. Reports from users of real organizations are welcome.</p>
+<p><strong>Validation status</strong>: tested against a real Dashboard (a DevNet sandbox organization, November 2026: every template, with 1 network and 4 devices: appliance, switch, access point and camera), and against a synthetic simulator in CI. The package is built from the official documentation and <a href="https://github.com/meraki/openapi">OpenAPI description</a> (v1.75.1). The appliance of the sandbox reports no uplink, so <code>meraki-appliance-uplink-statuses</code> was checked on the shape of the response only: reports from organizations with active uplinks are welcome.</p>
 <h2 id="coverage">Coverage<a class="headerlink" href="#coverage" title="Permanent link">&para;</a></h2>
 <p>All metric jobs use <strong>organization-wide endpoints</strong>: one request per organization and job (one page per 1000 items), whatever the number of networks and devices.</p>
 <table>
@@ -2758,10 +2780,15 @@
 <p><code>dashboards/meraki-dashboard.json</code> (Grafana, Prometheus data source, organization and network variables): devices up and down, alerting, appliance uplinks and networks on a backup uplink, wireless clients, API requests and 429 (Tapyr self-metrics). The network names come from <code>meraki_network_info</code>: run the <code>meraki-networks</code> job for the network variable and the joins.</p>
 <h2 id="known-caveats">Known caveats<a class="headerlink" href="#known-caveats" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Simulator-validated only (see above).</li>
+<li>The uplink metrics are validated against the simulator only (see above).</li>
+<li>Devices without a name have no <code>name</code> label on <code>meraki_device_info</code>: Tapyr leaves out empty label values, as Prometheus does.</li>
 <li><code>meraki-wireless-client-counts</code> needs access points; organizations without wireless return no item.</li>
 <li>Networks bound to configuration templates are reported as returned by the API.</li>
 </ul>
+<h2 id="end-to-end-test">End-to-end test<a class="headerlink" href="#end-to-end-test" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><span class="nv">TAPYR_E2E_MERAKI_API_KEY</span><span class="o">=</span>...<span class="w"> </span>go<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-tags<span class="w"> </span>e2e<span class="w"> </span>-run<span class="w"> </span>TestMerakiDashboard<span class="w"> </span>./test/e2e/
+</code></pre></div>
+<p>It runs every template once against the organizations of the key (a read-only key is enough, for example the one of a DevNet sandbox), checks that the organization, network and device samples have the expected shape and that the device jobs succeed, and spends one request per organization and template, plus one for the organizations. A key generated a minute before can still be refused (<code>401</code>): wait a little and run it again.</p>
 
 
 

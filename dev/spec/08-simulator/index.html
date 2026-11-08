@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Two of the built-in providers (Aruba Central, Meraki) cannot be tested against real platforms by the maintainer. More generally, contributors and users need…">
+        <meta name="description" content="Two of the built-in providers cannot be fully tested against real platforms by the maintainer: Aruba Central not at all, Meraki only through a DevNet sandbox…">
       
       
         <meta name="author" content="Kentrow">
@@ -2737,7 +2737,7 @@
 
 <h1 id="08---provider-simulator-and-record-mode">08 - Provider simulator and record mode<a class="headerlink" href="#08---provider-simulator-and-record-mode" title="Permanent link">&para;</a></h1>
 <h2 id="why">Why<a class="headerlink" href="#why" title="Permanent link">&para;</a></h2>
-<p>Two of the built-in providers (Aruba Central, Meraki) cannot be tested against real platforms by the maintainer. More generally, contributors and users need to develop, test and demo providers without vendor access, and nobody can safely test quota exhaustion against a production API. The simulator makes every provider testable, and its rate-limit enforcement makes the budget engine testable end-to-end.</p>
+<p>Two of the built-in providers cannot be fully tested against real platforms by the maintainer: Aruba Central not at all, Meraki only through a DevNet sandbox organization with a few devices. More generally, contributors and users need to develop, test and demo providers without vendor access, and nobody can safely test quota exhaustion against a production API. The simulator makes every provider testable, and its rate-limit enforcement makes the budget engine testable end-to-end.</p>
 <h2 id="principles">Principles<a class="headerlink" href="#principles" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>Same definition, two consumers.</strong> The simulator reads the provider package: the <code>Provider</code> document (limits, pagination, auth, error semantics) and the package's <code>sim/</code> directory (routes, fixtures, scenarios). Limits are declared once.</li>

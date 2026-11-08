@@ -2685,7 +2685,7 @@
 <td><a href="../providers/meraki-dashboard/"><code>meraki-dashboard</code></a></td>
 <td>Cisco Meraki Dashboard API v1</td>
 <td>Official</td>
-<td>Simulator only</td>
+<td>Real platform (Dashboard API v1, 2026-11-07) and simulator</td>
 </tr>
 <tr>
 <td><a href="../providers/teltonika-rms/"><code>teltonika-rms</code></a></td>
@@ -2782,7 +2782,8 @@ tapyr<span class="w"> </span>provider<span class="w"> </span>lint<span class="w"
 <p>The lint loads the package, compiles every template, checks the dashboards (valid JSON, a datasource variable, only metrics of the package or <code>tapyr_</code> self-metrics), the examples, the required scenarios, then runs the contract test: the jobs of <code>tests/contract.yaml</code> run once against the simulator, on a fake clock starting at <code>2026-01-01T00:00:00Z</code>, and their samples must equal <code>tests/expected.prom</code>. Every template must be exercised. With <code>--catalog</code>, the catalog metadata of the package and the <code>source</code> of every limit are required too, with existing categories and dates. <code>make lint</code> and the CI lint the built-in packages with <code>--catalog</code>.</p>
 <h2 id="end-to-end-tests">End-to-end tests<a class="headerlink" href="#end-to-end-tests" title="Permanent link">&para;</a></h2>
 <p>The packages tested against real platforms have e2e tests in <code>test/e2e/</code> (build tag <code>e2e</code>), skipped unless their credentials are set:</p>
-<div class="highlight"><pre><span></span><code><span class="nv">TAPYR_E2E_RMS_TOKEN</span><span class="o">=</span>...<span class="w"> </span>make<span class="w"> </span>e2e
+<div class="highlight"><pre><span></span><code><span class="nv">TAPYR_E2E_MERAKI_API_KEY</span><span class="o">=</span>...<span class="w"> </span>make<span class="w"> </span>e2e
+<span class="nv">TAPYR_E2E_RMS_TOKEN</span><span class="o">=</span>...<span class="w"> </span>make<span class="w"> </span>e2e
 <span class="nv">TAPYR_E2E_RUTOS_URL</span><span class="o">=</span>https://192.0.2.10<span class="w"> </span><span class="nv">TAPYR_E2E_RUTOS_USERNAME</span><span class="o">=</span>...<span class="w"> </span><span class="nv">TAPYR_E2E_RUTOS_PASSWORD</span><span class="o">=</span>...<span class="w"> </span>make<span class="w"> </span>e2e
 </code></pre></div>
 <p>They run <code>tapyr run</code> for one or two minutes and spend a few requests.</p>

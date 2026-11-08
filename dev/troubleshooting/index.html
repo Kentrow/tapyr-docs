@@ -2781,7 +2781,7 @@ configuration is invalid: 1 error
 <h2 id="no-data-yet">No data yet<a class="headerlink" href="#no-data-yet" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>First runs are spread.</strong> Jobs start at a random point within the first 10% of their interval (<code>settings.collection.jitter</code>), so that a restart does not fire every request at once: a job polled every hour may wait up to 6 minutes for its first run.</li>
-<li><strong>Discovery comes first.</strong> A fan-out job waits for the first run of its parents (organizations, then networks...). Each instance of a fan-out runs at its own point of its interval, so that a thousand networks never fire at once: with a parent polled every 30 minutes, the first data of its children can take that long. After that, the inventory is cached and restarts no longer wait. The Graph page of the UI shows the chain.</li>
+<li><strong>Discovery comes first.</strong> A fan-out job waits for the first run of its parents (organizations, then networks...). A newly discovered instance runs first within the jitter of its interval, then at its own point of the interval, so that a thousand networks never fire at once: with the default jitter, each level of the chain adds at most a tenth of its interval. After that, the inventory is cached and restarts no longer wait. The Graph page of the UI shows the chain.</li>
 <li><strong>No output.</strong> <code>/metrics</code> serves the samples only with a <code>prometheus</code> output; push outputs deliver to their backend (see <a href="#samples-do-not-reach-the-backend">their troubleshooting</a>).</li>
 <li><strong>The job fails.</strong> Open it in the UI, or <code>GET /api/v1/jobs/&lt;name&gt;/runs</code>: every run has its result and its error.</li>
 </ul>

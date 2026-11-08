@@ -2727,7 +2727,7 @@ tapyr<span class="w"> </span>plan<span class="w"> </span>--config<span class="w"
 <ul>
 <li>The new configuration is loaded and validated first. When it is invalid, the reload is rejected, the error is logged (<code>configuration reload rejected</code>) and the running configuration keeps going; <code>tapyr_config_last_reload_success</code> drops to 0.</li>
 <li>Otherwise the running jobs finish, the consumption of every quota carries over, unchanged instances keep their schedule, and the series of removed jobs go stale.</li>
-<li>Changes to <code>server</code>, <code>state.path</code> and <code>log</code> need a restart; Tapyr logs a warning when a reload contains one.</li>
+<li>Changes to <code>server</code> (except <code>server.debug</code>, applied on reload), <code>state.path</code> and <code>log</code> need a restart; Tapyr logs a warning when a reload contains one.</li>
 </ul>
 <h3 id="secrets">Secrets<a class="headerlink" href="#secrets" title="Permanent link">&para;</a></h3>
 <p>Secrets are references, never values: <code>{ env: NAME }</code> for an environment variable, <code>{ file: /path }</code> for a file (a Docker or Kubernetes secret, a systemd credential). Tapyr redacts their values, and the tokens it obtains, from its logs, errors, status API and debug output. A secret shorter than 4 characters cannot be redacted reliably and is reported at startup.</p>
