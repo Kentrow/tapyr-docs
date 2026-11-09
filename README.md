@@ -47,6 +47,8 @@ mike serve -r origin -b gh-pages
 | `/dev/` | `main` |
 | `/` | redirects to `/latest/`, or `/dev/` before the first version |
 
+For search engines, every page of a minor names its `/latest/` URL as canonical, older minors included: a link to `/0.1/` counts for the current page, and the URL never moves. The sitemap lists those URLs. `/dev/` keeps its own URL and is `noindex` once a release is out.
+
 ## License
 
 Apache-2.0, like Tapyr. The fonts in `theme/assets/fonts` are under the SIL Open Font License 1.1 (license files next to them).

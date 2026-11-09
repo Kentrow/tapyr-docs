@@ -138,7 +138,7 @@ def page_descriptions(docs, index):
 
 def generated_config(index, version, channel, has_release, descriptions=None):
     """The part of the Zensical configuration that comes from the export index."""
-    return {
+    config = {
         "nav": [{"Home": "index.md"}] + index["nav"],
         "extra": {
             "version": {"provider": "mike", "default": "latest", "alias": True},
@@ -157,6 +157,12 @@ def generated_config(index, version, channel, has_release, descriptions=None):
             },
         },
     }
+    if channel == "release":
+        # The canonical URL of every page, in every minor, is its /latest/ one: an older
+        # minor sends search engines to the current page, and that URL never moves.
+        # dev keeps its own and stays out of search results (theme/overrides/main.html).
+        config["plugins"] = [{"mike": {"canonical_version": "latest"}}]
+    return config
 
 
 def prepare(tapyr, ref, version, out, has_release=False):
