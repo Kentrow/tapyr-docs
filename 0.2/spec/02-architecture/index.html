@@ -1,0 +1,3477 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Tapyr is a single Go process. Configuration files are loaded and compiled into an in-memory runtime graph (providers, accounts, jobs, outputs). A scheduler…">
+      
+      
+        <meta name="author" content="Kentrow">
+      
+      
+        <link rel="canonical" href="https://docs.tapyr.eu/latest/spec/02-architecture/">
+      
+      
+      
+        <link rel="prev" href="../01-vision-and-scope/">
+      
+      
+        <link rel="next" href="../03-configuration/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../tapyr-theme/images/favicon.svg">
+      <meta name="generator" content="zensical-0.0.74">
+    
+    
+      
+        <title>02 - Architecture - Tapyr docs</title>
+      
+    
+    
+      
+        
+      
+      <link rel="stylesheet" href="../../assets/stylesheets/modern/main.4ab2de0c.min.css">
+      
+        
+          
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/modern/palette.b60ce83d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+    
+      <link rel="stylesheet" href="../../tapyr-theme/stylesheets/tapyr.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_scope.pathname.endsWith("/")||(__md_scope=new URL(__md_scope.pathname+"/",location)),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,_=__md_scope)=>JSON.parse(t.getItem(_.pathname+"."+e)),__md_set=(e,t,_=localStorage,a=__md_scope)=>{try{_.setItem(a.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
+    
+      
+
+    
+    
+
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer" aria-hidden="true"></label>
+    <div data-md-component="skip">
+      <a href="#__skip" class="md-skip">
+        Skip to content
+      </a>
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+          <aside class="md-banner md-banner--warning">
+            <div class="md-banner__inner md-grid md-typeset">
+              You are reading the documentation of Tapyr 0.2, an older version.
+    <a class="tapyr-version-link" href="../latest/"><strong>Read the latest.</strong></a>
+            </div>
+            <script>var el=document.querySelector("[data-md-component=outdated]"),base=new URL("../..",location),outdated=__md_get("__outdated",sessionStorage,base);!0===outdated&&el&&(el.hidden=!1)</script>
+          </aside>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Tapyr docs" class="md-header__button md-logo" aria-label="Tapyr docs" data-md-component="logo">
+      <img class="tapyr-logo tapyr-logo--light" src="../../tapyr-theme/images/logo-light.png" alt="Tapyr">
+<img class="tapyr-logo tapyr-logo--dark" src="../../tapyr-theme/images/logo-dark.png" alt="Tapyr">
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+      <span class="md-visually-hidden">Navigation</span>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Tapyr docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              02 - Architecture
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-sun-moon" viewBox="0 0 24 24"><path d="M12 2v2M14.837 16.385a6 6 0 1 1-7.223-7.222c.624-.147.97.66.715 1.248a4 4 0 0 0 5.26 5.259c.589-.255 1.396.09 1.248.715M16 12a4 4 0 0 0-4-4M19 5l-1.256 1.256M20 12h2"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-moon" viewBox="0 0 24 24"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+          <span class="md-visually-hidden">Search</span>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog" aria-label="Search">
+  <button type="button" class="md-search__button">
+    Search
+  </button>
+</div>
+      
+    
+    <div class="md-header__source">
+      
+        <a href="https://github.com/Kentrow/tapyr" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M216.5 362.5c-66-8-112.5-55.5-112.5-117 0-25 9-52 24-70-6.5-16.5-5.5-51.5 2-66 20-2.5 47 8 63 22.5 19-6 39-9 63.5-9s44.5 3 62.5 8.5c15.5-14 43-24.5 63-22 7 13.5 8 48.5 1.5 65.5 16 19 24.5 44.5 24.5 70.5 0 61.5-46.5 108-113.5 116.5 17 11 28.5 35 28.5 62.5v52c0 15 12.5 23.5 27.5 17.5C441 459.5 512 369 512 257 512 115.5 397 0 255.5 0S0 115.5 0 257c0 111 70.5 203 165.5 237.5 13.5 5 26.5-4 26.5-17.5v-40c-7 3-16 5-24 5-33 0-52.5-18-66.5-51.5-5.5-13.5-11.5-21.5-23-23-6-.5-8-3-8-6 0-6 10-10.5 20-10.5 14.5 0 27 9 40 27.5 10 14.5 20.5 21 33 21s20.5-4.5 32-16c8.5-8.5 15-16 21-21"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Kentrow/tapyr
+  </div>
+</a>
+      
+    </div>
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../getting-started/" class="md-tabs__link">
+        
+  
+  Getting started
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../concepts/" class="md-tabs__link">
+        
+  
+  Concepts
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../install/" class="md-tabs__link">
+          
+  
+  Guides
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../examples/compose/" class="md-tabs__link">
+          
+  
+  Deployment
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../providers/teltonika-rms/" class="md-tabs__link">
+          
+  
+  Providers
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../reference/" class="md-tabs__link">
+          
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../01-vision-and-scope/" class="md-tabs__link">
+          
+  
+  Design
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Tapyr docs" class="md-nav__button md-logo" aria-label="Tapyr docs" data-md-component="logo">
+      <img class="tapyr-logo tapyr-logo--light" src="../../tapyr-theme/images/logo-light.png" alt="Tapyr">
+<img class="tapyr-logo tapyr-logo--dark" src="../../tapyr-theme/images/logo-dark.png" alt="Tapyr">
+    </a>
+    Tapyr docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Kentrow/tapyr" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M216.5 362.5c-66-8-112.5-55.5-112.5-117 0-25 9-52 24-70-6.5-16.5-5.5-51.5 2-66 20-2.5 47 8 63 22.5 19-6 39-9 63.5-9s44.5 3 62.5 8.5c15.5-14 43-24.5 63-22 7 13.5 8 48.5 1.5 65.5 16 19 24.5 44.5 24.5 70.5 0 61.5-46.5 108-113.5 116.5 17 11 28.5 35 28.5 62.5v52c0 15 12.5 23.5 27.5 17.5C441 459.5 512 369 512 257 512 115.5 397 0 255.5 0S0 115.5 0 257c0 111 70.5 203 165.5 237.5 13.5 5 26.5-4 26.5-17.5v-40c-7 3-16 5-24 5-33 0-52.5-18-66.5-51.5-5.5-13.5-11.5-21.5-23-23-6-.5-8-3-8-6 0-6 10-10.5 20-10.5 14.5 0 27 9 40 27.5 10 14.5 20.5 21 33 21s20.5-4.5 32-16c8.5-8.5 15-16 21-21"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Kentrow/tapyr
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Home
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Getting started
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Concepts
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Guides
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_4">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Guides
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../install/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Install
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../outputs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Outputs
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Operations
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../alerts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Alerts
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Troubleshooting
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../examples/compose/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Deployment
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_5">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Deployment
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/config/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Example configuration
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/systemd/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  systemd
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/kubernetes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Kubernetes
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../providers/teltonika-rms/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Providers
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_6">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Providers
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../providers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Provider packages
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../providers/teltonika-rutos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  teltonika-rutos
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../providers/meraki-dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  meraki-dashboard
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../providers/aruba-central-classic/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  aruba-central-classic
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../providers/example-sim/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  example-sim
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../provider-ideas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Provider ideas
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../reference/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Reference
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_7" id="__nav_7_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_7">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Reference
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Command line
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_7_3" id="__nav_7_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Configuration
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_3_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_7_3">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Configuration
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/account/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Account
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/job/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Job
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/output/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Output
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/settings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Settings
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_7_4" id="__nav_7_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Provider packages
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_4_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_7_4">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Provider packages
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/provider/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Provider
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/jobtemplate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  JobTemplate
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/simulation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Simulation
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/scenario/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Scenario
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Design
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="true">
+            <label class="md-nav__title" for="__nav_8">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Design
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-vision-and-scope/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  01 - Vision and scope
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  02 - Architecture
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="././" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  02 - Architecture
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Overview
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#components" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Components
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Components">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#config-loader-and-compiler-internalconfig" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Config loader and compiler (<code>internal/config</code>)
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#runtime-compiler-internalruntime" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Runtime compiler (<code>internal/runtime</code>)
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#secrets-internalsecret" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Secrets (<code>internal/secret</code>)
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#provider-registry-internalprovider" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Provider registry (<code>internal/provider</code>)
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#budget-engine-internalbudget" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Budget engine (<code>internal/budget</code>)
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#planner-internalbudgetplanner" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Planner (<code>internal/budget/planner</code>)
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scheduler-internalscheduler" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Scheduler (<code>internal/scheduler</code>)
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#collector-internalcollector" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Collector (<code>internal/collector</code>)
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#collection-executor-internalcollect" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Collection executor (<code>internal/collect</code>)
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#auth-internalauth" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Auth (<code>internal/auth</code>)
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mapping-internalmapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Mapping (<code>internal/mapping</code>)
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metric-model-and-series-registry-internalmodel-internalseries" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Metric model and series registry (<code>internal/model</code>, <code>internal/series</code>)
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#outputs-internaloutput" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Outputs (<code>internal/output</code>)
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#state-store-internalstate" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        State store (<code>internal/state</code>)
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#self-observability-internalselfobs" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Self-observability (<code>internal/selfobs</code>)
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#status-api-and-ui-internalapi-internalui-ui" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Status API and UI (<code>internal/api</code>, <code>internal/ui</code>, <code>ui/</code>)
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#simulator-internalsim" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Simulator (<code>internal/sim</code>)
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#request-lifecycle" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Request lifecycle
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#state" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        State
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#concurrency-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Concurrency model
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#repository-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Repository layout
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#main-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Main dependencies
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  03 - Configuration model
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-budget-engine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  04 - Budget engine
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-collection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  05 - Collection: auth, pagination, discovery, retries
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-mapping-and-outputs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  06 - Mapping and outputs
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07-self-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  07 - Self-observability ("monitoring of monitoring")
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08-simulator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  08 - Provider simulator and record mode
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09-cli-api-ui/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  09 - CLI, status API and web UI
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../10-providers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  10 - Built-in providers
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_11" >
+        
+          
+          <label class="md-nav__link" for="__nav_8_11" id="__nav_8_11_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Architecture decisions
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_11_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_8_11">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Architecture decisions
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0001-go/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0001 - Go as implementation language
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0002-cel-mapping/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0002 - CEL as the mapping and expression language
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0003-yaml-config-json-schema/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0003 - YAML configuration with a Kubernetes-like envelope and generated JSON Schemas
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0004-declarative-provider-packages/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0004 - Declarative provider packages shared by collector and simulator
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0005-sqlite-state/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0005 - Embedded SQLite for persistent state
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0006-read-only-embedded-ui/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0006 - Read-only web UI embedded in the binary
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0007-apache-2-license/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0007 - Apache License 2.0
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0008-otlp-via-pdata/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0008 - Build OTLP payloads directly, not through the OpenTelemetry metrics SDK
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0009-window-values-as-gauges/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0009 - Window values exposed as gauges by default
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0010-documentation-site/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0010 - Documentation site built from this repository
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0011-provider-ecosystem/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0011 - Generic engine, network-first launch and a provider catalog
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  
+                    
+                    
+                    
+                      
+                    
+                    
+                      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+                      <div class="md-sidebar-button__wrapper">
+                        <label class="md-sidebar-button" for="__toc"></label>
+                      </div>
+                    
+                  
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Overview
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#components" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Components
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Components">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#config-loader-and-compiler-internalconfig" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Config loader and compiler (<code>internal/config</code>)
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#runtime-compiler-internalruntime" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Runtime compiler (<code>internal/runtime</code>)
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#secrets-internalsecret" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Secrets (<code>internal/secret</code>)
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#provider-registry-internalprovider" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Provider registry (<code>internal/provider</code>)
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#budget-engine-internalbudget" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Budget engine (<code>internal/budget</code>)
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#planner-internalbudgetplanner" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Planner (<code>internal/budget/planner</code>)
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scheduler-internalscheduler" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Scheduler (<code>internal/scheduler</code>)
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#collector-internalcollector" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Collector (<code>internal/collector</code>)
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#collection-executor-internalcollect" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Collection executor (<code>internal/collect</code>)
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#auth-internalauth" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Auth (<code>internal/auth</code>)
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mapping-internalmapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Mapping (<code>internal/mapping</code>)
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metric-model-and-series-registry-internalmodel-internalseries" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Metric model and series registry (<code>internal/model</code>, <code>internal/series</code>)
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#outputs-internaloutput" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Outputs (<code>internal/output</code>)
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#state-store-internalstate" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        State store (<code>internal/state</code>)
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#self-observability-internalselfobs" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Self-observability (<code>internal/selfobs</code>)
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#status-api-and-ui-internalapi-internalui-ui" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Status API and UI (<code>internal/api</code>, <code>internal/ui</code>, <code>ui/</code>)
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#simulator-internalsim" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Simulator (<code>internal/sim</code>)
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#request-lifecycle" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Request lifecycle
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#state" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        State
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#concurrency-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Concurrency model
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#repository-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Repository layout
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#main-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Main dependencies
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                <a id="__skip" tabindex="-1"></a>
+                
+                  
+  <a href="https://github.com/Kentrow/tapyr/edit/main/docs/spec/02-architecture.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-file-pen" viewBox="0 0 24 24"><path d="M12.659 22H18a2 2 0 0 0 2-2V8a2.4 2.4 0 0 0-.706-1.706l-3.588-3.588A2.4 2.4 0 0 0 14 2H6a2 2 0 0 0-2 2v9.34"/><path d="M14 2v5a1 1 0 0 0 1 1h5M10.378 12.622a1 1 0 0 1 3 3.003L8.36 20.637a2 2 0 0 1-.854.506l-2.867.837a.5.5 0 0 1-.62-.62l.836-2.869a2 2 0 0 1 .506-.853z"/></svg>
+  </a>
+
+
+<h1 id="02---architecture">02 - Architecture<a class="headerlink" href="#02---architecture" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>Tapyr is a single Go process. Configuration files are loaded and compiled into an in-memory runtime graph (providers, accounts, jobs, outputs). A scheduler triggers job runs; each run executes HTTP requests through the collection layer, which asks the budget engine for a reservation before every request. Responses are mapped by CEL into an internal metric model, then fanned out to the configured outputs. Everything is observable through self-metrics and a read-only status API, consumed by an embedded web UI.</p>
+<div class="highlight"><pre><span></span><code>                 ┌──────────────────────────── tapyr process ────────────────────────────┐
+ config files ──▶│ config loader ─▶ compiler (schema + CEL type-check) ─▶ runtime graph   │
+                 │                                                          │             │
+                 │   planner ◀──────────── budget engine ◀───────┐          ▼             │
+                 │      │                (ledger, buckets,       │      scheduler          │
+                 │      ▼                 header sync)           │          │             │
+                 │ effective intervals                           │          ▼             │
+                 │                                               └── collection executor  │──▶ provider APIs
+                 │                                          (auth, pagination, retries,   │    (or simulator)
+                 │                                           circuit breaker)             │
+                 │                                                          │             │
+                 │                                                          ▼             │
+                 │                                       mapping (CEL) ─▶ metric model     │
+                 │                                                          │             │
+                 │                          series registry (staleness, dedup)            │
+                 │                                                          │             │
+                 │                ┌────────────────┬───────────────┬────────┘             │
+                 │                ▼                ▼               ▼                      │
+                 │        prometheus pull   remote write        OTLP                      │──▶ TSDB / backends
+                 │                                                                        │
+                 │  state store (SQLite)   self-metrics   status API ─▶ embedded web UI   │
+                 └────────────────────────────────────────────────────────────────────────┘
+</code></pre></div>
+<h2 id="components">Components<a class="headerlink" href="#components" title="Permanent link">&para;</a></h2>
+<h3 id="config-loader-and-compiler-internalconfig">Config loader and compiler (<code>internal/config</code>)<a class="headerlink" href="#config-loader-and-compiler-internalconfig" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Loads one or more paths (files or directories, recursively <code>*.yaml</code>/<code>*.yml</code>), multi-document YAML.</li>
+<li>Resolves built-in provider packages (embedded in the binary) and user provider packages (from <code>providerPaths</code>).</li>
+<li>Validates every document against the JSON Schema of its <code>kind</code>, then performs semantic validation (references exist, no cycles in discovery, scopes reference known dimensions, limits are coherent).</li>
+<li>Compiles every CEL expression against a declared environment and type-checks it.</li>
+<li>Produces an immutable <code>runtime.Graph</code>. Hot reload builds a new graph and swaps it atomically; in-flight runs finish on the old graph.</li>
+<li>Go types (and their doc comments, used as schema descriptions) are the single source of truth: JSON Schemas are generated from them (<code>make schema</code>), committed in <code>schemas/</code>, and embedded in the binary for validation and <code>tapyr schema</code>. A test fails when the committed schemas drift from the Go types.</li>
+<li>Loading pipeline: YAML AST (positions kept) -&gt; generic tree -&gt; JSON Schema validation (errors mapped back to <code>file:line:column</code>) -&gt; strict decoding into Go types -&gt; defaults -&gt; semantic validation.</li>
+</ul>
+<h3 id="runtime-compiler-internalruntime">Runtime compiler (<code>internal/runtime</code>)<a class="headerlink" href="#runtime-compiler-internalruntime" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Turns a validated configuration into the immutable <code>runtime.Graph</code>: CEL programs compiled, template fields evaluated per account and target, effective request, pagination, auth and labels resolved per job.</li>
+<li>Used by <code>validate</code> (compilation errors with positions) and by <code>run</code>.</li>
+</ul>
+<h3 id="secrets-internalsecret">Secrets (<code>internal/secret</code>)<a class="headerlink" href="#secrets-internalsecret" title="Permanent link">&para;</a></h3>
+<p>Resolved secret values are held in a type whose string, JSON and <code>slog</code> forms are <code>[REDACTED]</code>, so they cannot leak through formatting by accident.</p>
+<h3 id="provider-registry-internalprovider">Provider registry (<code>internal/provider</code>)<a class="headerlink" href="#provider-registry-internalprovider" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Loads provider packages (see <code>03-configuration.md</code>, "Provider packages").</li>
+<li>Exposes provider definitions to the compiler and to the simulator.</li>
+</ul>
+<h3 id="budget-engine-internalbudget">Budget engine (<code>internal/budget</code>)<a class="headerlink" href="#budget-engine-internalbudget" title="Permanent link">&para;</a></h3>
+<p>The heart of the project, see <code>04-budget-engine.md</code>. Responsibilities: limit evaluation for each request, reservations, waiting, ledger persistence, header sync, 429 penalties, retry reserve, projections.</p>
+<h3 id="planner-internalbudgetplanner">Planner (<code>internal/budget/planner</code>)<a class="headerlink" href="#planner-internalbudgetplanner" title="Permanent link">&para;</a></h3>
+<p>Computes effective intervals for all jobs given quotas, priorities and estimated calls per run. Used at startup, on reload, on inventory changes, periodically, and offline by <code>tapyr plan</code>.</p>
+<h3 id="scheduler-internalscheduler">Scheduler (<code>internal/scheduler</code>)<a class="headerlink" href="#scheduler-internalscheduler" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Triggers job runs according to effective intervals, with jitter to avoid synchronized bursts: every job instance gets a random phase in <code>[0, jitter x interval)</code> and runs at <code>phase + k x interval</code>, without drift.</li>
+<li>Manages discovery fan-out: parent job results produce child run instances.</li>
+<li>Enforces one run at a time per job instance (no overlap). If a run overruns its interval, the next run is skipped and counted.</li>
+<li>Orders pending work by priority when the budget engine signals contention.</li>
+</ul>
+<h3 id="collector-internalcollector">Collector (<code>internal/collector</code>)<a class="headerlink" href="#collector-internalcollector" title="Permanent link">&para;</a></h3>
+<p>The process of <code>tapyr run</code>, wired by <code>cmd/tapyr</code>:</p>
+<ul>
+<li>What outlives a configuration reload: the state store, the series registry, the outputs, the token sessions and the HTTP server (<code>/metrics</code>, <code>/metrics/self</code>, <code>/healthz</code>, <code>/readyz</code>, the status API and the UI).</li>
+<li>A generation per compiled graph: its budget engine, executor, discovery and scheduler. A reload builds the next generation, stops the old one once its runs end, moves the ledger to the new engine, keeps the unchanged outputs and the schedule of the instances that stay, and retires the others.</li>
+<li>The run of a job instance: the executor, the mapping, the inventory update, then the samples to the outputs and the run history.</li>
+<li>Discovery: the children of every parent instance follow its inventory, start from the cached inventory after a restart, and are removed when it expires.</li>
+<li>The online plan (every <code>replanInterval</code>, on a learned quota, on inventory changes), the flush loop (ledger, series, expiry), the push of the self-metrics, and the adapter of the status API.</li>
+</ul>
+<h3 id="collection-executor-internalcollect">Collection executor (<code>internal/collect</code>)<a class="headerlink" href="#collection-executor-internalcollect" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Builds requests from job definitions and variables, applies auth, handles pagination.</li>
+<li>Calls the budget engine before every request (including pages, retries, token requests).</li>
+<li>Classifies errors, applies the retry policy, and reports successes and transient failures to the circuit breakers, which live in the budget engine (one per account, or per target).</li>
+<li>Returns the raw responses (all pages) for mapping, plus run statistics.</li>
+</ul>
+<h3 id="auth-internalauth">Auth (<code>internal/auth</code>)<a class="headerlink" href="#auth-internalauth" title="Permanent link">&para;</a></h3>
+<p>Pluggable auth providers implementing a common interface (decorate a request, react to 401, refresh tokens). Declarative types plus Go plugins for flows that cannot be expressed declaratively (<code>aruba_central_classic</code>). Tokens are persisted in the state store when the flow requires it.</p>
+<h3 id="mapping-internalmapping">Mapping (<code>internal/mapping</code>)<a class="headerlink" href="#mapping-internalmapping" title="Permanent link">&para;</a></h3>
+<p>Evaluates compiled CEL programs on responses to produce samples in the internal metric model. See <code>06-mapping-and-outputs.md</code>.</p>
+<h3 id="metric-model-and-series-registry-internalmodel-internalseries">Metric model and series registry (<code>internal/model</code>, <code>internal/series</code>)<a class="headerlink" href="#metric-model-and-series-registry-internalmodel-internalseries" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Internal pivot model, close to the OpenTelemetry data model: metric name, type (gauge, counter), unit, description, labels (attributes), samples with optional source timestamps.</li>
+<li>The series registry tracks, per job instance, the series seen in the last successful run and the last timestamp sent per series. It drives staleness and deduplication.</li>
+</ul>
+<h3 id="outputs-internaloutput">Outputs (<code>internal/output</code>)<a class="headerlink" href="#outputs-internaloutput" title="Permanent link">&para;</a></h3>
+<p>Pluggable outputs, each with its own bounded in-memory queue and retry policy: <code>prometheus</code> (pull), <code>remote_write</code>, <code>otlp</code>. See <code>06-mapping-and-outputs.md</code>.</p>
+<h3 id="state-store-internalstate">State store (<code>internal/state</code>)<a class="headerlink" href="#state-store-internalstate" title="Permanent link">&para;</a></h3>
+<p>SQLite (<code>modernc.org/sqlite</code>, pure Go) behind a <code>state.Store</code> interface. Holds: quota ledger, auth tokens, inventory cache, series registry snapshots, run history (bounded). See "State" below.</p>
+<h3 id="self-observability-internalselfobs">Self-observability (<code>internal/selfobs</code>)<a class="headerlink" href="#self-observability-internalselfobs" title="Permanent link">&para;</a></h3>
+<p>Self-metrics registry (Prometheus <code>client_golang</code>), health checks, structured logging setup. See <code>07-self-observability.md</code>.</p>
+<h3 id="status-api-and-ui-internalapi-internalui-ui">Status API and UI (<code>internal/api</code>, <code>internal/ui</code>, <code>ui/</code>)<a class="headerlink" href="#status-api-and-ui-internalapi-internalui-ui" title="Permanent link">&para;</a></h3>
+<p>Read-only JSON API under <code>/api/v1</code>, plus the embedded React UI served under <code>/ui/</code>. See <code>09-cli-api-ui.md</code>.</p>
+<h3 id="simulator-internalsim">Simulator (<code>internal/sim</code>)<a class="headerlink" href="#simulator-internalsim" title="Permanent link">&para;</a></h3>
+<p>HTTP server that serves provider fixtures and enforces provider limits, reusing the budget package server-side. See <code>08-simulator.md</code>.</p>
+<h2 id="request-lifecycle">Request lifecycle<a class="headerlink" href="#request-lifecycle" title="Permanent link">&para;</a></h2>
+<ol>
+<li>The scheduler triggers run <code>R</code> of job <code>J</code> for account <code>A</code> (and target <code>T</code> if multi-target), with variables <code>V</code> (from discovery).</li>
+<li>The executor builds request 1 (method, URL template resolved with <code>V</code>, query, headers).</li>
+<li>The auth provider decorates the request. If a token is needed and absent or expired, the auth provider performs a token request, itself subject to a budget reservation against the provider's auth limits.</li>
+<li>The executor asks the budget engine to <code>Reserve(descriptor)</code>. The descriptor carries provider, account, target, credential, templated endpoint, variables, job priority, and whether the request is a retry.</li>
+<li>The budget engine evaluates every limit whose scope matches, atomically. It returns a reservation, possibly after waiting (rate, concurrency), or a refusal (quota exhausted, scope penalized, circuit open) with a reason.</li>
+<li>The request is sent with a per-request timeout.</li>
+<li>On response, the executor reports the outcome to the budget engine (status code, quota headers, <code>Retry-After</code>), releases concurrency, and records self-metrics.</li>
+<li>Errors are classified; retryable errors re-enter step 4 as retries (consuming from the retry reserve).</li>
+<li>Pagination computes the next request (back to step 2) until done or <code>maxPages</code>.</li>
+<li>All pages are passed to the mapping, which produces samples.</li>
+<li>The series registry applies dedup and staleness, then samples are enqueued to the job's outputs.</li>
+<li>Run statistics are stored (run history) and exposed.</li>
+</ol>
+<h2 id="state">State<a class="headerlink" href="#state" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Data</th>
+<th>Why persistent</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Quota ledger (fixed and rolling windows)</td>
+<td>A restart must not reset daily or monthly consumption</td>
+<td>Rolling windows store per-minute buckets</td>
+</tr>
+<tr>
+<td>Auth tokens</td>
+<td>Rotating refresh tokens (Aruba Classic) are lost forever if not persisted</td>
+<td>Encrypted at rest with a key from <code>TAPYR_STATE_KEY</code> if set; warn if not set</td>
+</tr>
+<tr>
+<td>Inventory cache</td>
+<td>Avoid re-spending quota on discovery after restart</td>
+<td>TTL-based</td>
+</tr>
+<tr>
+<td>Series registry</td>
+<td>Staleness markers and dedup across restarts</td>
+<td>Snapshotted periodically</td>
+</tr>
+<tr>
+<td>Run history</td>
+<td>Status API and UI</td>
+<td>Bounded (last N runs per job)</td>
+</tr>
+</tbody>
+</table>
+<p>Token buckets and concurrency counters are in-memory only (short horizon, safe to reset).</p>
+<p>Tables: <code>meta</code> (key, value: schema version, credential salt, <code>instance_id</code> used as <code>service.instance.id</code> by OTLP), <code>ledger</code> (limit, scope key, window start, used, observed remaining, observed max, updated at), <code>ledger_minutes</code> (limit, scope key, minute, count: the buckets of rolling windows and of the current fixed window), <code>runs</code> (job, instance, run id, start, end, result, requests, pages, retries, items, samples, error; the last 50 per job instance), <code>tokens</code> (session key, sealed token, expiry; the key carries the provider, account, credential hash, target with <code>perTarget</code>, and a hash of the auth configuration, never a secret), <code>inventory</code> (job instance, item key, fields, updated at), <code>series_instances</code> (job instance, last success), <code>series</code> (job instance, output, series key, last source timestamp; rows with an empty output list the series of the last successful run) and <code>accumulators</code> (job instance, series key, total, last window) for reconstructed counters.</p>
+<p>Hot reload (SIGHUP): the new configuration is loaded and compiled first; on any error it is rejected and logged, and the running graph stays. On success, scheduling of the old graph stops, its runs in flight finish, the budget engine is rebuilt with the ledger carried over, unchanged outputs are kept (the pull exposition keeps serving), removed job instances are retired, and the new graph starts. A reload never resets quota consumption.</p>
+<p>The instances that stay keep their schedule: the new scheduler starts each one at the next run that was due in the old one (at once when it fell due during the reload, at most one new interval away when the interval shrank), so a reload neither loses nor adds runs and never postpones instances with long intervals. Children of fan-outs start again from the cached inventory. Token sessions are kept (a changed auth configuration opens a new one), run IDs continue one sequence per process, and the HTTP client is shared so that no connection is left behind. Changes to <code>server</code>, <code>state.path</code> and <code>log</code> settings are logged as taking effect after a restart. In flight runs get up to 30 seconds to finish before they are canceled.</p>
+<p>The state file path defaults to <code>./data/tapyr.db</code>. Writes are batched; the ledger is flushed at least every few seconds and on shutdown. Losing the last seconds of ledger updates is acceptable; quota header sync corrects drift.</p>
+<h2 id="concurrency-model">Concurrency model<a class="headerlink" href="#concurrency-model" title="Permanent link">&para;</a></h2>
+<ul>
+<li>One goroutine pool for collection, bounded globally (<code>settings.collection.maxConcurrentRequests</code>) and further bounded by concurrency limits from providers.</li>
+<li>Each output has its own sender goroutines and queue.</li>
+<li>The budget engine is safe for concurrent use; reservations across multiple limits are atomic: every limit is acquired under the engine lock (no partial acquisition, no deadlock; see <code>04-budget-engine.md</code>).</li>
+<li>Graceful shutdown: stop scheduling, wait for in-flight runs up to a timeout, flush outputs up to a timeout, flush state, exit.</li>
+</ul>
+<h2 id="repository-layout">Repository layout<a class="headerlink" href="#repository-layout" title="Permanent link">&para;</a></h2>
+<p><code>cmd/tapyr</code> holds the CLI and wires the dependencies: the commands parse their flags, load and compile the configuration, and <code>tapyr run</code> hands the state store, the logger, the secrets and the auth plugins to <code>internal/collector</code>, which runs the collection.</p>
+<div class="highlight"><pre><span></span><code>tapyr/
+├── .agents/skills/            # agent skills (Agent Skills format)
+├── .claude/skills/            # points Claude Code to .agents/skills
+├── .github/                   # CI and release workflows, issue and pull request templates, Dependabot
+├── cmd/tapyr/                 # main, CLI (cobra), wiring
+├── internal/
+│   ├── api/                   # read-only status API (/api/v1), OpenAPI description
+│   ├── auth/                  # auth interface, declarative types, token sessions
+│   │   └── plugins/           # auth plugins registry (arubacentral/)
+│   ├── budget/                # limits, scopes, ledger, reservations
+│   │   ├── budgettest/        # engine doubles for tests
+│   │   └── planner/           # effective interval planning
+│   ├── buildinfo/             # version, revision and Go version (set by ldflags)
+│   ├── clock/                 # Clock interface, real and fake implementations
+│   ├── collect/               # executor, pagination, retry
+│   ├── collector/             # the process of tapyr run: generations, reload, discovery, outputs, status API adapter
+│   ├── config/                # types, loading, defaults, validation
+│   ├── mapping/               # CEL environment, compilation, evaluation
+│   ├── model/                 # internal metric model
+│   ├── output/                # output interface
+│   │   ├── otlp/
+│   │   ├── prometheus/
+│   │   ├── push/              # queue, batching and retries shared by the push outputs
+│   │   └── remotewrite/
+│   ├── provider/              # provider package loading and registry
+│   ├── runtime/               # compiler: config -&gt; runtime.Graph
+│   ├── scheduler/             # scheduling, discovery fan-out
+│   ├── secret/                # redacted secret values
+│   ├── selfobs/               # self-metrics, health, logging
+│   ├── series/                # series registry, staleness, dedup
+│   ├── sim/                   # simulator server, scenarios, record mode
+│   ├── state/                 # Store interface, SQLite implementation
+│   ├── tools/docsite/         # documentation checks and export to the site (make docs-check)
+│   ├── tools/schemagen/       # JSON Schema generator (make schema)
+│   └── ui/                    # HTTP handler of the web UI (assets embedded by ui/embed.go)
+├── providers/                 # built-in provider packages
+│   ├── embed.go               # embeds the packages in the binary
+│   ├── aruba-central-classic/
+│   ├── example-sim/           # vendor-neutral reference package
+│   ├── meraki-dashboard/
+│   ├── teltonika-rms/
+│   └── teltonika-rutos/
+├── ui/                        # React + Vite + TypeScript app, and embed.go (package ui) embedding ui/dist
+├── schemas/                   # generated JSON Schemas (committed, embedded with go:embed)
+├── examples/
+│   ├── config/                # example configuration
+│   ├── compose/               # demo docker compose (tapyr, sims, VictoriaMetrics, Grafana)
+│   └── alerts/                # example alert rules on the self-metrics, with promtool tests
+├── dashboards/                # Grafana dashboards for Tapyr self-monitoring
+├── docs/
+│   ├── spec/
+│   ├── adr/
+│   ├── reference/             # configuration reference, generated from the schemas (make schema)
+│   ├── alerts.md              # the example alerts and what to do when they fire
+│   ├── install.md
+│   ├── outputs.md             # Prometheus, remote write, OTLP
+│   ├── providers.md           # writing a provider package
+│   ├── site.yml               # pages of the documentation site (ADR 0010)
+│   └── roadmap.md
+├── scripts/                   # repository checks and release helpers
+├── test/
+│   ├── e2e/                   # opt-in tests against real platforms (build tag e2e)
+│   └── integration/           # push outputs against VictoriaMetrics and the OpenTelemetry Collector
+├── Makefile
+├── Dockerfile                 # image built from source
+├── Dockerfile.release         # image of a release, from the GoReleaser binaries
+├── .goreleaser.yaml
+├── .golangci.yml
+├── AGENTS.md                  # instructions for coding agents (CLAUDE.md points to it)
+├── CHANGELOG.md
+├── CODE_OF_CONDUCT.md
+├── CONTRIBUTING.md
+├── LICENSE                    # Apache-2.0
+├── README.md
+└── SECURITY.md
+</code></pre></div>
+<h2 id="main-dependencies">Main dependencies<a class="headerlink" href="#main-dependencies" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Concern</th>
+<th>Library</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CLI</td>
+<td><code>github.com/spf13/cobra</code></td>
+</tr>
+<tr>
+<td>YAML</td>
+<td><code>github.com/goccy/go-yaml</code> (good error positions)</td>
+</tr>
+<tr>
+<td>JSON Schema generation</td>
+<td><code>github.com/invopop/jsonschema</code></td>
+</tr>
+<tr>
+<td>JSON Schema validation</td>
+<td><code>github.com/santhosh-tekuri/jsonschema/v6</code></td>
+</tr>
+<tr>
+<td>CEL</td>
+<td><code>cel.dev/cel-go</code></td>
+</tr>
+<tr>
+<td>SQLite</td>
+<td><code>modernc.org/sqlite</code> (no CGO)</td>
+</tr>
+<tr>
+<td>Prometheus exposition and self-metrics</td>
+<td><code>github.com/prometheus/client_golang</code></td>
+</tr>
+<tr>
+<td>Remote write</td>
+<td>minimal protos encoded with <code>google.golang.org/protobuf/encoding/protowire</code>, compressed with <code>github.com/klauspost/compress/snappy</code></td>
+</tr>
+<tr>
+<td>OTLP</td>
+<td><code>go.opentelemetry.io/collector/pdata</code> (<code>pmetric</code> payloads built directly), sent over OTLP/HTTP or gRPC (<code>google.golang.org/grpc</code>)</td>
+</tr>
+<tr>
+<td>Logging</td>
+<td><code>log/slog</code> (standard library)</td>
+</tr>
+<tr>
+<td>UI</td>
+<td>React, Vite, TypeScript, <code>@xyflow/react</code> (graph); charts are hand-written SVG</td>
+</tr>
+<tr>
+<td>Release</td>
+<td>GoReleaser</td>
+</tr>
+<tr>
+<td>Lint</td>
+<td>golangci-lint</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-circle-arrow-up" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4M12 16V8"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../01-vision-and-scope/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 01 - Vision and scope">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-arrow-left" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7M19 12H5"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                01 - Vision and scope
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../03-configuration/" class="md-footer__link md-footer__link--next" aria-label="Next: 03 - Configuration model">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                03 - Configuration model
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Tapyr is open source under the Apache-2.0 license. Project site: <a href="https://tapyr.eu">tapyr.eu</a>.
+    </div>
+  
+  
+    Made with
+    <a href="https://zensical.org/" target="_blank" rel="noopener">
+      Zensical
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://tapyr.eu" target="_blank" rel="noopener" title="tapyr.eu, the project site" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20M2 12h20"/></svg>
+    </a>
+  
+    
+    
+    
+    
+    <a href="https://github.com/Kentrow/tapyr" target="_blank" rel="noopener" title="Tapyr on GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M216.5 362.5c-66-8-112.5-55.5-112.5-117 0-25 9-52 24-70-6.5-16.5-5.5-51.5 2-66 20-2.5 47 8 63 22.5 19-6 39-9 63.5-9s44.5 3 62.5 8.5c15.5-14 43-24.5 63-22 7 13.5 8 48.5 1.5 65.5 16 19 24.5 44.5 24.5 70.5 0 61.5-46.5 108-113.5 116.5 17 11 28.5 35 28.5 62.5v52c0 15 12.5 23.5 27.5 17.5C441 459.5 512 369 512 257 512 115.5 397 0 255.5 0S0 115.5 0 257c0 111 70.5 203 165.5 237.5 13.5 5 26.5-4 26.5-17.5v-40c-7 3-16 5-24 5-33 0-52.5-18-66.5-51.5-5.5-13.5-11.5-21.5-23-23-6-.5-8-3-8-6 0-6 10-10.5 20-10.5 14.5 0 27 9 40 27.5 10 14.5 20.5 21 33 21s20.5-4.5 32-16c8.5-8.5 15-16 21-21"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog" role="status" aria-atomic="true">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      
+      
+        
+        
+      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["navigation.tabs","navigation.sections","navigation.top","navigation.footer","navigation.indexes","search.highlight","content.action.edit","content.code.copy","toc.follow"],"redirect":null,"search":"../../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":{"alias":true,"default":"latest","provider":"mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d31f0ffa.min.js"></script>
+      
+    
+  </body>
+</html>
