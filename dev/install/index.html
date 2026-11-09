@@ -2657,22 +2657,23 @@
 <h1 id="install">Install<a class="headerlink" href="#install" title="Permanent link">&para;</a></h1>
 <p>Tapyr is a single static binary with the web UI embedded. Releases ship it for Linux, macOS and Windows (amd64, arm64), and as the multi-arch image <code>ghcr.io/kentrow/tapyr</code>.</p>
 <h2 id="binary">Binary<a class="headerlink" href="#binary" title="Permanent link">&para;</a></h2>
-<p>Download the archive of your platform and <code>checksums.txt</code> from the <a href="https://github.com/kentrow/tapyr/releases">releases page</a>, check it, then put <code>tapyr</code> in your <code>PATH</code>:</p>
-<div class="highlight"><pre><span></span><code><span class="nv">VERSION</span><span class="o">=</span><span class="m">0</span>.1.2
-curl<span class="w"> </span>-LO<span class="w"> </span>https://github.com/kentrow/tapyr/releases/download/v<span class="nv">$VERSION</span>/tapyr_<span class="si">${</span><span class="nv">VERSION</span><span class="si">}</span>_linux_amd64.tar.gz
+<p>Download the archive of your platform and <code>checksums.txt</code> from the <a href="https://github.com/kentrow/tapyr/releases">releases page</a>, check it, then put <code>tapyr</code> in your <code>PATH</code>. On Linux:</p>
+<div class="highlight"><pre><span></span><code><span class="nv">VERSION</span><span class="o">=</span><span class="m">0</span>.2.0
+<span class="nv">ARCH</span><span class="o">=</span><span class="k">$(</span>uname<span class="w"> </span>-m<span class="w"> </span><span class="p">|</span><span class="w"> </span>sed<span class="w"> </span><span class="s1">'s/x86_64/amd64/; s/aarch64/arm64/'</span><span class="k">)</span>
+curl<span class="w"> </span>-LO<span class="w"> </span>https://github.com/kentrow/tapyr/releases/download/v<span class="nv">$VERSION</span>/tapyr_<span class="si">${</span><span class="nv">VERSION</span><span class="si">}</span>_linux_<span class="si">${</span><span class="nv">ARCH</span><span class="si">}</span>.tar.gz
 curl<span class="w"> </span>-LO<span class="w"> </span>https://github.com/kentrow/tapyr/releases/download/v<span class="nv">$VERSION</span>/checksums.txt
 sha256sum<span class="w"> </span>--ignore-missing<span class="w"> </span>-c<span class="w"> </span>checksums.txt
-tar<span class="w"> </span>xzf<span class="w"> </span>tapyr_<span class="si">${</span><span class="nv">VERSION</span><span class="si">}</span>_linux_amd64.tar.gz<span class="w"> </span>tapyr
+tar<span class="w"> </span>xzf<span class="w"> </span>tapyr_<span class="si">${</span><span class="nv">VERSION</span><span class="si">}</span>_linux_<span class="si">${</span><span class="nv">ARCH</span><span class="si">}</span>.tar.gz<span class="w"> </span>tapyr
 ./tapyr<span class="w"> </span>version
 </code></pre></div>
-<p>On macOS, <code>sha256sum</code> is not installed: check the archive with <code>shasum -a 256 --ignore-missing -c checksums.txt</code>.</p>
+<p>The archives are <code>tapyr_&lt;version&gt;_&lt;os&gt;_&lt;arch&gt;</code>: <code>linux</code>, <code>darwin</code> or <code>windows</code> (a <code>.zip</code>), <code>amd64</code> or <code>arm64</code>. On macOS, <code>sha256sum</code> is not installed: check the archive with <code>shasum -a 256 --ignore-missing -c checksums.txt</code>.</p>
 <p>Each archive has its SBOM next to it (<code>&lt;archive&gt;.sbom.json</code>, SPDX), and holds <code>LICENSE</code>, <code>NOTICE</code> and <code>THIRD_PARTY_LICENSES</code>, the licenses and notices of the software the binary includes.</p>
 <h2 id="container-image">Container image<a class="headerlink" href="#container-image" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span>--name<span class="w"> </span>tapyr<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-v<span class="w"> </span><span class="s2">"</span><span class="nv">$PWD</span><span class="s2">/config:/etc/tapyr:ro"</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-v<span class="w"> </span>tapyr-data:/home/nonroot/data<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-p<span class="w"> </span><span class="m">9790</span>:9790<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>ghcr.io/kentrow/tapyr:0.1.2
+<span class="w">  </span>ghcr.io/kentrow/tapyr:0.2.0
 </code></pre></div>
 <ul>
 <li>The image runs <code>tapyr run --config /etc/tapyr</code> as the <code>nonroot</code> user (uid 65532), on <code>gcr.io/distroless/static-debian12</code>.</li>
@@ -2681,7 +2682,7 @@ tar<span class="w"> </span>xzf<span class="w"> </span>tapyr_<span class="si">${<
 <li>Secrets come from environment variables or files (<code>{ env: NAME }</code>, <code>{ file: /path }</code>): pass them with <code>-e</code> or mount them, never in the configuration files.</li>
 <li><code>docker kill -s HUP tapyr</code> reloads the configuration.</li>
 </ul>
-<p>Tags: <code>X.Y.Z</code>, <code>X.Y</code> (latest patch of a minor version) and <code>latest</code> (latest release).</p>
+<p>Tags: <code>X.Y.Z</code>, <code>X.Y</code> (latest patch of a minor version) and <code>latest</code> (latest release). A release candidate has its tag <code>X.Y.Z-rc.N</code> only.</p>
 <h2 id="systemd">systemd<a class="headerlink" href="#systemd" title="Permanent link">&para;</a></h2>
 <p><a href="../examples/systemd/"><code>examples/systemd</code></a> has a hardened unit: a dynamic user, the configuration in <code>/etc/tapyr</code>, the secrets in an environment file read by systemd, the state store in <code>/var/lib/tapyr</code>, and <code>systemctl reload tapyr</code> for a reload.</p>
 <h2 id="kubernetes">Kubernetes<a class="headerlink" href="#kubernetes" title="Permanent link">&para;</a></h2>
@@ -2716,7 +2717,7 @@ gh<span class="w"> </span>attestation<span class="w"> </span>verify<span class="
 </code></pre></div>
 <p>The attestations of the archives are also a release asset, <code>tapyr_${VERSION}_provenance.intoto.jsonl</code>, to verify without the attestations API of GitHub: add <code>--bundle tapyr_${VERSION}_provenance.intoto.jsonl</code> to the command of an archive. For the image, <code>--bundle-from-oci</code> reads the attestation stored next to it in the registry.</p>
 <h2 id="from-source">From source<a class="headerlink" href="#from-source" title="Permanent link">&para;</a></h2>
-<p>Go 1.27 and Node.js 22 or later:</p>
+<p>Go 1.27 and Node.js 22.12 or later (Vite 8 needs it):</p>
 <div class="highlight"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/kentrow/tapyr.git
 <span class="nb">cd</span><span class="w"> </span>tapyr
 make<span class="w"> </span>build<span class="w">        </span><span class="c1"># the UI, then the static binary in ./bin/tapyr</span>
