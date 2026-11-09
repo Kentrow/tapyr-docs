@@ -286,6 +286,21 @@ class ConfigTest(unittest.TestCase):
         self.assertEqual([s["link"] for s in extra["extra"]["social"]], ["https://tapyr.eu", "https://github.com/Kentrow/tapyr"])
         json.dumps(extra)
 
+    def test_released_pages_name_their_latest_url_as_canonical_and_dev_keeps_its_own(self):
+        index = {"ref": "v0.1.2", "nav": [], "pages": []}
+        release = site.generated_config(index, version="0.1", channel="release", has_release=True)
+        # every minor, old ones included, sends search engines to /latest/: links to 0.1 count for the latest
+        self.assertEqual(release["plugins"], [{"mike": {"canonical_version": "latest"}}])
+        dev = site.generated_config(dict(index, ref="main"), version="dev", channel="dev", has_release=True)
+        self.assertNotIn("plugins", dev)
+
+    def test_the_generated_keys_are_not_in_the_base_configuration(self):
+        # appended as top-level keys: one also in mkdocs.yml would be a duplicate
+        base = (site.ROOT / "mkdocs.yml").read_text()
+        index = {"ref": "v0.1.2", "nav": [], "pages": []}
+        for key in site.generated_config(index, version="0.1", channel="release", has_release=True):
+            self.assertNotRegex(base, rf"(?m)^{key}:")
+
 
 class CommitsTest(unittest.TestCase):
     SCRIPT = Path(__file__).resolve().parent.parent / "scripts" / "check-commits.sh"
