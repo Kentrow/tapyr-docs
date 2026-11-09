@@ -316,6 +316,8 @@
       
         
       
+        
+      
     
     
     
@@ -718,6 +720,28 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#homebrew" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Homebrew
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deb-and-rpm-packages" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        deb and rpm packages
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#container-image" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -927,6 +951,8 @@
       
         
       
+        
+      
     
     
     
@@ -1022,6 +1048,33 @@
     
   
   systemd
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../charts/tapyr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Helm chart
 
     
   </span>
@@ -2566,6 +2619,28 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#homebrew" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Homebrew
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deb-and-rpm-packages" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        deb and rpm packages
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#container-image" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -2656,7 +2731,7 @@
 <p>Tapyr is a single static binary with the web UI embedded. Releases ship it for Linux, macOS and Windows (amd64, arm64), and as the multi-arch image <code>ghcr.io/kentrow/tapyr</code>.</p>
 <h2 id="binary">Binary<a class="headerlink" href="#binary" title="Permanent link">&para;</a></h2>
 <p>Download the archive of your platform and <code>checksums.txt</code> from the <a href="https://github.com/kentrow/tapyr/releases">releases page</a>, check it, then put <code>tapyr</code> in your <code>PATH</code>. On Linux:</p>
-<div class="highlight"><pre><span></span><code><span class="nv">VERSION</span><span class="o">=</span><span class="m">0</span>.2.0
+<div class="highlight"><pre><span></span><code><span class="nv">VERSION</span><span class="o">=</span><span class="m">0</span>.2.1
 <span class="nv">ARCH</span><span class="o">=</span><span class="k">$(</span>uname<span class="w"> </span>-m<span class="w"> </span><span class="p">|</span><span class="w"> </span>sed<span class="w"> </span><span class="s1">'s/x86_64/amd64/; s/aarch64/arm64/'</span><span class="k">)</span>
 curl<span class="w"> </span>-LO<span class="w"> </span>https://github.com/kentrow/tapyr/releases/download/v<span class="nv">$VERSION</span>/tapyr_<span class="si">${</span><span class="nv">VERSION</span><span class="si">}</span>_linux_<span class="si">${</span><span class="nv">ARCH</span><span class="si">}</span>.tar.gz
 curl<span class="w"> </span>-LO<span class="w"> </span>https://github.com/kentrow/tapyr/releases/download/v<span class="nv">$VERSION</span>/checksums.txt
@@ -2666,12 +2741,29 @@ tar<span class="w"> </span>xzf<span class="w"> </span>tapyr_<span class="si">${<
 </code></pre></div>
 <p>The archives are <code>tapyr_&lt;version&gt;_&lt;os&gt;_&lt;arch&gt;</code>: <code>linux</code>, <code>darwin</code> or <code>windows</code> (a <code>.zip</code>), <code>amd64</code> or <code>arm64</code>. On macOS, <code>sha256sum</code> is not installed: check the archive with <code>shasum -a 256 --ignore-missing -c checksums.txt</code>.</p>
 <p>Each archive has its SBOM next to it (<code>&lt;archive&gt;.sbom.json</code>, SPDX), and holds <code>LICENSE</code>, <code>NOTICE</code> and <code>THIRD_PARTY_LICENSES</code>, the licenses and notices of the software the binary includes.</p>
+<h2 id="homebrew">Homebrew<a class="headerlink" href="#homebrew" title="Permanent link">&para;</a></h2>
+<p>From v0.2.1, on macOS:</p>
+<div class="highlight"><pre><span></span><code>brew<span class="w"> </span>install<span class="w"> </span>kentrow/tap/tapyr
+brew<span class="w"> </span>trust<span class="w"> </span>kentrow/tap<span class="w">            </span><span class="c1"># once, so that a plain `brew upgrade` includes it</span>
+</code></pre></div>
+<p>The binary is not notarized by Apple: the cask removes its quarantine attribute at install, otherwise macOS would refuse to run it. To check what you run, <a href="#verify-the-signatures">verify the signatures</a> of the release first.</p>
+<h2 id="deb-and-rpm-packages">deb and rpm packages<a class="headerlink" href="#deb-and-rpm-packages" title="Permanent link">&para;</a></h2>
+<p>From v0.2.1, every release has <code>.deb</code> and <code>.rpm</code> packages for amd64 and arm64: the binary in <code>/usr/bin</code>, the <a href="../examples/systemd/">hardened systemd unit</a> and an example in <code>/etc/tapyr</code>. They are static, without dependencies, and covered by the checksums, their signature and the provenance below.</p>
+<div class="highlight"><pre><span></span><code><span class="nv">VERSION</span><span class="o">=</span><span class="m">0</span>.2.1
+<span class="nv">ARCH</span><span class="o">=</span><span class="k">$(</span>dpkg<span class="w"> </span>--print-architecture<span class="k">)</span><span class="w">    </span><span class="c1"># or: uname -m | sed 's/x86_64/amd64/; s/aarch64/arm64/'</span>
+curl<span class="w"> </span>-LO<span class="w"> </span>https://github.com/kentrow/tapyr/releases/download/v<span class="nv">$VERSION</span>/tapyr_<span class="si">${</span><span class="nv">VERSION</span><span class="si">}</span>_linux_<span class="si">${</span><span class="nv">ARCH</span><span class="si">}</span>.deb<span class="w">    </span><span class="c1"># or .rpm</span>
+curl<span class="w"> </span>-LO<span class="w"> </span>https://github.com/kentrow/tapyr/releases/download/v<span class="nv">$VERSION</span>/checksums.txt
+sha256sum<span class="w"> </span>--ignore-missing<span class="w"> </span>-c<span class="w"> </span>checksums.txt
+sudo<span class="w"> </span>dpkg<span class="w"> </span>-i<span class="w"> </span>tapyr_<span class="si">${</span><span class="nv">VERSION</span><span class="si">}</span>_linux_<span class="si">${</span><span class="nv">ARCH</span><span class="si">}</span>.deb<span class="w">                                                             </span><span class="c1"># or: sudo rpm -i ...</span>
+</code></pre></div>
+<p>The service does not start by itself: without a configuration, it would collect nothing. Write <code>/etc/tapyr/config.yaml</code> from <code>config.yaml.example</code>, the secrets in <code>/etc/tapyr/tapyr.env</code> (mode <code>0600</code>), then <code>sudo systemctl enable --now tapyr</code>. <a href="../examples/systemd/">The systemd guide</a> covers how to run it.</p>
+<p>An upgrade restarts the service if it runs, and keeps the state store. A removal, even a <code>purge</code>, keeps <code>/etc/tapyr</code> and the state store in <code>/var/lib/private/tapyr</code>: it remembers the quotas already spent and the rotated tokens. Delete them by hand if you really mean to.</p>
 <h2 id="container-image">Container image<a class="headerlink" href="#container-image" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span>--name<span class="w"> </span>tapyr<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-v<span class="w"> </span><span class="s2">"</span><span class="nv">$PWD</span><span class="s2">/config:/etc/tapyr:ro"</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-v<span class="w"> </span>tapyr-data:/home/nonroot/data<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-p<span class="w"> </span><span class="m">9790</span>:9790<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>ghcr.io/kentrow/tapyr:0.2.0
+<span class="w">  </span>ghcr.io/kentrow/tapyr:0.2.1
 </code></pre></div>
 <ul>
 <li>The image runs <code>tapyr run --config /etc/tapyr</code> as the <code>nonroot</code> user (uid 65532), on <code>gcr.io/distroless/static-debian12</code>.</li>
@@ -2682,9 +2774,14 @@ tar<span class="w"> </span>xzf<span class="w"> </span>tapyr_<span class="si">${<
 </ul>
 <p>Tags: <code>X.Y.Z</code>, <code>X.Y</code> (latest patch of a minor version) and <code>latest</code> (latest release). A release candidate has its tag <code>X.Y.Z-rc.N</code> only.</p>
 <h2 id="systemd">systemd<a class="headerlink" href="#systemd" title="Permanent link">&para;</a></h2>
-<p><a href="../examples/systemd/"><code>examples/systemd</code></a> has a hardened unit: a dynamic user, the configuration in <code>/etc/tapyr</code>, the secrets in an environment file read by systemd, the state store in <code>/var/lib/tapyr</code>, and <code>systemctl reload tapyr</code> for a reload.</p>
+<p>The <a href="#deb-and-rpm-packages">deb and rpm packages</a> install it. For a binary installed by hand, <a href="../examples/systemd/"><code>examples/systemd</code></a> has a hardened unit: a dynamic user, the configuration in <code>/etc/tapyr</code>, the secrets in an environment file read by systemd, the state store in <code>/var/lib/tapyr</code>, and <code>systemctl reload tapyr</code> for a reload.</p>
 <h2 id="kubernetes">Kubernetes<a class="headerlink" href="#kubernetes" title="Permanent link">&para;</a></h2>
-<p><a href="../examples/kubernetes/"><code>examples/kubernetes</code></a> has Kustomize manifests: a Deployment of one replica (non-root, read-only root file system, probes on <code>/readyz</code> and <code>/healthz</code>), its Service, a volume for the state store, and the configuration as a ConfigMap whose changes roll the Deployment out. Run a single replica: a second one would spend the same quotas without coordinating.</p>
+<p>The <a href="../charts/tapyr/">Helm chart</a> is published with every release, signed:</p>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>create<span class="w"> </span>namespace<span class="w"> </span>tapyr
+kubectl<span class="w"> </span>-n<span class="w"> </span>tapyr<span class="w"> </span>create<span class="w"> </span>secret<span class="w"> </span>generic<span class="w"> </span>tapyr<span class="w"> </span>--from-env-file<span class="o">=</span>tapyr.env
+helm<span class="w"> </span>install<span class="w"> </span>tapyr<span class="w"> </span>oci://ghcr.io/kentrow/charts/tapyr<span class="w"> </span>--namespace<span class="w"> </span>tapyr<span class="w"> </span>--values<span class="w"> </span>my-values.yaml
+</code></pre></div>
+<p>Without Helm, <a href="../examples/kubernetes/"><code>examples/kubernetes</code></a> has Kustomize manifests: a Deployment of one replica (non-root, read-only root file system, probes on <code>/readyz</code> and <code>/healthz</code>), its Service, a volume for the state store, and the configuration as a ConfigMap whose changes roll the Deployment out. Run a single replica: a second one would spend the same quotas without coordinating.</p>
 <h2 id="verify-the-signatures">Verify the signatures<a class="headerlink" href="#verify-the-signatures" title="Permanent link">&para;</a></h2>
 <p>The checksums and the image are signed with <a href="https://docs.sigstore.dev/">cosign</a> in keyless mode by the release workflow of the repository. The signature proves that the files and the image were built by that workflow, from a tag of <code>Kentrow/tapyr</code>. The identity is compared as written, case included.</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># The checksums of a release (then check the archives with sha256sum, above).</span>
@@ -2695,6 +2792,11 @@ cosign<span class="w"> </span>verify-blob<span class="w"> </span>checksums.txt<s
 
 <span class="c1"># The image.</span>
 cosign<span class="w"> </span>verify<span class="w"> </span>ghcr.io/kentrow/tapyr:<span class="nv">$VERSION</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--certificate-identity<span class="w"> </span><span class="s2">"https://github.com/Kentrow/tapyr/.github/workflows/release.yml@refs/tags/v</span><span class="nv">$VERSION</span><span class="s2">"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--certificate-oidc-issuer<span class="w"> </span>https://token.actions.githubusercontent.com
+</code></pre></div>
+<p>The Helm chart, from v0.2.1:</p>
+<div class="highlight"><pre><span></span><code>cosign<span class="w"> </span>verify<span class="w"> </span>ghcr.io/kentrow/charts/tapyr:<span class="nv">$VERSION</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--certificate-identity<span class="w"> </span><span class="s2">"https://github.com/Kentrow/tapyr/.github/workflows/release.yml@refs/tags/v</span><span class="nv">$VERSION</span><span class="s2">"</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--certificate-oidc-issuer<span class="w"> </span>https://token.actions.githubusercontent.com
 </code></pre></div>
@@ -2710,6 +2812,11 @@ gh<span class="w"> </span>attestation<span class="w"> </span>verify<span class="
 
 <span class="c1"># The image.</span>
 gh<span class="w"> </span>attestation<span class="w"> </span>verify<span class="w"> </span><span class="s2">"oci://ghcr.io/kentrow/tapyr:</span><span class="nv">$VERSION</span><span class="s2">"</span><span class="w"> </span>--repo<span class="w"> </span>Kentrow/tapyr<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--signer-workflow<span class="w"> </span>Kentrow/tapyr/.github/workflows/release.yml<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--source-ref<span class="w"> </span><span class="s2">"refs/tags/v</span><span class="nv">$VERSION</span><span class="s2">"</span><span class="w"> </span>--deny-self-hosted-runners
+
+<span class="c1"># The Helm chart, from v0.2.1.</span>
+gh<span class="w"> </span>attestation<span class="w"> </span>verify<span class="w"> </span><span class="s2">"oci://ghcr.io/kentrow/charts/tapyr:</span><span class="nv">$VERSION</span><span class="s2">"</span><span class="w"> </span>--repo<span class="w"> </span>Kentrow/tapyr<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--signer-workflow<span class="w"> </span>Kentrow/tapyr/.github/workflows/release.yml<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--source-ref<span class="w"> </span><span class="s2">"refs/tags/v</span><span class="nv">$VERSION</span><span class="s2">"</span><span class="w"> </span>--deny-self-hosted-runners
 </code></pre></div>

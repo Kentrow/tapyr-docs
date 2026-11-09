@@ -314,6 +314,8 @@
       
         
       
+        
+      
     
     
     
@@ -798,6 +800,8 @@
       
         
       
+        
+      
     
     
     
@@ -893,6 +897,33 @@
     
   
   systemd
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../charts/tapyr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Helm chart
 
     
   </span>
@@ -2705,7 +2736,7 @@
 <p>Looking for an API to package? <a href="../provider-ideas/">Provider ideas</a> lists candidates in other domains, with their rate-limit patterns and the engine features some of them still need.</p>
 <h2 id="writing-a-package">Writing a package<a class="headerlink" href="#writing-a-package" title="Permanent link">&para;</a></h2>
 <ol>
-<li>Read the vendor documentation and write <code>provider.yaml</code>. <strong>Every limit cites its source</strong> in its <code>source</code> (<code>vendor-docs</code> with the link, <code>measured</code> with the date, or <code>assumed</code>), and in its <code>description</code> and the README for humans. The metadata describes the package in the catalog: <code>displayName</code>, <code>categories</code> from <a href="https://github.com/Kentrow/tapyr/blob/v0.2.0/providers/categories.yaml"><code>providers/categories.yaml</code></a>, <code>maintainers</code> (GitHub handles), <code>tier</code> (<code>official</code> or <code>community</code>) and <code>validation</code> (<code>simulator</code>, or <code>real-platform</code> with a date and the platform version), see <a href="../spec/03-configuration/#provider"><code>03-configuration.md</code></a>. Prefer endpoints that return many objects per request (organization-wide lists, large pages): the budget engine spends quota deliberately, the templates should too.</li>
+<li>Read the vendor documentation and write <code>provider.yaml</code>. <strong>Every limit cites its source</strong> in its <code>source</code> (<code>vendor-docs</code> with the link, <code>measured</code> with the date, or <code>assumed</code>), and in its <code>description</code> and the README for humans. The metadata describes the package in the catalog: <code>displayName</code>, <code>categories</code> from <a href="https://github.com/Kentrow/tapyr/blob/v0.2.1/providers/categories.yaml"><code>providers/categories.yaml</code></a>, <code>maintainers</code> (GitHub handles), <code>tier</code> (<code>official</code> or <code>community</code>) and <code>validation</code> (<code>simulator</code>, or <code>real-platform</code> with a date and the platform version), see <a href="../spec/03-configuration/#provider"><code>03-configuration.md</code></a>. Prefer endpoints that return many objects per request (organization-wide lists, large pages): the budget engine spends quota deliberately, the templates should too.</li>
 <li>Write the job templates (<code>templates/*.yaml</code>) with <code>estimate.pagesPerRun</code>. Metric names follow <code>&lt;prefix&gt;_&lt;object&gt;_&lt;measure&gt;_&lt;unit&gt;</code> in base units, descriptive attributes go to <code>_info</code> metrics, and no high-cardinality label (client MAC addresses, IPs) is used.</li>
 <li>Build the simulator (<code>sim/sim.yaml</code>): a synthetic inventory with template fixtures (see <a href="../spec/08-simulator/#synthetic-inventory-and-templated-fixtures"><code>08-simulator.md</code></a>), or static fixtures from a recording. Ship the <code>default</code>, <code>quota-tight</code> and <code>bad-day</code> scenarios.</li>
 <li>Write the contract test (<code>tests/contract.yaml</code>, <code>tests/contract.env</code>) and generate <code>tests/expected.prom</code> with <code>tapyr provider lint --update &lt;dir&gt;</code>. Review the samples: they are the contract of the package.</li>

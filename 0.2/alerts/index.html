@@ -316,6 +316,8 @@
       
         
       
+        
+      
     
     
     
@@ -1055,6 +1057,8 @@
       
         
       
+        
+      
     
     
     
@@ -1150,6 +1154,33 @@
     
   
   systemd
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../charts/tapyr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Helm chart
 
     
   </span>
@@ -2909,7 +2940,7 @@
 
 
 <h1 id="alerts">Alerts<a class="headerlink" href="#alerts" title="Permanent link">&para;</a></h1>
-<p>Tapyr exposes its own metrics on <code>/metrics/self</code> (see <a href="../spec/07-self-observability/"><code>07-self-observability.md</code></a>). The example rules in <a href="https://github.com/Kentrow/tapyr/blob/v0.2.0/examples/alerts/tapyr-alerts.yaml"><code>examples/alerts/tapyr-alerts.yaml</code></a> turn them into alerts for Prometheus or vmalert. They are starting points: copy them, then tune the thresholds and durations to your job intervals and quotas.</p>
+<p>Tapyr exposes its own metrics on <code>/metrics/self</code> (see <a href="../spec/07-self-observability/"><code>07-self-observability.md</code></a>). The example rules in <a href="https://github.com/Kentrow/tapyr/blob/v0.2.1/examples/alerts/tapyr-alerts.yaml"><code>examples/alerts/tapyr-alerts.yaml</code></a> turn them into alerts for Prometheus or vmalert. They are starting points: copy them, then tune the thresholds and durations to your job intervals and quotas.</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># prometheus.yml</span>
 <span class="nt">rule_files</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/etc/prometheus/rules/tapyr-alerts.yaml</span>

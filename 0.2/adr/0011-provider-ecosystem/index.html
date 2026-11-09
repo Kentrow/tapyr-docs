@@ -312,6 +312,8 @@
       
         
       
+        
+      
     
     
     
@@ -796,6 +798,8 @@
       
         
       
+        
+      
     
     
     
@@ -891,6 +895,33 @@
     
   
   systemd
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../charts/tapyr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Helm chart
 
     
   </span>
@@ -2596,10 +2627,10 @@
 </ul>
 <h2 id="context">Context<a class="headerlink" href="#context" title="Permanent link">&para;</a></h2>
 <p>v0.1 ships four provider packages, all for network equipment: Aruba Central (classic), Cisco Meraki, Teltonika RMS and Teltonika RutOS. The problem Tapyr solves, collecting metrics from APIs whose quota is scarce, is not specific to networks: a survey of candidate APIs (<a href="../../provider-ideas/">provider ideas</a>) found it in security services, Internet measurement, cloud costs, developer platforms, energy and sport. Most of them fit the configuration model as it is; some need mechanisms the budget engine does not have yet.</p>
-<p>At the same time, an open source project that claims to do everything struggles to find its first users, and the provider ecosystems that work (Terraform Registry, Ansible Galaxy, Grafana dashboards) show that discoverability and trust signals decide whether contributions keep coming. Today a provider package carries a name, a version, a description and a documentation link: nothing tells who maintains it or how it was tested, except the prose of its README. Users can already load their own packages from <code>settings.providerPaths</code>; the built-in packages are the ones in <a href="https://github.com/Kentrow/tapyr/tree/v0.2.0/providers"><code>providers/</code></a>, embedded in the binary.</p>
+<p>At the same time, an open source project that claims to do everything struggles to find its first users, and the provider ecosystems that work (Terraform Registry, Ansible Galaxy, Grafana dashboards) show that discoverability and trust signals decide whether contributions keep coming. Today a provider package carries a name, a version, a description and a documentation link: nothing tells who maintains it or how it was tested, except the prose of its README. Users can already load their own packages from <code>settings.providerPaths</code>; the built-in packages are the ones in <a href="https://github.com/Kentrow/tapyr/tree/v0.2.1/providers"><code>providers/</code></a>, embedded in the binary.</p>
 <h2 id="decision">Decision<a class="headerlink" href="#decision" title="Permanent link">&para;</a></h2>
 <ol>
-<li><strong>Generic engine.</strong> The core makes no network-specific assumption: any metric-oriented API must be expressible as a provider package. A provider that needs a missing mechanism gets a generic, configurable one, never vendor logic in <code>internal/</code> (the design principles of <a href="https://github.com/Kentrow/tapyr/blob/v0.2.0/AGENTS.md"><code>AGENTS.md</code></a>).</li>
+<li><strong>Generic engine.</strong> The core makes no network-specific assumption: any metric-oriented API must be expressible as a provider package. A provider that needs a missing mechanism gets a generic, configurable one, never vendor logic in <code>internal/</code> (the design principles of <a href="https://github.com/Kentrow/tapyr/blob/v0.2.1/AGENTS.md"><code>AGENTS.md</code></a>).</li>
 <li><strong>Network-first launch.</strong> Networks are the first use case, not the boundary. The README, the site and the specs lead with network equipment, where the built-in packages are; other domains come with the engine features they need, ideally from contributions.</li>
 <li><strong>Catalog metadata on provider packages</strong>, in v0.2.0. Two independent axes describe a package instead of a single trust level:</li>
 <li><code>tier</code>: who maintains it. <code>official</code> packages are maintained by the Tapyr maintainers; <code>community</code> packages by their contributors, named in <code>maintainers</code>;</li>

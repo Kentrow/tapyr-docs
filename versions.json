@@ -16,7 +16,7 @@
       "latest"
     ],
     "properties": {
-      "source": "v0.2.0",
+      "source": "v0.2.1",
       "has_release": true,
       "engine": "b7f3cd9a5d0959b06c96ded137e8e67cc99b295d"
     }

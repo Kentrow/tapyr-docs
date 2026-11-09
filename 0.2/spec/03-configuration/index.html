@@ -314,6 +314,8 @@
       
         
       
+        
+      
     
     
     
@@ -798,6 +800,8 @@
       
         
       
+        
+      
     
     
     
@@ -893,6 +897,33 @@
     
   
   systemd
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../charts/tapyr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Helm chart
 
     
   </span>
@@ -3247,7 +3278,7 @@
 <li>Precedence, highest first: <code>Provider</code> documents written directly in the configuration paths, then packages from <code>providerPaths</code> (in order), then built-in packages. A package that is overridden is dropped entirely, its job templates included. Every override is reported as a warning by <code>validate</code> and <code>run</code>.</li>
 <li>Each <code>providerPaths</code> entry is either a package directory (it contains <code>provider.yaml</code>) or a directory of packages (each subdirectory containing a <code>provider.yaml</code> is a package).</li>
 <li>In a package, <code>provider.yaml</code> holds exactly one <code>Provider</code>, <code>templates/*.yaml</code> hold only <code>JobTemplate</code> documents whose <code>spec.provider</code> is the package name, and <code>sim/sim.yaml</code> holds at most one <code>Simulation</code>. The package directory name must equal the provider name.</li>
-<li><code>tapyr provider lint &lt;dir&gt;</code> validates a package and runs its contract test (see <a href="../08-simulator/#contract-tests"><code>08-simulator.md</code></a>). With <code>--catalog</code>, it also requires the catalog metadata: a <code>displayName</code>, at least one category of <a href="https://github.com/Kentrow/tapyr/blob/v0.2.0/providers/categories.yaml"><code>providers/categories.yaml</code></a>, at least one maintainer, a <code>tier</code>, a <code>validation</code> (with its <code>date</code> and <code>platformVersion</code> when its status is <code>real-platform</code>), and a <code>source</code> on every limit (with its <code>url</code> for <code>vendor-docs</code>, its <code>date</code> for <code>measured</code>); dates must exist. The CI runs it on the built-in packages.</li>
+<li><code>tapyr provider lint &lt;dir&gt;</code> validates a package and runs its contract test (see <a href="../08-simulator/#contract-tests"><code>08-simulator.md</code></a>). With <code>--catalog</code>, it also requires the catalog metadata: a <code>displayName</code>, at least one category of <a href="https://github.com/Kentrow/tapyr/blob/v0.2.1/providers/categories.yaml"><code>providers/categories.yaml</code></a>, at least one maintainer, a <code>tier</code>, a <code>validation</code> (with its <code>date</code> and <code>platformVersion</code> when its status is <code>real-platform</code>), and a <code>source</code> on every limit (with its <code>url</code> for <code>vendor-docs</code>, its <code>date</code> for <code>measured</code>); dates must exist. The CI runs it on the built-in packages.</li>
 </ul>
 <h2 id="validation-rules-non-exhaustive">Validation rules (non-exhaustive)<a class="headerlink" href="#validation-rules-non-exhaustive" title="Permanent link">&para;</a></h2>
 <ul>
