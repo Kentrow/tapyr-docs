@@ -1,7 +1,7 @@
-# Build tool chain of docs.tapyr.eu, every version pinned. Zensical is 0.0.x:
+# Build tool chain of docs.tapyr.eu, every version pinned. Zensical is 0.x:
 # update it on purpose (Dependabot opens the pull requests), then check the build.
-zensical==0.0.74
-zensical-ui==0.0.41
+zensical==0.1.1
+zensical-ui==0.0.42
 # Fork of mike for Zensical, not on PyPI: pinned to the commit of tag 2.2.0+zensical-0.1.0
 mike @ git+https://github.com/squidfunk/mike.git@0f62791256ebeba60d20d2f1d8fe6ec3b7d1e2b3
 click==8.5.0
