@@ -335,8 +335,12 @@ class CommitsTest(unittest.TestCase):
 class ThemeTest(unittest.TestCase):
     def test_outdated_banner_script_resolves_its_base_against_the_page(self):
         # base_url is relative ("." or ".."): new URL() throws without a base, and the
-        # banner of an older version then waits for the main script to show it.
-        template = Path(__file__).parent.parent / "theme/overrides/partials/javascripts/outdated.html"
+        # banner of an older version then waits for the main script to show it. Fixed in
+        # zensical-ui 0.0.42 (zensical/ui#306): the template used is the theme's own.
+        import zensical_ui
+        name = "partials/javascripts/outdated.html"
+        self.assertFalse((Path(__file__).parent.parent / "theme/overrides" / name).exists())
+        template = Path(zensical_ui.__file__).parent / "templates" / name
         self.assertIn('base=new URL("{{ base_url }}",location)', template.read_text())
 
 

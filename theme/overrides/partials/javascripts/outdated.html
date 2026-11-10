@@ -1,4 +1,0 @@
-{#- The theme's script (zensical-ui 0.0.41) calls new URL(base_url), which throws because
-    base_url is relative. Same script, with the base resolved against the page, as the
-    theme already does for __md_scope. -#}
-<script>var el=document.querySelector("[data-md-component=outdated]"),base=new URL("{{ base_url }}",location),outdated=__md_get("__outdated",sessionStorage,base);!0===outdated&&el&&(el.hidden=!1)</script>
