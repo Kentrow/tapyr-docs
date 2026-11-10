@@ -19,8 +19,10 @@
   {%- endif -%}
 {% endblock %}
 
-{#- Once a release is out, dev duplicates it: keep it out of search results. -#}
+{#- Once a release is out, dev duplicates it: keep it out of search results. Besides the
+    SVG icon of the theme, a PNG one for search results. -#}
 {% block extrahead %}
+  <link rel="icon" href="{{ 'tapyr-theme/images/favicon-96.png' | url }}" sizes="96x96" type="image/png">
   {%- if config.extra.tapyr.channel == "dev" and config.extra.tapyr.has_release %}
     <meta name="robots" content="noindex">
   {%- endif %}

@@ -31,7 +31,7 @@ What belongs here: `mkdocs.yml`, `theme/`, `home/index.md` (the home page; the T
 | `/0.1/`, `/0.2/`… | the latest stable tag of that minor (`v0.1.1`, then `v0.1.2`…); v0.1.1 is the first tag with a manifest |
 | `/latest/` | alias of the latest stable minor |
 | `/dev/` | `main`, with a "development version" banner |
-| `/` | redirects to `/latest/`, or to `/dev/` while no version is published |
+| `/` | redirects to `/latest/`, or to `/dev/` while no version is published; `robots.txt` and the icons of the site sit next to it (`root_files` of `tools/site_tool.py`) |
 
 Release candidates are never published. Older minors stay online with the outdated banner; the selector lists the last three minors and `dev`. `tools/site_tool.py plan` decides all this from the tags of Tapyr and the `versions.json` of the `gh-pages` branch, where each version keeps its source ref in the `source` property and the engine commit that built it in `engine` (a change to `mkdocs.yml`, `home/`, `theme/`, `tools/site_tool.py` or `requirements.txt` rebuilds every version); `publish` carries it out with [the mike fork for Zensical](https://github.com/squidfunk/mike).
 

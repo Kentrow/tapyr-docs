@@ -282,20 +282,59 @@ def publish(the_plan, tapyr, work, push, engine=None, run=subprocess.run, prepar
             run(["mike", "props", *meta, "--delete", "hidden", v], check=True)
         if the_plan["set_default"]:
             run(["mike", "set-default", *meta, the_plan["set_default"]], check=True)
-    write_root_files({"robots.txt": robots_txt(the_plan["default"])}, push, run=run)
+    write_root_files(root_files(the_plan["default"]), push, run=run)
+
+
+def root_files(default):
+    """robots.txt, the redirect to the default version and the icons of the site. Search
+    engines take the icon of a site from its home page, here the redirect: it names the
+    icons at the root, next to favicon.ico."""
+    images = ROOT / "theme" / "assets" / "images"
+    files = {"robots.txt": robots_txt(default), "index.html": redirect_html(default)}
+    for name in ["favicon.svg", "favicon-96.png", "favicon.ico"]:
+        files[name] = (images / name).read_bytes()
+    return files
 
 
 def robots_txt(default):
     return f"User-agent: *\nAllow: /\n\nSitemap: {SITE}/{default}/sitemap.xml\n"
 
 
+def redirect_html(default):
+    """The redirect page of mike (set-default), with the icons."""
+    return f"""<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Redirecting</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="favicon-96.png" sizes="96x96" type="image/png">
+  <noscript>
+    <meta http-equiv="refresh" content="1; url={default}/" />
+  </noscript>
+  <script>
+    window.location.replace(
+      "{default}/" + window.location.search + window.location.hash
+    );
+  </script>
+</head>
+<body>
+  Redirecting to <a href="{default}/">{default}/</a>...
+</body>
+</html>
+"""
+
+
 def write_root_files(files, push, run=subprocess.run, repo=ROOT):
-    """Files at the root of the gh-pages branch that mike does not manage, committed only when they change."""
+    """Files at the root of the gh-pages branch, committed only when they change (index.html after mike)."""
     tree = tempfile.mkdtemp(prefix="gh-pages-")
     run(["git", "-C", str(repo), "worktree", "add", "--quiet", tree, "gh-pages"], check=True)
     try:
         for name, content in files.items():
-            (Path(tree) / name).write_text(content)
+            if isinstance(content, bytes):
+                (Path(tree) / name).write_bytes(content)
+            else:
+                (Path(tree) / name).write_text(content)
             run(["git", "-C", tree, "add", name], check=True)
         if run(["git", "-C", tree, "diff", "--cached", "--quiet"]).returncode:
             run(["git", "-C", tree, "commit", "--quiet", "-m", f"docs: update {', '.join(files)}"], check=True)
