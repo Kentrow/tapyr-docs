@@ -1,6 +1,7 @@
 """Tests of tools/site.py. Run: python -m unittest discover -s tools"""
 
 import json
+import re
 import subprocess
 import tempfile
 import unittest
@@ -158,16 +159,34 @@ class PublishTest(unittest.TestCase):
 
         def run(cmd, **kw):
             calls.append(cmd)
-            if cmd[-2:] == ["add", "robots.txt"]:
-                written["robots"] = (Path(cmd[2]) / "robots.txt").read_text()
+            if cmd[-2] == "add":
+                written[cmd[-1]] = (Path(cmd[2]) / cmd[-1]).read_bytes()
             return subprocess.CompletedProcess(cmd, 1)
 
         site.publish(the_plan, tapyr="/t", work="/w", push=True, run=run,
                      prepare=lambda *a, **kw: None, links=lambda d: [])
-        self.assertEqual(written["robots"], "User-agent: *\nAllow: /\n\nSitemap: https://docs.tapyr.eu/latest/sitemap.xml\n")
+        self.assertEqual(written["robots.txt"], b"User-agent: *\nAllow: /\n\nSitemap: https://docs.tapyr.eu/latest/sitemap.xml\n")
+        self.assertEqual(sorted(written), ["favicon-96.png", "favicon.ico", "favicon.svg", "index.html", "robots.txt"])
         add = next(c for c in calls if c[1:3] == ["worktree", "add"] or c[3:5] == ["worktree", "add"])
         self.assertEqual(add[-1], "gh-pages")
         self.assertTrue(any(c[-2:] == ["origin", "gh-pages"] and "push" in c for c in calls))
+
+    def test_the_root_page_redirects_to_the_default_version_and_names_the_icons(self):
+        # Search engines take the icon of a site from its home page, the root redirect here.
+        for default in ["latest", "dev"]:
+            index = site.root_files(default)["index.html"]
+            self.assertEqual(re.search(r'url=([^/"]+)/', index).group(1), default)  # read back by deployed_state
+            self.assertIn(f'window.location.replace(\n      "{default}/"', index)
+            self.assertIn('<link rel="icon" href="favicon.svg" type="image/svg+xml">', index)
+            self.assertIn('<link rel="icon" href="favicon-96.png" sizes="96x96" type="image/png">', index)
+
+    def test_the_icons_at_the_root_are_those_of_the_theme(self):
+        files = site.root_files("latest")
+        images = Path(__file__).parent.parent / "theme/assets/images"
+        for name in ["favicon.svg", "favicon-96.png", "favicon.ico"]:
+            self.assertEqual(files[name], (images / name).read_bytes(), name)
+        self.assertTrue(files["favicon.ico"].startswith(b"\x00\x00\x01\x00"))
+        self.assertTrue(files["favicon-96.png"].startswith(b"\x89PNG"))
 
     def test_robots_txt_is_neither_committed_nor_pushed_when_unchanged_or_in_a_dry_run(self):
         the_plan = {"builds": [], "default": "latest", "set_default": None, "hide": [], "unhide": []}
@@ -342,6 +361,10 @@ class ThemeTest(unittest.TestCase):
         self.assertFalse((Path(__file__).parent.parent / "theme/overrides" / name).exists())
         template = Path(zensical_ui.__file__).parent / "templates" / name
         self.assertIn('base=new URL("{{ base_url }}",location)', template.read_text())
+
+    def test_pages_name_a_png_icon_besides_the_svg(self):
+        main = (Path(__file__).parent.parent / "theme/overrides/main.html").read_text()
+        self.assertIn('<link rel="icon" href="{{ \'tapyr-theme/images/favicon-96.png\' | url }}" sizes="96x96" type="image/png">', main)
 
 
 if __name__ == "__main__":
