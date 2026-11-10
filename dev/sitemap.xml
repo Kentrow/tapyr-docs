@@ -82,6 +82,9 @@
         <loc>https://docs.tapyr.eu/dev/providers/example-sim/</loc>
       </url>
       <url>
+        <loc>https://docs.tapyr.eu/dev/providers/juniper-mist/</loc>
+      </url>
+      <url>
         <loc>https://docs.tapyr.eu/dev/providers/meraki-dashboard/</loc>
       </url>
       <url>

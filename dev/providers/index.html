@@ -26,7 +26,7 @@
       
       
       <link rel="icon" href="../tapyr-theme/images/favicon.svg">
-      <meta name="generator" content="zensical-0.0.74">
+      <meta name="generator" content="zensical-0.1.1">
     
     
       
@@ -37,7 +37,7 @@
       
         
       
-      <link rel="stylesheet" href="../assets/stylesheets/modern/main.4ab2de0c.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/modern/main.ebb7f775.min.css">
       
         
           
@@ -348,6 +348,8 @@
       
         
           
+        
+      
         
       
         
@@ -1000,6 +1002,8 @@
       
         
       
+        
+      
     
     
     
@@ -1142,6 +1146,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#dashboard-conventions" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Dashboard conventions
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#cel-mapping-recipes" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -1276,6 +1291,33 @@
     
   
   aruba-central-classic
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./juniper-mist/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  juniper-mist
 
     
   </span>
@@ -2610,6 +2652,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#dashboard-conventions" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Dashboard conventions
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#cel-mapping-recipes" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -2704,11 +2757,17 @@
 <td><a href="../providers/aruba-central-classic/"><code>aruba-central-classic</code></a></td>
 <td>HPE Aruba Networking Central (classic platform) REST API</td>
 <td>Official</td>
-<td>Simulator only</td>
+<td>Real platform (Central classic API Gateway, 2026-11-10) and simulator</td>
 </tr>
 <tr>
 <td><a href="../providers/example-sim/"><code>example-sim</code></a></td>
 <td>Vendor-neutral example API, served by tapyr sim, for development, tests and demos</td>
+<td>Official</td>
+<td>Simulator only</td>
+</tr>
+<tr>
+<td><a href="../providers/juniper-mist/"><code>juniper-mist</code></a></td>
+<td>Juniper Mist cloud REST API (access points, switches, WAN edge)</td>
 <td>Official</td>
 <td>Simulator only</td>
 </tr>
@@ -2742,7 +2801,7 @@
 <li>Write the job templates (<code>templates/*.yaml</code>) with <code>estimate.pagesPerRun</code>. Metric names follow <code>&lt;prefix&gt;_&lt;object&gt;_&lt;measure&gt;_&lt;unit&gt;</code> in base units, descriptive attributes go to <code>_info</code> metrics, and no high-cardinality label (client MAC addresses, IPs) is used.</li>
 <li>Build the simulator (<code>sim/sim.yaml</code>): a synthetic inventory with template fixtures (see <a href="../spec/08-simulator/#synthetic-inventory-and-templated-fixtures"><code>08-simulator.md</code></a>), or static fixtures from a recording. Ship the <code>default</code>, <code>quota-tight</code> and <code>bad-day</code> scenarios.</li>
 <li>Write the contract test (<code>tests/contract.yaml</code>, <code>tests/contract.env</code>) and generate <code>tests/expected.prom</code> with <code>tapyr provider lint --update &lt;dir&gt;</code>. Review the samples: they are the contract of the package.</li>
-<li>Add a Grafana dashboard (<code>dashboards/*.json</code>, with a <code>datasource</code> variable, an <code>API quota</code> row when the API has a quota, and a link to <code>Tapyr / Overview</code>), examples (<code>examples/*.yaml</code>) and the README. Every package README follows the same skeleton, as in <a href="../providers/example-sim/"><code>example-sim</code></a>:</li>
+<li>Add a Grafana dashboard (<code>dashboards/*.json</code>, with a <code>datasource</code> variable, an <code>API quota</code> row when the API has a quota, and a link to <code>Tapyr / Overview</code>, following the <a href="#dashboard-conventions">dashboard conventions</a>), examples (<code>examples/*.yaml</code>) and the README. Every package README follows the same skeleton, as in <a href="../providers/example-sim/"><code>example-sim</code></a>:</li>
 <li>an introduction (the API, what is collected) with the <strong>Validation status</strong> (real platform or simulator, versions, dates);</li>
 <li><code>Requirements</code>, when there are (firmware versions, permissions, network access);</li>
 <li><code>Coverage</code>: a table <code>Template | Endpoint | Default interval | Requests | Metrics</code> (requests per run), then the labels, joins and conversions;</li>
@@ -2752,6 +2811,21 @@
 <li><code>Dashboard</code>, <code>Known caveats</code>, and <code>End-to-end test</code> when there is one.</li>
 <li><code>tapyr provider lint --catalog &lt;dir&gt;</code> must pass.</li>
 </ol>
+<h2 id="dashboard-conventions">Dashboard conventions<a class="headerlink" href="#dashboard-conventions" title="Permanent link">&para;</a></h2>
+<p>The dashboards of the packages and <code>Tapyr / Overview</code> read the same way, whatever the API:</p>
+<ul>
+<li><strong>Colors carry a meaning.</strong> Grafana's named colors (<code>green</code>, <code>orange</code>, <code>red</code>, <code>blue</code>, <code>text</code>), so that the dashboards follow the theme of each Grafana:</li>
+<li>a count of problems (devices down, failed runs) is green at 0, then <code>red</code> from 1 when it needs action, or <code>orange</code> when it is a warning (alerting devices, a backup uplink, a device not seen for an hour);</li>
+<li>a count or a measure with no good or bad value (devices, clients, uptime) is <code>text</code>, never the default thresholds of Grafana (red from 80);</li>
+<li>the share of a quota left is red under 10%, orange under 25%, green above;</li>
+<li>quota charts draw the limit in dashed red, Tapyr in blue and other clients in orange;</li>
+<li>status codes: 2xx green, 429 orange, other errors red.</li>
+<li><strong>States are state timelines.</strong> A 0/1 metric (an interface up, an uplink active) is a state timeline with value mappings (<code>Up</code>/<code>Down</code>), not a line between 0 and 1.</li>
+<li><strong>Thresholds come from a source.</strong> Mobile signal (RSRP, RSRQ, SINR, RSSI) uses the categories of the <a href="https://wiki.teltonika-networks.com/view/Mobile_Signal_Strength_Recommendations">Teltonika recommendations</a> as dashed lines; resource use (memory, flash) is orange from 80% and red from 90%. A measure without a sound threshold (temperatures, load) has none.</li>
+<li><strong>Rankings are bars.</strong> "The 10 busiest access points" is a bar gauge of the current values, not ten lines that change members over time.</li>
+<li><strong>Empty is an answer.</strong> A panel that can have nothing to show (no device down, no exhaustion projected) says so with <code>noValue</code> (<code>None</code>, <code>0</code>).</li>
+<li><strong>Queries survive push outputs.</strong> With <code>remote_write</code> or <code>otlp</code>, a series receives a sample only when its job runs, and queries look back 5 minutes for the last one (<a href="../outputs/#series-of-slow-jobs">outputs</a>). Gauges are read with <code>last_over_time(metric[window])</code>, the window two to three times the default interval of the job that produces them (<code>15m</code> for a 5-minute job, <code>2h</code> for an hourly one), and the <code>_info</code> metrics of joins with <code>max by (&lt;id&gt;, &lt;labels&gt;) (last_over_time(..._info[window]))</code>. Rates of counters need no window of their own.</li>
+</ul>
 <h2 id="cel-mapping-recipes">CEL mapping recipes<a class="headerlink" href="#cel-mapping-recipes" title="Permanent link">&para;</a></h2>
 <p>Patterns taken from the built-in templates. The CEL environment and its functions are described in <a href="../spec/06-mapping-and-outputs/#cel-environment"><code>06-mapping-and-outputs.md</code></a>.</p>
 <p><strong>Enveloped lists.</strong> <code>extract.items</code> points to the list inside the envelope (<code>teltonika-rms</code>, <code>aruba-central-classic</code>):</p>
@@ -2802,6 +2876,7 @@
 <ul>
 <li><code>report.txt</code> lists every replaced path and rule, never a value. <strong>Review the recording before committing anything</strong>: free-text fields can still hold identifying data.</li>
 <li>Only the quota headers of the provider and <code>Retry-After</code> are recorded; request credentials never are.</li>
+<li>Run it with the configuration and <code>TAPYR_STATE_KEY</code> of <code>tapyr run</code>: it reads the token pair an auth plugin stored (<code>aruba-central-classic</code>), read-only, and never renews a rotating refresh token, which would leave <code>tapyr run</code> with a spent one.</li>
 </ul>
 <p>The <code>teltonika-rms</code> fixtures follow the shape of such a recording.</p>
 <h2 id="linting-and-contract-tests">Linting and contract tests<a class="headerlink" href="#linting-and-contract-tests" title="Permanent link">&para;</a></h2>
@@ -2949,7 +3024,7 @@ tapyr<span class="w"> </span>provider<span class="w"> </span>lint<span class="w"
       <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["navigation.tabs","navigation.sections","navigation.top","navigation.footer","navigation.indexes","search.highlight","content.action.edit","content.code.copy","toc.follow"],"redirect":null,"search":"../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":{"alias":true,"default":"latest","provider":"mike"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.d31f0ffa.min.js"></script>
+      <script src="../assets/javascripts/bundle.3cb411a8.min.js"></script>
       
     
   </body>

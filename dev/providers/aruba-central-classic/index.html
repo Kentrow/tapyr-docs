@@ -19,14 +19,14 @@
         <link rel="prev" href="../meraki-dashboard/">
       
       
-        <link rel="next" href="../example-sim/">
+        <link rel="next" href="../juniper-mist/">
       
       
         
       
       
       <link rel="icon" href="../../tapyr-theme/images/favicon.svg">
-      <meta name="generator" content="zensical-0.0.74">
+      <meta name="generator" content="zensical-0.1.1">
     
     
       
@@ -37,7 +37,7 @@
       
         
       
-      <link rel="stylesheet" href="../../assets/stylesheets/modern/main.4ab2de0c.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/modern/main.ebb7f775.min.css">
       
         
           
@@ -348,6 +348,8 @@
       
         
           
+        
+      
         
       
         
@@ -1000,6 +1002,8 @@
       
         
       
+        
+      
     
     
     
@@ -1272,6 +1276,33 @@
   
 </nav>
       
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../juniper-mist/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  juniper-mist
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -2665,7 +2696,7 @@
 
 <h1 id="aruba-central-classic">aruba-central-classic<a class="headerlink" href="#aruba-central-classic" title="Permanent link">&para;</a></h1>
 <p>HPE Aruba Networking Central, <strong>classic platform</strong>, REST API: access points, switches, gateways and sites of a Central account. The newer GreenLake-based Central uses another API and will be a separate package.</p>
-<p><strong>Validation status</strong>: simulator only. The package is built from the <a href="https://developer.arubanetworks.com/aruba-central/">Aruba developer hub</a> and the official <code>pycentral</code> SDK (November 2026) and tested against a simulator in CI that rotates refresh tokens and enforces the limits below; it has not been run against a real Central account yet. Reports are welcome.</p>
+<p><strong>Validation status</strong>: tested against a real Central account (November 2026, strictly read-only): every template, the refresh of the rotating token pair, a restart resuming from the stored pair, and the daily quota headers, which matched the documented formula. The package is built from the <a href="https://developer.arubanetworks.com/aruba-central/">Aruba developer hub</a> and the official <code>pycentral</code> SDK, and tested in CI against a simulator that follows the shape of the real responses, rotates refresh tokens and enforces the limits below.</p>
 <h2 id="coverage">Coverage<a class="headerlink" href="#coverage" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -2683,7 +2714,7 @@
 <td><code>GET /monitoring/v2/aps?calculate_client_count=true</code></td>
 <td>5m</td>
 <td>1 per 1000 APs (288 a day)</td>
-<td><code>aruba_ap_up</code>, <code>aruba_ap_clients</code>, <code>aruba_ap_uptime_seconds</code>, <code>aruba_ap_info</code> (name, model, firmware, group, site), <code>aruba_aps</code></td>
+<td><code>aruba_ap_up</code>, <code>aruba_ap_clients</code>, <code>aruba_ap_info</code> (name, model, firmware, group, site), <code>aruba_aps</code></td>
 </tr>
 <tr>
 <td><code>aruba-switches</code></td>
@@ -2697,7 +2728,7 @@
 <td><code>GET /monitoring/v1/gateways</code></td>
 <td>15m</td>
 <td>1 per 1000 gateways (96 a day)</td>
-<td><code>aruba_gateway_up</code>, <code>aruba_gateway_aps</code>, <code>aruba_gateway_info</code> (name, model, firmware, group, site, role)</td>
+<td><code>aruba_gateway_up</code>, <code>aruba_gateway_info</code> (name, model, firmware, group, site, role)</td>
 </tr>
 <tr>
 <td><code>aruba-sites</code></td>
@@ -2723,6 +2754,7 @@
 <p>Tapyr refreshes the token 10 minutes before it expires with <code>POST /oauth2/token?client_id=...&amp;client_secret=...&amp;grant_type=refresh_token&amp;refresh_token=...</code> (parameters in the query, as documented), writes the new pair to the state store <strong>before</strong> using it, and serializes refreshes per account. After a restart it resumes from the stored pair; changing the bootstrap <code>refreshToken</code> secret (after a reload or a restart) replaces the stored pair.</p>
 <p>If the refresh token is rejected (400 or 401: expired after 15 days without use, revoked, or used by another tool), Tapyr stops calling the API for the account, logs an error, sets <code>tapyr_auth_reauth_required{provider="aruba-central-classic"}</code> to 1 and lists the account in the <code>conditions</code> of <code>/readyz</code>. Generate a new token pair and update the bootstrap secrets.</p>
 <p><strong>Do not share a token pair between Tapyr and another tool</strong>: the first one to refresh invalidates the refresh token of the other. A crash between a refresh answer and its storage loses the pair (the refresh is the only request in flight for the account): the account then needs a new pair.</p>
+<p><code>tapyr record</code> can run next to <code>tapyr run</code>: with the same configuration and <code>TAPYR_STATE_KEY</code>, it reads the current pair from the state store and never refreshes it. It uses the stored access token until its expiry; past it, it stops and asks to retry once <code>tapyr run</code> has renewed the token.</p>
 <h2 id="limits">Limits<a class="headerlink" href="#limits" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -2750,7 +2782,7 @@
 <h2 id="simulator">Simulator<a class="headerlink" href="#simulator" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code>tapyr<span class="w"> </span>sim<span class="w"> </span>--provider<span class="w"> </span>aruba-central-classic<span class="w"> </span>--listen<span class="w"> </span><span class="m">127</span>.0.0.1:8081
 </code></pre></div>
-<p>8081 is the port of the simulator under <code>tapyr sim --all --listen-base 127.0.0.1:8081</code> (<code>portOffset: 0</code>). A synthetic account of 3 sites with 8 access points, 2 switches and a gateway each. The simulator serves the refresh endpoint of the plugin (client <code>sim-client</code> / <code>sim-client-secret</code>, bootstrap refresh token <code>sim-refresh-token</code>, valid once, then rotated like Central; bootstrap access token <code>sim-access-token</code>), issues 2-hour access tokens, enforces 7 calls per second and the daily quota, and sends the <code>X-RateLimit-*-day</code> headers.</p>
+<p>8081 is the port of the simulator under <code>tapyr sim --all --listen-base 127.0.0.1:8081</code> (<code>portOffset: 0</code>). A synthetic account of 3 sites with 8 access points, 2 switches and a gateway each, in the shape of the responses of a real account. The simulator serves the refresh endpoint of the plugin (client <code>sim-client</code> / <code>sim-client-secret</code>, bootstrap refresh token <code>sim-refresh-token</code>, valid once, then rotated like Central; bootstrap access token <code>sim-access-token</code>), issues 2-hour access tokens, enforces 7 calls per second and the daily quota, and sends the <code>X-RateLimit-*-day</code> headers.</p>
 <table>
 <thead>
 <tr>
@@ -2777,9 +2809,10 @@
 <p><code>dashboards/aruba-central-classic.json</code> (Grafana, Prometheus data source, site variable): devices up and down, wireless clients by site and access point, switches and gateways, re-bootstrap condition, daily quota (limit, used by Tapyr and by others, remaining).</p>
 <h2 id="known-caveats">Known caveats<a class="headerlink" href="#known-caveats" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Simulator-validated only (see above).</li>
+<li>The access point list carries no uptime, and the gateway list no access point count: the package has no metric for them.</li>
+<li>The <code>role</code> of a gateway can be empty.</li>
 <li>Whether a refresh token stays valid for a while after a refresh is not documented: the plugin treats it as spent at once.</li>
-<li>Radio channel utilization (in the access point list) is not collected yet.</li>
+<li>The CPU, memory and uptime of switches and gateways (in their lists) are not collected yet.</li>
 </ul>
 
 
@@ -2835,13 +2868,13 @@
         
         
           
-          <a href="../example-sim/" class="md-footer__link md-footer__link--next" aria-label="Next: example-sim">
+          <a href="../juniper-mist/" class="md-footer__link md-footer__link--next" aria-label="Next: juniper-mist">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                example-sim
+                juniper-mist
               </div>
             </div>
             <div class="md-footer__button md-icon">
@@ -2910,7 +2943,7 @@
       <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["navigation.tabs","navigation.sections","navigation.top","navigation.footer","navigation.indexes","search.highlight","content.action.edit","content.code.copy","toc.follow"],"redirect":null,"search":"../../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":{"alias":true,"default":"latest","provider":"mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.d31f0ffa.min.js"></script>
+      <script src="../../assets/javascripts/bundle.3cb411a8.min.js"></script>
       
     
   </body>

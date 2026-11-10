@@ -26,7 +26,7 @@
       
       
       <link rel="icon" href="../../tapyr-theme/images/favicon.svg">
-      <meta name="generator" content="zensical-0.0.74">
+      <meta name="generator" content="zensical-0.1.1">
     
     
       
@@ -37,7 +37,7 @@
       
         
       
-      <link rel="stylesheet" href="../../assets/stylesheets/modern/main.4ab2de0c.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/modern/main.ebb7f775.min.css">
       
         
           
@@ -346,6 +346,8 @@
       
         
           
+        
+      
         
       
         
@@ -998,6 +1000,8 @@
       
         
       
+        
+      
     
     
     
@@ -1147,6 +1151,33 @@
     
   
   aruba-central-classic
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../providers/juniper-mist/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  juniper-mist
 
     
   </span>
@@ -2810,7 +2841,7 @@
 </code></pre></div>
 <ul>
 <li><code>basePath</code> (default <code>/</code>) is the path prefix of the API (the path part of the provider base URL); routes are relative to it.</li>
-<li>Credentials are checked the way the <code>Provider</code> declares its auth (<code>bearer</code>: <code>Authorization: Bearer &lt;one of accept.bearer&gt;</code>; <code>header</code>: the declared header with one of <code>accept.header</code>; <code>basic</code>: one of <code>accept.basic</code>). Wrong or missing credentials get the provider's <code>authFailed</code> status.</li>
+<li>Credentials are checked the way the <code>Provider</code> declares its auth (<code>bearer</code>: <code>Authorization: Bearer &lt;one of accept.bearer&gt;</code>; <code>header</code>: the declared header with one of <code>accept.header</code>, formatted with the <code>format</code> of the auth; <code>basic</code>: one of <code>accept.basic</code>). Wrong or missing credentials get the provider's <code>authFailed</code> status.</li>
 <li>A route with <code>pagination</code> serves the items of its fixture (a JSON array) page by page. The pagination parameters are not redeclared: they come from the job templates requesting that path, or from the provider default.</li>
 <li>Fixtures are JSON templates (Go <code>text/template</code> with helpers: <code>range</code> over inventory, deterministic pseudo-random values, counters increasing with time, timestamps from the simulated clock).</li>
 <li>Static JSON fixtures (e.g. recorded) are supported directly.</li>
@@ -2879,8 +2910,9 @@ tapyr sim --all --listen-base 127.0.0.1:8081   # one simulator per provider, at 
 </code></pre></div>
 <ul>
 <li>Every instance of the selected jobs runs once, through the budget engine. Children of fan-outs run once their parent has run.</li>
+<li>It opens the state store of the configuration read-only (with <code>TAPYR_STATE_KEY</code>), so that it can run next to <code>tapyr run</code>: the store is never written, auth plugins read their stored state and do not renew credentials whose renewal invalidates the previous ones (a rotating refresh token, which <code>tapyr run</code> would then hold spent). Such a plugin uses the stored access token until its expiry, then fails with a message instead of renewing it. Other tokens (OAuth2 client credentials, session logins) are obtained in memory and not taken from the store: their sessions belong to <code>tapyr run</code>, and a logout would end them.</li>
 <li><code>--out</code> receives one JSON file per page (<code>&lt;job&gt;/&lt;n&gt;.json</code>, anonymized), <code>index.yaml</code> (method, templated path, pseudonymized variables, status, rate-limit headers, file per page) and <code>report.txt</code>. Request credentials and response headers other than the rate-limit headers of the provider (<code>sync</code> headers and <code>Retry-After</code>) are never written.</li>
-<li>Default rules replace, by key name and by value pattern: serial numbers, MAC addresses, IMEI, IMSI, ICCID, IPv4 and IPv6 addresses, hostnames, emails, phone numbers, names (keys <code>name</code> or ending in <code>_name</code>/<code>Name</code>), identifiers (keys <code>id</code> or ending in <code>_id</code>/<code>Id</code>, with the same pseudonym in path variables, so that fixtures stay consistent), coordinates and addresses. Pseudonyms keep the format: MACs become locally administered, IPv4 addresses move to 192.0.2.0/24, 198.51.100.0/24 and 203.0.113.0/24, IPv6 to 2001:db8::/32, emails to example.com, serials and identifiers keep their length and character classes (every letter and digit becomes an ASCII one, so no character of the value is kept), numbers stay numbers. They come from an HMAC with a random per-recording key that is never written.</li>
+<li>Default rules replace, by key name and by value pattern: serial numbers, MAC addresses, IMEI, IMSI, ICCID, IPv4 and IPv6 addresses, hostnames, emails, phone numbers, names (keys <code>name</code>, <code>site</code> or ending in <code>_name</code>/<code>Name</code>), identifiers (keys <code>id</code> or ending in <code>_id</code>/<code>Id</code>, with the same pseudonym in path variables, so that fixtures stay consistent), coordinates and addresses (keys containing <code>address</code>, and <code>street</code>, <code>city</code>, <code>zip</code>, <code>zipcode</code>, <code>postcode</code>, <code>postal_code</code>). Pseudonyms keep the format: MACs become locally administered, IPv4 addresses move to 192.0.2.0/24, 198.51.100.0/24 and 203.0.113.0/24, IPv6 to 2001:db8::/32, emails to example.com, serials and identifiers keep their length and character classes (every letter and digit becomes an ASCII one, so no character of the value is kept), numbers stay numbers. They come from an HMAC with a random per-recording key that is never written.</li>
 <li><code>--anonymize</code> adds rules (<code>replace: [{path: "data[*].company_name", as: name}]</code>) and exceptions (<code>keep: ["data[*].model"]</code>); paths are dotted, with <code>[*]</code> for every element.</li>
 <li><code>report.txt</code> lists every replaced path with its rule and count, never an original value, for review before anything is committed. The recording is meant to be turned into static fixtures by hand (<code>file</code> routes).</li>
 </ul>
@@ -3025,7 +3057,7 @@ tapyr sim --all --listen-base 127.0.0.1:8081   # one simulator per provider, at 
       <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["navigation.tabs","navigation.sections","navigation.top","navigation.footer","navigation.indexes","search.highlight","content.action.edit","content.code.copy","toc.follow"],"redirect":null,"search":"../../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":{"alias":true,"default":"latest","provider":"mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.d31f0ffa.min.js"></script>
+      <script src="../../assets/javascripts/bundle.3cb411a8.min.js"></script>
       
     
   </body>

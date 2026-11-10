@@ -26,7 +26,7 @@
       
       
       <link rel="icon" href="../../tapyr-theme/images/favicon.svg">
-      <meta name="generator" content="zensical-0.0.74">
+      <meta name="generator" content="zensical-0.1.1">
     
     
       
@@ -37,7 +37,7 @@
       
         
       
-      <link rel="stylesheet" href="../../assets/stylesheets/modern/main.4ab2de0c.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/modern/main.ebb7f775.min.css">
       
         
           
@@ -346,6 +346,8 @@
       
         
           
+        
+      
         
       
         
@@ -998,6 +1000,8 @@
       
         
       
+        
+      
     
     
     
@@ -1147,6 +1151,33 @@
     
   
   aruba-central-classic
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../providers/juniper-mist/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  juniper-mist
 
     
   </span>
@@ -2885,8 +2916,8 @@
 </tr>
 <tr>
 <td><code>header</code></td>
-<td><code>name</code>, <code>value</code> (secret or template)</td>
-<td>Static API key header, e.g. <code>X-Cisco-Meraki-API-Key</code></td>
+<td><code>name</code>, <code>value</code> (literal or secret), <code>format</code> (optional, <code>{value}</code> replaced by the value)</td>
+<td>Static API key header, e.g. <code>X-Cisco-Meraki-API-Key</code>, or <code>Authorization: Token &lt;key&gt;</code> with <code>format: "Token {value}"</code></td>
 </tr>
 <tr>
 <td><code>bearer</code></td>
@@ -3026,7 +3057,7 @@
 </li>
 <li><strong>Rejected credentials.</strong> A token or login request answered 400, 401 or 403 is a rejection: the session sends no other token or login request for 1 minute, then 2, 4... up to 1 hour, and the runs needing it fail at once with the rejection. A successful request, or a new session (changed secrets or auth configuration, after a reload), ends the backoff. A wrong password thus never hits the API, nor locks the account, at every run.</li>
 <li><strong>TLS.</strong> <code>Account.spec.tls</code> applies to every request of the account, auth requests included: <code>caFile</code> adds a PEM bundle to the system roots, <code>insecureSkipVerify</code> disables verification and logs a warning at every load. Accounts with TLS settings get their own HTTP transport; the others share one.</li>
-<li><strong>Plugins.</strong> A plugin is Go code registered in <code>internal/auth/plugins</code> (an explicit registry built by <code>cmd/tapyr</code>, no <code>init</code> side effects). It validates <code>plugin.config</code> at compile time, where <code>{secret: &lt;name&gt;}</code> values name account secrets, and creates an authenticator per account (or target) from: the base URL, the resolved secrets, a sender of auth requests through the budget engine, a sealed key-value store in the state store (encrypted with <code>TAPYR_STATE_KEY</code> like tokens), the clock and a logger. It reports its token requests and its re-bootstrap condition, shown by <code>tapyr_auth_reauth_required</code>, <code>/readyz</code> (as a reason, without failing readiness) and the status API. A plugin also provides its simulator side (<code>08-simulator.md</code>).</li>
+<li><strong>Plugins.</strong> A plugin is Go code registered in <code>internal/auth/plugins</code> (an explicit registry built by <code>cmd/tapyr</code>, no <code>init</code> side effects). It validates <code>plugin.config</code> at compile time, where <code>{secret: &lt;name&gt;}</code> values name account secrets, and creates an authenticator per account (or target) from: the base URL, the resolved secrets, a sender of auth requests through the budget engine, a sealed key-value store in the state store (encrypted with <code>TAPYR_STATE_KEY</code> like tokens), the clock, a logger and a read-only flag. Read-only (<code>tapyr record</code>, next to <code>tapyr run</code>), the store does not persist and the plugin must not renew credentials whose renewal invalidates the previous ones: it returns an error instead. It reports its token requests and its re-bootstrap condition, shown by <code>tapyr_auth_reauth_required</code>, <code>/readyz</code> (as a reason, without failing readiness) and the status API. A plugin also provides its simulator side (<code>08-simulator.md</code>).</li>
 <li><strong><code>aruba_central_classic</code>.</strong> Verified against the Aruba developer documentation (<a href="https://developer.arubanetworks.com/central/docs/access-token-management">access token management</a>, <a href="https://developer.arubanetworks.com/aruba-central/docs/api-oauth-access-token">OAuth</a>, and the official <code>pycentral</code> SDK):</li>
 <li>config: <code>clientId</code>, <code>clientSecret</code>, <code>refreshToken</code> (required) and <code>accessToken</code> (optional) as secret references, <code>tokenPath</code> (default <code>/oauth2/token</code>), <code>refreshBefore</code> (default 10m);</li>
 <li>refresh: <code>POST &lt;baseURL&gt;/oauth2/token?client_id=...&amp;client_secret=...&amp;grant_type=refresh_token&amp;refresh_token=...</code> (parameters in the query, as documented), answering <code>access_token</code>, <code>refresh_token</code>, <code>token_type</code>, <code>expires_in</code> (7200 seconds); the access token is applied as <code>Authorization: Bearer</code>;</li>
@@ -3227,7 +3258,7 @@
       <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["navigation.tabs","navigation.sections","navigation.top","navigation.footer","navigation.indexes","search.highlight","content.action.edit","content.code.copy","toc.follow"],"redirect":null,"search":"../../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":{"alias":true,"default":"latest","provider":"mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.d31f0ffa.min.js"></script>
+      <script src="../../assets/javascripts/bundle.3cb411a8.min.js"></script>
       
     
   </body>

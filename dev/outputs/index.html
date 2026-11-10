@@ -26,7 +26,7 @@
       
       
       <link rel="icon" href="../tapyr-theme/images/favicon.svg">
-      <meta name="generator" content="zensical-0.0.74">
+      <meta name="generator" content="zensical-0.1.1">
     
     
       
@@ -37,7 +37,7 @@
       
         
       
-      <link rel="stylesheet" href="../assets/stylesheets/modern/main.4ab2de0c.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/modern/main.ebb7f775.min.css">
       
         
           
@@ -348,6 +348,8 @@
       
         
           
+        
+      
         
       
         
@@ -761,6 +763,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#series-of-slow-jobs" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Series of slow jobs
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#out-of-order-samples" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -1133,6 +1146,8 @@
       
         
       
+        
+      
     
     
     
@@ -1282,6 +1297,33 @@
     
   
   aruba-central-classic
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../providers/juniper-mist/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  juniper-mist
 
     
   </span>
@@ -2617,6 +2659,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#series-of-slow-jobs" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Series of slow jobs
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#out-of-order-samples" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -2760,6 +2813,8 @@
 <li>Metric metadata (type, help, unit) is sent on the first request and every minute.</li>
 <li>Network errors, <code>5xx</code> and <code>429</code> are retried with exponential backoff (1 second doubling up to 1 minute), honoring <code>Retry-After</code>. Other <code>4xx</code> drop the batch, except a batch refused for out-of-order samples (<a href="#out-of-order-samples">below</a>).</li>
 </ul>
+<h3 id="series-of-slow-jobs">Series of slow jobs<a class="headerlink" href="#series-of-slow-jobs" title="Permanent link">&para;</a></h3>
+<p>A push output sends a sample of a series when its job runs, while a scraped exposition (<code>prometheus</code>) shows the last value at every scrape. Prometheus and VictoriaMetrics answer a query with the last sample of the previous 5 minutes (the lookback delta): the series of a job that runs every 15 minutes or every hour drop out of instant queries and graphs between two runs. Read them with <code>last_over_time(metric[window])</code>, the window two to three times the job interval, as the built-in dashboards do (<a href="../providers/#dashboard-conventions">dashboard conventions</a>). A series that goes away stays visible for that window.</p>
 <h3 id="out-of-order-samples">Out-of-order samples<a class="headerlink" href="#out-of-order-samples" title="Permanent link">&para;</a></h3>
 <p>Source timestamps can be older than samples already ingested for a series, for example after a restart, when a job interval changes or when an API reports late data. They can also be older than what the backend still accepts at all: Prometheus refuses samples older than its in-memory head (about an hour) as "out of bounds", even on a fresh server, so any API reporting a timestamp of the day before hits it.</p>
 <p>Prometheus rejects such samples unless out-of-order ingestion is enabled, with a window longer than the age of the oldest source timestamp:</p>
@@ -2957,7 +3012,7 @@
       <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["navigation.tabs","navigation.sections","navigation.top","navigation.footer","navigation.indexes","search.highlight","content.action.edit","content.code.copy","toc.follow"],"redirect":null,"search":"../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":{"alias":true,"default":"latest","provider":"mike"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.d31f0ffa.min.js"></script>
+      <script src="../assets/javascripts/bundle.3cb411a8.min.js"></script>
       
     
   </body>

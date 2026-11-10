@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="The built-in provider packages of v0.1.0. Each section was checked against the vendor documentation (and, for the Teltonika packages, the real platforms) in…">
+        <meta name="description" content="The built-in provider packages. Each section was checked against the vendor documentation (and, where its section says so, the real platform) in November…">
       
       
         <meta name="author" content="Kentrow">
@@ -26,7 +26,7 @@
       
       
       <link rel="icon" href="../../tapyr-theme/images/favicon.svg">
-      <meta name="generator" content="zensical-0.0.74">
+      <meta name="generator" content="zensical-0.1.1">
     
     
       
@@ -37,7 +37,7 @@
       
         
       
-      <link rel="stylesheet" href="../../assets/stylesheets/modern/main.4ab2de0c.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/modern/main.ebb7f775.min.css">
       
         
           
@@ -346,6 +346,8 @@
       
         
           
+        
+      
         
       
         
@@ -998,6 +1000,8 @@
       
         
       
+        
+      
     
     
     
@@ -1147,6 +1151,33 @@
     
   
   aruba-central-classic
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../providers/juniper-mist/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  juniper-mist
 
     
   </span>
@@ -2134,6 +2165,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#juniper-mist" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        juniper-mist
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#provider-package-checklist-definition-of-done" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -2647,6 +2689,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#juniper-mist" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        juniper-mist
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#provider-package-checklist-definition-of-done" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -2679,7 +2732,7 @@
 
 
 <h1 id="10---built-in-providers">10 - Built-in providers<a class="headerlink" href="#10---built-in-providers" title="Permanent link">&para;</a></h1>
-<p>The built-in provider packages of v0.1.0. Each section was checked against the vendor documentation (and, for the Teltonika packages, the real platforms) in November 2026; each package README cites the source of every declared limit.</p>
+<p>The built-in provider packages. Each section was checked against the vendor documentation (and, where its section says so, the real platform) in November 2026; each package README cites the source of every declared limit.</p>
 <table>
 <thead>
 <tr>
@@ -2711,8 +2764,14 @@
 <tr>
 <td><code>aruba-central-classic</code></td>
 <td>Cloud, daily quota, rotating refresh tokens</td>
-<td>Simulator only (docs)</td>
+<td>Real account, read-only (November 2026) + simulator</td>
 <td>Validates quota windows, header sync, auth plugin</td>
+</tr>
+<tr>
+<td><code>juniper-mist</code></td>
+<td>Cloud, hourly quota per token, regional clouds</td>
+<td>Simulator only (docs + public OpenAPI spec)</td>
+<td>Validates header auth with a format, page pagination, hourly windows</td>
 </tr>
 </tbody>
 </table>
@@ -2770,7 +2829,7 @@
 <li><strong>Deliverables</strong>: provider package, synthetic simulator (inventory generator sized by config), fixtures derived from the OpenAPI examples, dashboard, contract tests, and an e2e test run against a DevNet sandbox organization (November 2026, every template; the sandbox appliance reports no uplink, so the uplink metrics are validated against the simulator only).</li>
 </ul>
 <h2 id="aruba-central-classic">aruba-central-classic<a class="headerlink" href="#aruba-central-classic" title="Permanent link">&para;</a></h2>
-<p>HPE Aruba Networking Central (classic platform) REST API. Checked in November 2026 against the <a href="https://developer.arubanetworks.com/aruba-central/">Aruba developer hub</a> and the official <code>pycentral</code> SDK.</p>
+<p>HPE Aruba Networking Central (classic platform) REST API. Checked in November 2026 against the <a href="https://developer.arubanetworks.com/aruba-central/">Aruba developer hub</a> and the official <code>pycentral</code> SDK, then against a real Central account, read-only: every template, the token rotation and the quota headers.</p>
 <ul>
 <li><strong>Auth</strong>: OAuth access tokens valid 2 hours and <strong>rotating refresh tokens</strong> valid 15 days, implemented by the <code>aruba_central_classic</code> auth plugin (see <code>05-collection.md</code>). Bootstrap: client ID and secret of an API Gateway application and the token pair downloaded from API Gateway &gt; System Apps &amp; Tokens (or My Apps &amp; Tokens).</li>
 <li><strong>Base URL</strong>: regional API gateway (account param <code>baseURL</code>, required), for example <code>https://apigw-eucentral3.central.arubanetworks.com</code>; the README lists the clusters. A token only works on the gateway of its cluster.</li>
@@ -2792,6 +2851,24 @@
 <h3 id="note-on-aruba-central-new-greenlake-based">Note on Aruba Central "new" (GreenLake-based)<a class="headerlink" href="#note-on-aruba-central-new-greenlake-based" title="Permanent link">&para;</a></h3>
 <p>The newer HPE Aruba Networking Central platform uses a different API surface and OAuth client credentials through HPE GreenLake. It will be a separate provider package (<code>aruba-central</code>), after v0.1.0. Its client-credentials auth should work with the declarative <code>oauth2_client_credentials</code> type, which is a good sign for the abstraction.</p>
 <hr />
+<h2 id="juniper-mist">juniper-mist<a class="headerlink" href="#juniper-mist" title="Permanent link">&para;</a></h2>
+<p>Juniper Mist cloud REST API. Checked in November 2026 against the Mist documentation and the <a href="https://github.com/mistsys/mist_openapi">Mist OpenAPI description</a> (2610.1.0).</p>
+<ul>
+<li><strong>Auth</strong>: API token as <code>Authorization: Token &lt;key&gt;</code> (<code>header</code> auth with <code>format: "Token {value}"</code>). An organization token with a read-only role is recommended; a user token works too (<a href="https://www.mist.com/documentation/org-api-token/">Org API token</a>).</li>
+<li><strong>Base URL</strong>: the API host of the cloud of the organization (account param <code>baseURL</code>, default <code>https://api.mist.com</code>), 12 regional hosts (<a href="https://networkingdocs.hpe.com/documentation/us/en/software/mist/automation-integration/topics/topic-map/api-endpoint-url-global-regions.html">endpoints by global region</a>); the organization ID is the account param <code>orgId</code>.</li>
+<li><strong>Rate limits</strong>:</li>
+<li>5000 calls per hour, reset at the hourly boundary (<a href="https://www.mist.com/documentation/api-rate-limiting/">API rate limiting</a>, <a href="https://networkingdocs.hpe.com/documentation/us/en/software/mist/automation-integration/topics/concept/restful-api-overview.html">RESTful API overview</a>);</li>
+<li>counted per organization token, or for the whole user account with a user token, portal logins included;</li>
+<li><code>429</code> when exceeded; no <code>Retry-After</code> and no rate-limit headers documented; no per-second or concurrency limit documented;</li>
+<li>declared as <code>kind: quota</code>, <code>period: hour</code>, <code>timezone: UTC</code>, <code>max: 5000</code>, <code>scope: { by: [credential] }</code>.</li>
+<li><strong>Pagination</strong>: <code>limit</code> (maximum 1000) and <code>page</code>, with the total in <code>X-Page-Total</code> (<a href="https://networkingdocs.hpe.com/documentation/us/en/software/mist/automation-integration/topics/concept/rest-api-pagination.html">pagination</a>); the package stops on a short page.</li>
+<li><strong>Budget strategy</strong>: organization-level statistics only, about 20 calls an hour for an organization of up to 1000 devices.</li>
+<li><strong>Templates</strong> (metrics in the <a href="../../providers/juniper-mist/">package README</a>):</li>
+<li><code>mist-devices</code> (<code>GET /api/v1/orgs/{orgId}/stats/devices?type=all</code>: access points, switches and gateways in one list);</li>
+<li><code>mist-sites</code> (<code>GET /api/v1/orgs/{orgId}/stats/sites</code>: device and client counts per site);</li>
+<li><code>mist-alarms</code> (<code>GET /api/v1/orgs/{orgId}/alarms/count?distinct=severity&amp;duration=1d</code>).</li>
+<li><strong>Deliverables</strong>: provider package, synthetic simulator enforcing the hourly quota, scenarios, dashboard, contract test. No e2e test (no access).</li>
+</ul>
 <h2 id="provider-package-checklist-definition-of-done">Provider package checklist (definition of done)<a class="headerlink" href="#provider-package-checklist-definition-of-done" title="Permanent link">&para;</a></h2>
 <ul>
 <li>[ ] <code>provider.yaml</code> with every limit sourced (link in README) or marked as measured/assumed.</li>
@@ -2932,7 +3009,7 @@
       <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["navigation.tabs","navigation.sections","navigation.top","navigation.footer","navigation.indexes","search.highlight","content.action.edit","content.code.copy","toc.follow"],"redirect":null,"search":"../../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":{"alias":true,"default":"latest","provider":"mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.d31f0ffa.min.js"></script>
+      <script src="../../assets/javascripts/bundle.3cb411a8.min.js"></script>
       
     
   </body>
