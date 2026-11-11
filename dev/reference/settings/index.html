@@ -3157,6 +3157,12 @@
 <td><code>replanInterval</code> is the period of mid-window replanning. Default <code>15m</code>.</td>
 </tr>
 <tr>
+<td><code>replanOnProjection</code></td>
+<td>boolean</td>
+<td></td>
+<td><code>replanOnProjection</code> replans at once when the consumption projected by the current plan until the end of a quota window exceeds its remaining budget, for example when another client starts spending the same quota, instead of waiting for the next replanInterval. Default <code>true</code>.</td>
+</tr>
+<tr>
 <td><code>retryReserve</code></td>
 <td><a href="#percent">Percent</a></td>
 <td></td>
