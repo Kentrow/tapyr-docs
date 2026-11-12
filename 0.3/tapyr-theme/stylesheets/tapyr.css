@@ -1,0 +1,90 @@
+/* docs.tapyr.eu: colours and type of tapyr.eu on the Zensical theme. */
+
+/* Fonts, self-hosted (SIL Open Font License 1.1, see ../fonts) */
+@font-face { font-family: "Bricolage"; src: url(../fonts/bricolage-grotesque-latin-wght-normal.woff2) format("woff2"); font-weight: 200 800; font-display: swap; }
+@font-face { font-family: "JetBrains Mono"; src: url(../fonts/jetbrains-mono-latin-wght-normal.woff2) format("woff2"); font-weight: 100 800; font-display: swap; }
+
+:root {
+  --md-text-font: "Bricolage";
+  --md-code-font: "JetBrains Mono";
+}
+
+/* Light: the tapyr.eu tokens (bg #f2f8fb, ink #0f2a3f, cyan #2389b4, link #0a6890, sun #ffc845) */
+[data-md-color-scheme="default"] {
+  --md-default-bg-color: #f2f8fb;
+  --md-default-fg-color: #0f2a3f;
+  --md-default-fg-color--light: #44606f;
+  --md-default-fg-color--lighter: #8aa6b5;
+  --md-default-fg-color--lightest: #d3e4ec;
+  --md-primary-fg-color: #f2f8fb;
+  --md-primary-fg-color--light: #ffffff;
+  --md-primary-fg-color--dark: #d3e4ec;
+  --md-primary-bg-color: #0f2a3f;
+  --md-primary-bg-color--light: #44606f;
+  --md-accent-fg-color: #2389b4;
+  --md-accent-fg-color--transparent: rgba(58, 169, 214, .12);
+  --md-typeset-color: #0f2a3f;
+  --md-typeset-a-color: #0a6890;
+  --md-code-bg-color: #ffffff;
+  --md-code-fg-color: #0f2a3f;
+  --md-footer-bg-color: #0f2a3f;
+  --md-footer-bg-color--dark: #0b1f2f;
+  --md-footer-fg-color: #e3f1f7;
+}
+
+/* Dark: the tapyr.eu dark tokens (bg #0b1824, surface #102335, ink #e4f1f7, cyan #5cc3ea, link #7fd3f2) */
+[data-md-color-scheme="slate"] {
+  --md-hue: 205;
+  --md-default-bg-color: #0b1824;
+  --md-default-fg-color: #e4f1f7;
+  --md-default-fg-color--light: #9db7c4;
+  --md-default-fg-color--lighter: #6f8c9b;
+  --md-default-fg-color--lightest: #1f3a50;
+  --md-primary-fg-color: #0b1824;
+  --md-primary-fg-color--light: #102335;
+  --md-primary-fg-color--dark: #071119;
+  --md-primary-bg-color: #e4f1f7;
+  --md-primary-bg-color--light: #9db7c4;
+  --md-accent-fg-color: #5cc3ea;
+  --md-accent-fg-color--transparent: rgba(92, 195, 234, .14);
+  --md-typeset-color: #e4f1f7;
+  --md-typeset-a-color: #7fd3f2;
+  --md-code-bg-color: #102335;
+  --md-code-fg-color: #d7ebf3;
+  --md-footer-bg-color: #071119;
+  --md-footer-bg-color--dark: #050d14;
+  --md-footer-fg-color: #d7ebf3;
+}
+
+/* Header and tabs share the page background, with a hairline like tapyr.eu */
+.md-header, .md-tabs { box-shadow: none; border-bottom: 1px solid var(--md-default-fg-color--lightest); }
+.md-tabs { border-bottom-width: 1px; }
+.md-tabs__link { font-weight: 600; opacity: .75; }
+.md-tabs__item--active .md-tabs__link { opacity: 1; color: var(--md-accent-fg-color); }
+
+/* The logo carries the wordmark: no site name next to it, a wider logo, one per scheme */
+.md-header__button.md-logo { padding: .2rem .4rem; }
+.md-header__button.md-logo img { height: 1.9rem; width: auto; }
+.md-header__title .md-header__topic:first-child > .md-ellipsis { visibility: hidden; width: 0; }
+.md-nav__title .md-nav__button.md-logo img { height: 2.4rem; width: auto; }
+[data-md-color-scheme="default"] .md-logo img.tapyr-logo--dark,
+[data-md-color-scheme="slate"] .md-logo img.tapyr-logo--light { display: none; }
+
+/* Headings in the display face, as on tapyr.eu */
+.md-typeset h1, .md-typeset h2, .md-typeset h3 { font-weight: 750; letter-spacing: -.02em; color: var(--md-default-fg-color); }
+.md-typeset h1 { font-size: 2.2em; }
+.md-typeset code { border-radius: 6px; }
+
+/* Version banners */
+.md-banner { background: #ffc845; color: #0f2a3f; }
+.md-banner a, .md-banner a:hover { color: #0f2a3f; text-decoration: underline; }
+[data-md-color-scheme="slate"] .md-banner { background: #4a3c12; color: #ffe6a3; }
+[data-md-color-scheme="slate"] .md-banner a { color: #ffe6a3; }
+
+/* Home page: short, with three entry cards */
+.tapyr-home h1 { margin-bottom: .4em; }
+.tapyr-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: .8rem; margin: 1.6em 0; }
+.tapyr-cards a { display: block; padding: 1em 1.1em; border: 1.5px solid var(--md-default-fg-color--lightest); border-radius: 16px; background: var(--md-code-bg-color); color: var(--md-default-fg-color); text-decoration: none; }
+.tapyr-cards a:hover { border-color: var(--md-accent-fg-color); }
+.tapyr-cards strong { display: block; font-size: 1.05em; margin-bottom: .2em; }
+.tapyr-cards span { color: var(--md-default-fg-color--light); font-size: .9em; }

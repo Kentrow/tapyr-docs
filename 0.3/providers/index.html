@@ -1,0 +1,3096 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A provider package holds everything Tapyr knows about an API: the Provider (base URL, auth, pagination, limits, errors), job templates, a simulator…">
+      
+      
+        <meta name="author" content="Kentrow">
+      
+      
+        <link rel="canonical" href="https://docs.tapyr.eu/latest/providers/">
+      
+      
+      
+        <link rel="prev" href="../examples/kubernetes/">
+      
+      
+        <link rel="next" href="./teltonika-rms/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../tapyr-theme/images/favicon.svg">
+      <meta name="generator" content="zensical-0.1.1">
+    
+    
+      
+        <title>Provider packages - Tapyr docs</title>
+      
+    
+    
+      
+        
+      
+      <link rel="stylesheet" href="../assets/stylesheets/modern/main.ebb7f775.min.css">
+      
+        
+          
+        
+        <link rel="stylesheet" href="../assets/stylesheets/modern/palette.b60ce83d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+    
+      <link rel="stylesheet" href="../tapyr-theme/stylesheets/tapyr.css">
+    
+    <script>__md_scope=new URL("..",location),__md_scope.pathname.endsWith("/")||(__md_scope=new URL(__md_scope.pathname+"/",location)),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,_=__md_scope)=>JSON.parse(t.getItem(_.pathname+"."+e)),__md_set=(e,t,_=localStorage,a=__md_scope)=>{try{_.setItem(a.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
+    
+      
+
+    
+    
+  <link rel="icon" href="../tapyr-theme/images/favicon-96.png" sizes="96x96" type="image/png">
+
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer" aria-hidden="true"></label>
+    <div data-md-component="skip">
+      <a href="#__skip" class="md-skip">
+        Skip to content
+      </a>
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+          <aside class="md-banner md-banner--warning">
+            <div class="md-banner__inner md-grid md-typeset">
+              You are reading the documentation of Tapyr 0.3, an older version.
+    <a class="tapyr-version-link" href="../latest/"><strong>Read the latest.</strong></a>
+            </div>
+            <script>var el=document.querySelector("[data-md-component=outdated]"),base=new URL("..",location),outdated=__md_get("__outdated",sessionStorage,base);!0===outdated&&el&&(el.hidden=!1)</script>
+          </aside>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="./.." title="Tapyr docs" class="md-header__button md-logo" aria-label="Tapyr docs" data-md-component="logo">
+      <img class="tapyr-logo tapyr-logo--light" src="../tapyr-theme/images/logo-light.png" alt="Tapyr">
+<img class="tapyr-logo tapyr-logo--dark" src="../tapyr-theme/images/logo-dark.png" alt="Tapyr">
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+      <span class="md-visually-hidden">Navigation</span>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Tapyr docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Provider packages
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-sun-moon" viewBox="0 0 24 24"><path d="M12 2v2M14.837 16.385a6 6 0 1 1-7.223-7.222c.624-.147.97.66.715 1.248a4 4 0 0 0 5.26 5.259c.589-.255 1.396.09 1.248.715M16 12a4 4 0 0 0-4-4M19 5l-1.256 1.256M20 12h2"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-moon" viewBox="0 0 24 24"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+          <span class="md-visually-hidden">Search</span>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog" aria-label="Search">
+  <button type="button" class="md-search__button">
+    Search
+  </button>
+</div>
+      
+    
+    <div class="md-header__source">
+      
+        <a href="https://github.com/Kentrow/tapyr" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M216.5 362.5c-66-8-112.5-55.5-112.5-117 0-25 9-52 24-70-6.5-16.5-5.5-51.5 2-66 20-2.5 47 8 63 22.5 19-6 39-9 63.5-9s44.5 3 62.5 8.5c15.5-14 43-24.5 63-22 7 13.5 8 48.5 1.5 65.5 16 19 24.5 44.5 24.5 70.5 0 61.5-46.5 108-113.5 116.5 17 11 28.5 35 28.5 62.5v52c0 15 12.5 23.5 27.5 17.5C441 459.5 512 369 512 257 512 115.5 397 0 255.5 0S0 115.5 0 257c0 111 70.5 203 165.5 237.5 13.5 5 26.5-4 26.5-17.5v-40c-7 3-16 5-24 5-33 0-52.5-18-66.5-51.5-5.5-13.5-11.5-21.5-23-23-6-.5-8-3-8-6 0-6 10-10.5 20-10.5 14.5 0 27 9 40 27.5 10 14.5 20.5 21 33 21s20.5-4.5 32-16c8.5-8.5 15-16 21-21"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Kentrow/tapyr
+  </div>
+</a>
+      
+    </div>
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="./.." class="md-tabs__link">
+        
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../getting-started/" class="md-tabs__link">
+        
+  
+  Getting started
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../concepts/" class="md-tabs__link">
+        
+  
+  Concepts
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../install/" class="md-tabs__link">
+          
+  
+  Guides
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../examples/compose/" class="md-tabs__link">
+          
+  
+  Deployment
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+      
+      
+        
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="./teltonika-rms/" class="md-tabs__link">
+          
+  
+  Providers
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../reference/" class="md-tabs__link">
+          
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../spec/01-vision-and-scope/" class="md-tabs__link">
+          
+  
+  Design
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="./.." title="Tapyr docs" class="md-nav__button md-logo" aria-label="Tapyr docs" data-md-component="logo">
+      <img class="tapyr-logo tapyr-logo--light" src="../tapyr-theme/images/logo-light.png" alt="Tapyr">
+<img class="tapyr-logo tapyr-logo--dark" src="../tapyr-theme/images/logo-dark.png" alt="Tapyr">
+    </a>
+    Tapyr docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Kentrow/tapyr" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M216.5 362.5c-66-8-112.5-55.5-112.5-117 0-25 9-52 24-70-6.5-16.5-5.5-51.5 2-66 20-2.5 47 8 63 22.5 19-6 39-9 63.5-9s44.5 3 62.5 8.5c15.5-14 43-24.5 63-22 7 13.5 8 48.5 1.5 65.5 16 19 24.5 44.5 24.5 70.5 0 61.5-46.5 108-113.5 116.5 17 11 28.5 35 28.5 62.5v52c0 15 12.5 23.5 27.5 17.5C441 459.5 512 369 512 257 512 115.5 397 0 255.5 0S0 115.5 0 257c0 111 70.5 203 165.5 237.5 13.5 5 26.5-4 26.5-17.5v-40c-7 3-16 5-24 5-33 0-52.5-18-66.5-51.5-5.5-13.5-11.5-21.5-23-23-6-.5-8-3-8-6 0-6 10-10.5 20-10.5 14.5 0 27 9 40 27.5 10 14.5 20.5 21 33 21s20.5-4.5 32-16c8.5-8.5 15-16 21-21"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Kentrow/tapyr
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Home
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Getting started
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Concepts
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Guides
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_4">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Guides
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../install/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Install
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../outputs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Outputs
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../operations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Operations
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../alerts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Alerts
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Troubleshooting
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../examples/compose/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Deployment
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_5">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Deployment
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/config/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Example configuration
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/systemd/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  systemd
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../charts/tapyr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Helm chart
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/kubernetes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Kubernetes
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="./teltonika-rms/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Providers
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+            <label class="md-nav__title" for="__nav_6">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Providers
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Provider packages
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="././" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Provider packages
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#built-in-packages" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Built-in packages
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#writing-a-package" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Writing a package
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dashboard-conventions" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Dashboard conventions
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cel-mapping-recipes" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        CEL mapping recipes
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#recording-real-responses" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Recording real responses
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#linting-and-contract-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Linting and contract tests
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#end-to-end-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        End-to-end tests
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#auth-plugins" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Auth plugins
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+                
+              
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./teltonika-rutos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  teltonika-rutos
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./meraki-dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  meraki-dashboard
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./aruba-central-classic/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  aruba-central-classic
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./juniper-mist/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  juniper-mist
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./cisco-thousandeyes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  cisco-thousandeyes
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./example-sim/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  example-sim
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../provider-ideas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Provider ideas
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../reference/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Reference
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_7" id="__nav_7_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_7">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Reference
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Command line
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_7_3" id="__nav_7_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Configuration
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_3_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_7_3">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Configuration
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/account/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Account
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/job/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Job
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/output/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Output
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/settings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Settings
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_7_4" id="__nav_7_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Provider packages
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_4_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_7_4">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Provider packages
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/provider/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Provider
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/jobtemplate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  JobTemplate
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/simulation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Simulation
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/scenario/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Scenario
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Design
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_8">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Design
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../spec/01-vision-and-scope/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  01 - Vision and scope
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../spec/02-architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  02 - Architecture
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../spec/03-configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  03 - Configuration model
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../spec/04-budget-engine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  04 - Budget engine
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../spec/05-collection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  05 - Collection: auth, pagination, discovery, retries
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../spec/06-mapping-and-outputs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  06 - Mapping and outputs
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../spec/07-self-observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  07 - Self-observability ("monitoring of monitoring")
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../spec/08-simulator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  08 - Provider simulator and record mode
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../spec/09-cli-api-ui/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  09 - CLI, status API and web UI
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../spec/10-providers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  10 - Built-in providers
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_11" >
+        
+          
+          <label class="md-nav__link" for="__nav_8_11" id="__nav_8_11_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Architecture decisions
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_11_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_8_11">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Architecture decisions
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0001-go/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0001 - Go as implementation language
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0002-cel-mapping/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0002 - CEL as the mapping and expression language
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0003-yaml-config-json-schema/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0003 - YAML configuration with a Kubernetes-like envelope and generated JSON Schemas
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0004-declarative-provider-packages/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0004 - Declarative provider packages shared by collector and simulator
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0005-sqlite-state/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0005 - Embedded SQLite for persistent state
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0006-read-only-embedded-ui/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0006 - Read-only web UI embedded in the binary
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0007-apache-2-license/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0007 - Apache License 2.0
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0008-otlp-via-pdata/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0008 - Build OTLP payloads directly, not through the OpenTelemetry metrics SDK
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0009-window-values-as-gauges/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0009 - Window values exposed as gauges by default
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0010-documentation-site/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0010 - Documentation site built from this repository
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0011-provider-ecosystem/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0011 - Generic engine, network-first launch and a provider catalog
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0012-output-processing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0012 - Processing per output, first step: keep and drop metrics and labels
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  
+                    
+                    
+                    
+                      
+                    
+                    
+                      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+                      <div class="md-sidebar-button__wrapper">
+                        <label class="md-sidebar-button" for="__toc"></label>
+                      </div>
+                    
+                  
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#built-in-packages" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Built-in packages
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#writing-a-package" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Writing a package
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dashboard-conventions" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Dashboard conventions
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cel-mapping-recipes" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        CEL mapping recipes
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#recording-real-responses" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Recording real responses
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#linting-and-contract-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Linting and contract tests
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#end-to-end-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        End-to-end tests
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#auth-plugins" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Auth plugins
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                <a id="__skip" tabindex="-1"></a>
+                
+                  
+  <a href="https://github.com/Kentrow/tapyr/edit/main/docs/providers.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-file-pen" viewBox="0 0 24 24"><path d="M12.659 22H18a2 2 0 0 0 2-2V8a2.4 2.4 0 0 0-.706-1.706l-3.588-3.588A2.4 2.4 0 0 0 14 2H6a2 2 0 0 0-2 2v9.34"/><path d="M14 2v5a1 1 0 0 0 1 1h5M10.378 12.622a1 1 0 0 1 3 3.003L8.36 20.637a2 2 0 0 1-.854.506l-2.867.837a.5.5 0 0 1-.62-.62l.836-2.869a2 2 0 0 1 .506-.853z"/></svg>
+  </a>
+
+
+<h1 id="provider-packages">Provider packages<a class="headerlink" href="#provider-packages" title="Permanent link">&para;</a></h1>
+<p>A provider package holds everything Tapyr knows about an API: the <code>Provider</code> (base URL, auth, pagination, limits, errors), job templates, a simulator, scenarios, a contract test, a dashboard and examples. Packages are declarative: YAML and CEL, no Go, except for the rare auth flows written as plugins. The layout is described in <a href="../spec/03-configuration/#provider-packages"><code>03-configuration.md</code></a>.</p>
+<h2 id="built-in-packages">Built-in packages<a class="headerlink" href="#built-in-packages" title="Permanent link">&para;</a></h2>
+<!-- begin provider table: generated from the provider packages by TestProviderTables (go test ./cmd/tapyr -run TestProviderTables -update), do not edit -->
+
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>API</th>
+<th>Tier</th>
+<th>Validation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="../providers/aruba-central-classic/"><code>aruba-central-classic</code></a></td>
+<td>HPE Aruba Networking Central (classic platform) REST API</td>
+<td>Official</td>
+<td>Real platform (Central classic API Gateway, 2026-11-10) and simulator</td>
+</tr>
+<tr>
+<td><a href="../providers/cisco-thousandeyes/"><code>cisco-thousandeyes</code></a></td>
+<td>Cisco ThousandEyes API v7 (tests, agents, network results)</td>
+<td>Official</td>
+<td>Simulator only</td>
+</tr>
+<tr>
+<td><a href="../providers/example-sim/"><code>example-sim</code></a></td>
+<td>Vendor-neutral example API, served by tapyr sim, for development, tests and demos</td>
+<td>Official</td>
+<td>Simulator only</td>
+</tr>
+<tr>
+<td><a href="../providers/juniper-mist/"><code>juniper-mist</code></a></td>
+<td>Juniper Mist cloud REST API (access points, switches, WAN edge)</td>
+<td>Official</td>
+<td>Simulator only</td>
+</tr>
+<tr>
+<td><a href="../providers/meraki-dashboard/"><code>meraki-dashboard</code></a></td>
+<td>Cisco Meraki Dashboard API v1</td>
+<td>Official</td>
+<td>Real platform (Dashboard API v1, 2026-11-07) and simulator</td>
+</tr>
+<tr>
+<td><a href="../providers/teltonika-rms/"><code>teltonika-rms</code></a></td>
+<td>Teltonika Remote Management System (RMS) cloud API</td>
+<td>Official</td>
+<td>Real platform (RMS API v3-BETA, 2026-11) and simulator</td>
+</tr>
+<tr>
+<td><a href="../providers/teltonika-rutos/"><code>teltonika-rutos</code></a></td>
+<td>Local REST API of Teltonika routers running RutOS 07.06 or later</td>
+<td>Official</td>
+<td>Real platform (RutOS 07.24.5, 2026-11) and simulator</td>
+</tr>
+</tbody>
+</table>
+<!-- end provider table -->
+
+<p><code>tapyr provider list</code> lists them with the packages of <code>providerPaths</code>, which override built-in packages of the same name; <code>--output json</code> adds their catalog metadata, templates and limits (<a href="../spec/09-cli-api-ui/#provider-catalog-output">provider catalog output</a>).</p>
+<p>Looking for an API to package? <a href="../provider-ideas/">Provider ideas</a> lists candidates in other domains, with their rate-limit patterns and the engine features some of them still need.</p>
+<h2 id="writing-a-package">Writing a package<a class="headerlink" href="#writing-a-package" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Read the vendor documentation and write <code>provider.yaml</code>. <strong>Every limit cites its source</strong> in its <code>source</code> (<code>vendor-docs</code> with the link, <code>measured</code> with the date, or <code>assumed</code>), and in its <code>description</code> and the README for humans. The metadata describes the package in the catalog: <code>displayName</code>, <code>categories</code> from <a href="https://github.com/Kentrow/tapyr/blob/v0.3.0/providers/categories.yaml"><code>providers/categories.yaml</code></a>, <code>maintainers</code> (GitHub handles), <code>tier</code> (<code>official</code> or <code>community</code>) and <code>validation</code> (<code>simulator</code>, or <code>real-platform</code> with a date and the platform version), see <a href="../spec/03-configuration/#provider"><code>03-configuration.md</code></a>. Prefer endpoints that return many objects per request (organization-wide lists, large pages): the budget engine spends quota deliberately, the templates should too.</li>
+<li>Write the job templates (<code>templates/*.yaml</code>) with <code>estimate.pagesPerRun</code>. Metric names follow <code>&lt;prefix&gt;_&lt;object&gt;_&lt;measure&gt;_&lt;unit&gt;</code> in base units, descriptive attributes go to <code>_info</code> metrics, and no high-cardinality label (client MAC addresses, IPs) is used.</li>
+<li>Build the simulator (<code>sim/sim.yaml</code>): a synthetic inventory with template fixtures (see <a href="../spec/08-simulator/#synthetic-inventory-and-templated-fixtures"><code>08-simulator.md</code></a>), or static fixtures from a recording. Ship the <code>default</code>, <code>quota-tight</code> and <code>bad-day</code> scenarios.</li>
+<li>Write the contract test (<code>tests/contract.yaml</code>, <code>tests/contract.env</code>) and generate <code>tests/expected.prom</code> with <code>tapyr provider lint --update &lt;dir&gt;</code>. Review the samples: they are the contract of the package.</li>
+<li>Add a Grafana dashboard (<code>dashboards/*.json</code>, with a <code>datasource</code> variable, an <code>API quota</code> row when the API has a quota, and a link to <code>Tapyr / Overview</code>, following the <a href="#dashboard-conventions">dashboard conventions</a>), examples (<code>examples/*.yaml</code>) and the README. Every package README follows the same skeleton, as in <a href="../providers/example-sim/"><code>example-sim</code></a>:</li>
+<li>an introduction (the API, what is collected) with the <strong>Validation status</strong> (real platform or simulator, versions, dates);</li>
+<li><code>Requirements</code>, when there are (firmware versions, permissions, network access);</li>
+<li><code>Coverage</code>: a table <code>Template | Endpoint | Default interval | Requests | Metrics</code> (requests per run), then the labels, joins and conversions;</li>
+<li><code>Auth setup</code>: how to get the credentials and give them to Tapyr;</li>
+<li><code>Limits</code>: a table <code>Limit | Value | Source</code>, then the quota maths with the default intervals;</li>
+<li><code>Simulator</code>: the command, with the port the simulator gets under <code>tapyr sim --all --listen-base 127.0.0.1:8081</code> (8081 plus its <code>portOffset</code>), the credentials it accepts and a <code>Scenario | Effect</code> table;</li>
+<li><code>Dashboard</code>, <code>Known caveats</code>, and <code>End-to-end test</code> when there is one.</li>
+<li><code>tapyr provider lint --catalog &lt;dir&gt;</code> must pass.</li>
+</ol>
+<h2 id="dashboard-conventions">Dashboard conventions<a class="headerlink" href="#dashboard-conventions" title="Permanent link">&para;</a></h2>
+<p>The dashboards of the packages and <code>Tapyr / Overview</code> read the same way, whatever the API:</p>
+<ul>
+<li><strong>Colors carry a meaning.</strong> Grafana's named colors (<code>green</code>, <code>orange</code>, <code>red</code>, <code>blue</code>, <code>text</code>), so that the dashboards follow the theme of each Grafana:</li>
+<li>a count of problems (devices down, failed runs) is green at 0, then <code>red</code> from 1 when it needs action, or <code>orange</code> when it is a warning (alerting devices, a backup uplink, a device not seen for an hour);</li>
+<li>a count or a measure with no good or bad value (devices, clients, uptime) is <code>text</code>, never the default thresholds of Grafana (red from 80);</li>
+<li>the share of a quota left is red under 10%, orange under 25%, green above;</li>
+<li>quota charts draw the limit in dashed red, Tapyr in blue and other clients in orange;</li>
+<li>status codes: 2xx green, 429 orange, other errors red.</li>
+<li><strong>States are state timelines.</strong> A 0/1 metric (an interface up, an uplink active) is a state timeline with value mappings (<code>Up</code>/<code>Down</code>), not a line between 0 and 1.</li>
+<li><strong>Thresholds come from a source.</strong> Mobile signal (RSRP, RSRQ, SINR, RSSI) uses the categories of the <a href="https://wiki.teltonika-networks.com/view/Mobile_Signal_Strength_Recommendations">Teltonika recommendations</a> as dashed lines; resource use (memory, flash) is orange from 80% and red from 90%. A measure without a sound threshold (temperatures, load) has none.</li>
+<li><strong>Rankings are bars.</strong> "The 10 busiest access points" is a bar gauge of the current values, not ten lines that change members over time.</li>
+<li><strong>Empty is an answer.</strong> A panel that can have nothing to show (no device down, no exhaustion projected) says so with <code>noValue</code> (<code>None</code>, <code>0</code>).</li>
+<li><strong>Queries survive push outputs.</strong> With <code>remote_write</code> or <code>otlp</code>, a series receives a sample only when its job runs, and queries look back 5 minutes for the last one (<a href="../outputs/#series-of-slow-jobs">outputs</a>). Gauges are read with <code>last_over_time(metric[window])</code>, the window two to three times the default interval of the job that produces them (<code>15m</code> for a 5-minute job, <code>2h</code> for an hourly one), and the <code>_info</code> metrics of joins with <code>max by (&lt;id&gt;, &lt;labels&gt;) (last_over_time(..._info[window]))</code>. Rates of counters need no window of their own.</li>
+</ul>
+<h2 id="cel-mapping-recipes">CEL mapping recipes<a class="headerlink" href="#cel-mapping-recipes" title="Permanent link">&para;</a></h2>
+<p>Patterns taken from the built-in templates. The CEL environment and its functions are described in <a href="../spec/06-mapping-and-outputs/#cel-environment"><code>06-mapping-and-outputs.md</code></a>.</p>
+<p><strong>Enveloped lists.</strong> <code>extract.items</code> points to the list inside the envelope (<code>teltonika-rms</code>, <code>aruba-central-classic</code>):</p>
+<div class="highlight"><pre><span></span><code><span class="nt">extract</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">items</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">response.body.data</span><span class="w">          </span><span class="c1"># {"success": true, "data": [...], "meta": {...}}</span>
+</code></pre></div>
+<p>Paginate such a list in the simulator with <code>response.itemsField</code> (see <a href="../spec/08-simulator/#synthetic-inventory-and-templated-fixtures"><code>08-simulator.md</code></a>).</p>
+<p><strong>Flattening nested lists.</strong> One item per appliance and uplink (<code>meraki-appliance-uplink-statuses</code>):</p>
+<div class="highlight"><pre><span></span><code><span class="nt">items</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;-</span>
+<span class="w">  </span><span class="no">response.body.map(a, default(a.uplinks, []).map(u, {'serial': a.serial, 'interface': u.interface, 'status': default(u.status, '')})).flatten()</span>
+</code></pre></div>
+<p><strong>Absent or null fields.</strong> <code>default(value, fallback)</code> covers a missing or null field; <code>has()</code> tests a key before reading below it; <code>skipIf</code> drops a sample rather than inventing a value (<code>meraki-dashboard</code>, <code>aruba-central-classic</code>):</p>
+<div class="highlight"><pre><span></span><code><span class="nt">labels</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">"default(item.name,</span><span class="nv"> </span><span class="s">'')"</span>
+<span class="w">  </span><span class="nt">network_id</span><span class="p">:</span><span class="w"> </span><span class="s">"has(item.network)</span><span class="nv"> </span><span class="s">?</span><span class="nv"> </span><span class="s">default(item.network.id,</span><span class="nv"> </span><span class="s">'')</span><span class="nv"> </span><span class="s">:</span><span class="nv"> </span><span class="s">''"</span>
+<span class="nt">metrics</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aruba_ap_clients</span>
+<span class="w">    </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">toFloat(item.client_count)</span>
+<span class="w">    </span><span class="nt">skipIf</span><span class="p">:</span><span class="w"> </span><span class="s">"!has(item.client_count)</span><span class="nv"> </span><span class="s">||</span><span class="nv"> </span><span class="s">item.client_count</span><span class="nv"> </span><span class="s">==</span><span class="nv"> </span><span class="s">null"</span>
+</code></pre></div>
+<p><strong>Timestamps.</strong> <code>parseTimestamp</code> reads RFC 3339 by default, or a Go layout; a timestamp metric is a number of seconds (<code>rms-devices</code>):</p>
+<div class="highlight"><pre><span></span><code><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">"double(int(parseTimestamp(item.last_connection_at,</span><span class="nv"> </span><span class="s">'2006-01-02</span><span class="nv"> </span><span class="s">15:04:05')))"</span>
+</code></pre></div>
+<p>As the <code>timestamp</code> of a sample, it carries the source time of the value (<code>example-sim-devices</code>): <code>timestamp: parseTimestamp(item.updatedAt)</code>.</p>
+<p><strong><code>_info</code> metrics.</strong> Descriptive attributes go to an <code>_info</code> metric (value 1) that shares an identifier label with the measures, so that queries join them (<code>meraki-devices</code>):</p>
+<div class="highlight"><pre><span></span><code><span class="nt">info</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">meraki_device_info</span>
+<span class="w">    </span><span class="nt">labels</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">serial</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">item.serial</span>
+<span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">"default(item.name,</span><span class="nv"> </span><span class="s">'')"</span>
+<span class="w">      </span><span class="nt">model</span><span class="p">:</span><span class="w"> </span><span class="s">"default(item.model,</span><span class="nv"> </span><span class="s">'')"</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="o">(</span><span class="nv">meraki_device_up</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="o">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">on</span><span class="w"> </span><span class="o">(</span><span class="nv">serial</span><span class="o">)</span><span class="w"> </span><span class="k">group_left</span><span class="w"> </span><span class="o">(</span><span class="nv">name</span><span class="p">,</span><span class="w"> </span><span class="nv">model</span><span class="o">)</span><span class="w"> </span><span class="nv">meraki_device_info</span>
+</code></pre></div>
+<h2 id="recording-real-responses">Recording real responses<a class="headerlink" href="#recording-real-responses" title="Permanent link">&para;</a></h2>
+<p><code>tapyr record</code> runs jobs once against the real API, through the budget engine, and writes their responses anonymized:</p>
+<div class="highlight"><pre><span></span><code>tapyr<span class="w"> </span>record<span class="w"> </span>--config<span class="w"> </span>./config<span class="w"> </span>--job<span class="w"> </span>devices<span class="w"> </span>--out<span class="w"> </span>./recording<span class="w"> </span><span class="o">[</span>--anonymize<span class="w"> </span>./anonymize.yaml<span class="o">]</span>
+</code></pre></div>
+<ul>
+<li>Serials, MAC and IP addresses, identifiers, names, emails, phone numbers, coordinates and addresses are replaced by consistent pseudonyms that keep their format (a MAC stays a MAC, an identifier keeps its length and its digits); the same value gets the same pseudonym in every page and in the request variables, so the recording stays consistent.</li>
+<li><code>anonymize.yaml</code> adds rules and exceptions:</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="nt">replace</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> path</span><span class="p">:</span><span class="w"> </span><span class="s">"data[*].company_name"</span><span class="p p-Indicator">,</span><span class="nt"> as</span><span class="p">:</span><span class="w"> </span><span class="nv">name</span><span class="w"> </span><span class="p p-Indicator">}</span><span class="w">   </span><span class="c1"># serial, digits, mac, ipv4, ipv6, email, hostname, name, id, coordinate, address, redact</span>
+<span class="nt">keep</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"data[*].model"</span>
+</code></pre></div>
+<ul>
+<li><code>report.txt</code> lists every replaced path and rule, never a value. <strong>Review the recording before committing anything</strong>: free-text fields can still hold identifying data.</li>
+<li>Only the quota headers of the provider and <code>Retry-After</code> are recorded; request credentials never are.</li>
+<li>Run it with the configuration and <code>TAPYR_STATE_KEY</code> of <code>tapyr run</code>: it reads the token pair an auth plugin stored (<code>aruba-central-classic</code>), read-only, and never renews a rotating refresh token, which would leave <code>tapyr run</code> with a spent one.</li>
+</ul>
+<p>The <code>teltonika-rms</code> fixtures follow the shape of such a recording.</p>
+<h2 id="linting-and-contract-tests">Linting and contract tests<a class="headerlink" href="#linting-and-contract-tests" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code>tapyr<span class="w"> </span>provider<span class="w"> </span>lint<span class="w"> </span>providers/teltonika-rms<span class="w">        </span><span class="c1"># one package</span>
+tapyr<span class="w"> </span>provider<span class="w"> </span>lint<span class="w"> </span>providers<span class="w">                      </span><span class="c1"># every package of a directory</span>
+tapyr<span class="w"> </span>provider<span class="w"> </span>lint<span class="w"> </span>--update<span class="w"> </span>providers/my-api<span class="w">      </span><span class="c1"># accept the new samples</span>
+tapyr<span class="w"> </span>provider<span class="w"> </span>lint<span class="w"> </span>--catalog<span class="w"> </span>providers/my-api<span class="w">     </span><span class="c1"># also require the catalog metadata</span>
+</code></pre></div>
+<p>The lint loads the package, compiles every template, checks the dashboards (valid JSON, a datasource variable, only metrics of the package or <code>tapyr_</code> self-metrics), the examples, the required scenarios, then runs the contract test: the jobs of <code>tests/contract.yaml</code> run once against the simulator, on a fake clock starting at <code>2026-01-01T00:00:00Z</code>, and their samples must equal <code>tests/expected.prom</code>. Every template must be exercised. With <code>--catalog</code>, the catalog metadata of the package and the <code>source</code> of every limit are required too, with existing categories and dates. <code>make lint</code> and the CI lint the built-in packages with <code>--catalog</code>.</p>
+<h2 id="end-to-end-tests">End-to-end tests<a class="headerlink" href="#end-to-end-tests" title="Permanent link">&para;</a></h2>
+<p>The packages tested against real platforms have e2e tests in <code>test/e2e/</code> (build tag <code>e2e</code>), skipped unless their credentials are set:</p>
+<div class="highlight"><pre><span></span><code><span class="nv">TAPYR_E2E_MERAKI_API_KEY</span><span class="o">=</span>...<span class="w"> </span>make<span class="w"> </span>e2e
+<span class="nv">TAPYR_E2E_RMS_TOKEN</span><span class="o">=</span>...<span class="w"> </span>make<span class="w"> </span>e2e
+<span class="nv">TAPYR_E2E_RUTOS_URL</span><span class="o">=</span>https://192.0.2.10<span class="w"> </span><span class="nv">TAPYR_E2E_RUTOS_USERNAME</span><span class="o">=</span>...<span class="w"> </span><span class="nv">TAPYR_E2E_RUTOS_PASSWORD</span><span class="o">=</span>...<span class="w"> </span>make<span class="w"> </span>e2e
+</code></pre></div>
+<p>They run <code>tapyr run</code> for one or two minutes and spend a few requests.</p>
+<h2 id="auth-plugins">Auth plugins<a class="headerlink" href="#auth-plugins" title="Permanent link">&para;</a></h2>
+<p>When an auth flow cannot be declared (Aruba Central rotates its refresh tokens), it is written in Go under <code>internal/auth/plugins/&lt;name&gt;</code> and registered in <code>internal/auth/plugins</code>. A plugin validates its <code>auth.plugin.config</code> (secret references as <code>{secret: name}</code>), creates an authenticator per account with a sender of auth requests through the budget engine and a sealed store for its state, and provides its simulator side. See <a href="../spec/05-collection/#implementation-notes"><code>05-collection.md</code></a>.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-circle-arrow-up" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4M12 16V8"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../examples/kubernetes/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Kubernetes">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-arrow-left" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7M19 12H5"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Kubernetes
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="./teltonika-rms/" class="md-footer__link md-footer__link--next" aria-label="Next: teltonika-rms">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                teltonika-rms
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Tapyr is open source under the Apache-2.0 license. Project site: <a href="https://tapyr.eu">tapyr.eu</a>.
+    </div>
+  
+  
+    Made with
+    <a href="https://zensical.org/" target="_blank" rel="noopener">
+      Zensical
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://tapyr.eu" target="_blank" rel="noopener" title="tapyr.eu, the project site" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20M2 12h20"/></svg>
+    </a>
+  
+    
+    
+    
+    
+    <a href="https://github.com/Kentrow/tapyr" target="_blank" rel="noopener" title="Tapyr on GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M216.5 362.5c-66-8-112.5-55.5-112.5-117 0-25 9-52 24-70-6.5-16.5-5.5-51.5 2-66 20-2.5 47 8 63 22.5 19-6 39-9 63.5-9s44.5 3 62.5 8.5c15.5-14 43-24.5 63-22 7 13.5 8 48.5 1.5 65.5 16 19 24.5 44.5 24.5 70.5 0 61.5-46.5 108-113.5 116.5 17 11 28.5 35 28.5 62.5v52c0 15 12.5 23.5 27.5 17.5C441 459.5 512 369 512 257 512 115.5 397 0 255.5 0S0 115.5 0 257c0 111 70.5 203 165.5 237.5 13.5 5 26.5-4 26.5-17.5v-40c-7 3-16 5-24 5-33 0-52.5-18-66.5-51.5-5.5-13.5-11.5-21.5-23-23-6-.5-8-3-8-6 0-6 10-10.5 20-10.5 14.5 0 27 9 40 27.5 10 14.5 20.5 21 33 21s20.5-4.5 32-16c8.5-8.5 15-16 21-21"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog" role="status" aria-atomic="true">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      
+      
+        
+        
+      <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["navigation.tabs","navigation.sections","navigation.top","navigation.footer","navigation.indexes","search.highlight","content.action.edit","content.code.copy","toc.follow"],"redirect":null,"search":"../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":{"alias":true,"default":"latest","provider":"mike"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.3cb411a8.min.js"></script>
+      
+    
+  </body>
+</html>
