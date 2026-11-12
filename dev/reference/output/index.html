@@ -1587,6 +1587,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#processingrule" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        ProcessingRule
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#prometheusoutput" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -2273,6 +2284,8 @@
       
         
       
+        
+      
     
     
     
@@ -2614,6 +2627,33 @@
 
                 
               
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0012-output-processing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0012 - Processing per output, first step: keep and drop metrics and labels
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
             </ul>
           </nav>
         
@@ -2709,6 +2749,17 @@
     <span class="md-ellipsis">
       <span class="md-typeset">
         OTLPOutput
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#processingrule" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        ProcessingRule
       </span>
     </span>
   </a>
@@ -2905,6 +2956,12 @@
 <td><code>otlp</code> pushes OTLP metrics (type otlp).</td>
 </tr>
 <tr>
+<td><code>processing</code></td>
+<td>list of <a href="#processingrule">ProcessingRule</a></td>
+<td></td>
+<td>Processing is an ordered list of rules applied to the samples of the jobs sent to this output only, with the semantics of Prometheus metric_relabel_configs (ADR 0012). Self-metrics are never processed.</td>
+</tr>
+<tr>
 <td><code>prometheus</code></td>
 <td><a href="#prometheusoutput">PrometheusOutput</a></td>
 <td></td>
@@ -2977,6 +3034,44 @@
 <td><a href="#duration">Duration</a></td>
 <td></td>
 <td>Timeout of a send request. Default <code>10s</code>.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="processingrule">ProcessingRule<a class="headerlink" href="#processingrule" title="Permanent link">&para;</a></h2>
+<p>ProcessingRule keeps or drops samples, or labels, of an output.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>action</code></td>
+<td>string</td>
+<td>yes</td>
+<td>Action: keep or drop the samples whose joined sourceLabels match regex; labelkeep or labeldrop the labels whose name matches regex. One of <code>keep</code>, <code>drop</code>, <code>labelkeep</code>, <code>labeldrop</code>.</td>
+</tr>
+<tr>
+<td><code>regex</code></td>
+<td>string</td>
+<td></td>
+<td>Regex is an RE2 regular expression, fully anchored. keep and drop default to (.*); labelkeep and labeldrop require it.</td>
+</tr>
+<tr>
+<td><code>separator</code></td>
+<td>string</td>
+<td></td>
+<td>Separator joins the values of sourceLabels (keep and drop). Default <code>;</code>.</td>
+</tr>
+<tr>
+<td><code>sourceLabels</code></td>
+<td>list of string</td>
+<td></td>
+<td><code>sourceLabels</code> are the labels whose values are joined and matched (keep and drop, required); __name__ is the metric name, a missing label the empty string. Each item: pattern <code>^[a-zA-Z_][a-zA-Z0-9_]*$</code>.</td>
 </tr>
 </tbody>
 </table>

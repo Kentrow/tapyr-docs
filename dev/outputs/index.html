@@ -802,6 +802,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#sending-less-to-an-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Sending less to an output
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#sizing-the-queue" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -2238,6 +2249,8 @@
       
         
       
+        
+      
     
     
     
@@ -2579,6 +2592,33 @@
 
                 
               
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0012-output-processing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0012 - Processing per output, first step: keep and drop metrics and labels
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
             </ul>
           </nav>
         
@@ -2691,6 +2731,17 @@
     <span class="md-ellipsis">
       <span class="md-typeset">
         <code>otlp</code>
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sending-less-to-an-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Sending less to an output
       </span>
     </span>
   </a>
@@ -2848,6 +2899,52 @@
 <li>Partial success responses count the rejected points; <code>429</code>, <code>502</code>, <code>503</code>, <code>504</code> (HTTP) and <code>UNAVAILABLE</code> or <code>RESOURCE_EXHAUSTED</code> with <code>RetryInfo</code> (gRPC) are retried, honoring the delay asked by the receiver.</li>
 <li><code>https://</code> endpoints use TLS with the system roots.</li>
 </ul>
+<h2 id="sending-less-to-an-output">Sending less to an output<a class="headerlink" href="#sending-less-to-an-output" title="Permanent link">&para;</a></h2>
+<p><code>spec.processing</code> filters what an output receives, for that output only: a hosted backend billed by series can get less than a local one, without changing the provider packages. The rules are those of Prometheus <code>metric_relabel_configs</code>, so rules written for Prometheus carry over:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tapyr/v1alpha1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Output</span>
+<span class="nt">metadata</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> name</span><span class="p">:</span><span class="w"> </span><span class="nv">hosted</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">remote_write</span>
+<span class="w">  </span><span class="nt">remoteWrite</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> url</span><span class="p">:</span><span class="w"> </span><span class="nv">https</span><span class="p p-Indicator">:</span><span class="nv">//metrics.example.com/api/v1/write</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">  </span><span class="nt">processing</span><span class="p">:</span>
+<span class="w">    </span><span class="c1"># No uplink metrics for this backend.</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">drop</span>
+<span class="w">      </span><span class="nt">sourceLabels</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">__name__</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">regex</span><span class="p">:</span><span class="w"> </span><span class="s">"meraki_uplink_.*"</span>
+<span class="w">    </span><span class="c1"># No access point metrics for the lab site.</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">drop</span>
+<span class="w">      </span><span class="nt">sourceLabels</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">__name__</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">site</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">regex</span><span class="p">:</span><span class="w"> </span><span class="s">"aruba_ap_.*;lab"</span>
+<span class="w">    </span><span class="c1"># No firmware label.</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">labeldrop</span>
+<span class="w">      </span><span class="nt">regex</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">firmware</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Keeps or drops</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>keep</code>, <code>drop</code></td>
+<td>the samples whose <code>sourceLabels</code> values, joined by <code>separator</code> (<code>;</code>), match <code>regex</code> (<code>__name__</code> is the metric name)</td>
+</tr>
+<tr>
+<td><code>labelkeep</code>, <code>labeldrop</code></td>
+<td>the labels whose name matches <code>regex</code> (never <code>__name__</code>)</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>The regex matches the whole value (it is anchored), in the RE2 syntax.</li>
+<li>Samples removed by <code>keep</code> and <code>drop</code> are counted in <code>tapyr_output_samples_filtered_total</code>, not as dropped samples: filtering is what you asked for.</li>
+<li>A <code>labeldrop</code> can make two series identical; the duplicates are dropped and counted in <code>tapyr_output_samples_dropped_total{reason="duplicate"}</code>, which the <code>TapyrOutputDropping</code> alert reports: remove a label only when the others still tell the series apart.</li>
+<li>A changed rule applies from the next run of each job instance; the series it removes or renames get a stale marker then.</li>
+<li>Tapyr's self-metrics are never filtered.</li>
+</ul>
 <h2 id="sizing-the-queue">Sizing the queue<a class="headerlink" href="#sizing-the-queue" title="Permanent link">&para;</a></h2>
 <p>The queue holds <code>capacity</code> samples per output. While a backend is down, the batch at the head of the queue is retried and new samples queue behind it; once full, the oldest samples are dropped and counted. Size <code>capacity</code> for the outage you want to ride out: samples per minute across your jobs, times the minutes. The batch being sent is never dropped while its request is in flight.</p>
 <h2 id="self-metrics-to-watch">Self-metrics to watch<a class="headerlink" href="#self-metrics-to-watch" title="Permanent link">&para;</a></h2>
@@ -2869,7 +2966,11 @@
 </tr>
 <tr>
 <td><code>tapyr_output_samples_dropped_total{reason}</code></td>
-<td><code>queue_full</code>, <code>rejected</code> or <code>out_of_order</code></td>
+<td><code>queue_full</code>, <code>rejected</code>, <code>out_of_order</code> or <code>duplicate</code> (made identical by processing rules)</td>
+</tr>
+<tr>
+<td><code>tapyr_output_samples_filtered_total</code></td>
+<td>Samples removed by the <code>keep</code> and <code>drop</code> processing rules</td>
 </tr>
 <tr>
 <td><code>tapyr_output_send_failures_total{class}</code></td>

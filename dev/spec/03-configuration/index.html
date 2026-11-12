@@ -2271,6 +2271,8 @@
       
         
       
+        
+      
     
     
     
@@ -2603,6 +2605,33 @@
     
   
   ADR 0011 - Generic engine, network-first launch and a provider catalog
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0012-output-processing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0012 - Processing per output, first step: keep and drop metrics and labels
 
     
   </span>
@@ -3211,6 +3240,12 @@
 <span class="w">    </span><span class="nt">flushInterval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5s</span>
 <span class="w">  </span><span class="nt">externalLabels</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">tapyr_instance</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lab</span>
+<span class="w">  </span><span class="nt">processing</span><span class="p">:</span><span class="w">                           </span><span class="c1"># for this output only, metric_relabel_configs semantics (ADR 0012)</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">drop</span>
+<span class="w">      </span><span class="nt">sourceLabels</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">__name__</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">regex</span><span class="p">:</span><span class="w"> </span><span class="s">"meraki_uplink_.*"</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">labeldrop</span>
+<span class="w">      </span><span class="nt">regex</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">firmware</span>
 <span class="nn">---</span>
 <span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tapyr/v1alpha1</span>
 <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Output</span>

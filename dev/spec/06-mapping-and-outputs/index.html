@@ -2086,6 +2086,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#processing" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Processing
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#timestamps" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -2293,6 +2304,8 @@
   
     
     
+      
+        
       
         
       
@@ -2660,6 +2673,33 @@
 
                 
               
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0012-output-processing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0012 - Processing per output, first step: keep and drop metrics and labels
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
             </ul>
           </nav>
         
@@ -2803,6 +2843,17 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#processing" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Processing
+      </span>
+    </span>
+  </a>
   
 </li>
       
@@ -3109,11 +3160,55 @@
 </ul>
 <h3 id="implementation-notes">Implementation notes<a class="headerlink" href="#implementation-notes" title="Permanent link">&para;</a></h3>
 <ul>
-<li>The registry is keyed by job instance. Pull exposition follows it directly: a successful run replaces the series of its instance; an instance whose last success is older than <code>staleAfter</code> is withdrawn; a removed instance is withdrawn at once.</li>
+<li>The registry is keyed by job instance. For an output with processing rules (see Processing), it also keeps the processed series last sent to that output, and staleness and deduplication use them; they are not persisted, but derived from the series of the snapshot with the current rules after a restart.</li>
+<li>Pull exposition follows the registry directly: a successful run replaces the series of its instance; an instance whose last success is older than <code>staleAfter</code> is withdrawn; a removed instance is withdrawn at once.</li>
 <li>Push outputs receive, per output, the samples that pass deduplication and the series to mark stale; the registry computes both.</li>
 <li>Deduplication only concerns samples with a source timestamp; samples stamped with the collection time are never deduplicated.</li>
 <li>The registry is snapshotted with the ledger (every 5 seconds and on shutdown): the series of every instance, and the last source timestamp sent per series and output.</li>
 <li>The source timestamps of a series are forgotten when it goes stale, which bounds the registry to the live series. After a restart, instances of the snapshot that are no longer scheduled (removed from the configuration, or children waiting for the first run of their parent without a cached inventory) are withdrawn at the first check.</li>
+</ul>
+<h2 id="processing">Processing<a class="headerlink" href="#processing" title="Permanent link">&para;</a></h2>
+<p>An output may declare <code>spec.processing</code>, an ordered list of rules applied to the samples of the jobs sent to it only (<a href="../../adr/0012-output-processing/">ADR 0012</a>), with the semantics of Prometheus <code>metric_relabel_configs</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Fields</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>keep</code></td>
+<td><code>sourceLabels</code> (required), <code>separator</code> (default <code>;</code>), <code>regex</code> (default <code>(.*)</code>)</td>
+<td>keeps the samples whose joined source label values match</td>
+</tr>
+<tr>
+<td><code>drop</code></td>
+<td>same</td>
+<td>drops the samples whose joined source label values match</td>
+</tr>
+<tr>
+<td><code>labelkeep</code></td>
+<td><code>regex</code> (required)</td>
+<td>keeps only the labels whose name matches</td>
+</tr>
+<tr>
+<td><code>labeldrop</code></td>
+<td><code>regex</code> (required)</td>
+<td>removes the labels whose name matches</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><code>regex</code> is RE2, fully anchored. <code>__name__</code> is the metric name; a missing label is the empty string. Rules apply in order; a dropped sample stops at once.</li>
+<li>Rules apply on the delivery of each output: after the mapping and the counter reconstruction, before deduplication and before the <code>externalLabels</code> of the output. Without rules, nothing changes.</li>
+<li>Staleness follows the series the output receives: a series that a rule starts dropping (after a reload) or that <code>labeldrop</code> renames gets a stale marker once, at the next successful run of its instance. A rule change applies from that run.</li>
+<li>Two samples of one run that end up with the same series and timestamp (a <code>labeldrop</code> removing the label that told them apart): the first is kept, the others are dropped and counted in <code>tapyr_output_samples_dropped_total{reason="duplicate"}</code>.</li>
+<li>Samples removed by <code>keep</code> and <code>drop</code> are counted in <code>tapyr_output_samples_filtered_total</code>.</li>
+<li>Self-metrics are never processed, on <code>/metrics/self</code> or pushed through an output.</li>
+<li><code>tapyr validate</code> rejects an unknown action, a missing or extra field, an invalid regex or label name, and a rule that would remove <code>__name__</code> (<code>labelkeep</code> not matching it, <code>labeldrop</code> matching it); it warns about a <code>keep</code> or <code>drop</code> on <code>__name__</code> alone that matches no metric of the jobs sent to the output.</li>
+<li>Not yet: <code>replace</code>, <code>labelmap</code>, conditions in CEL, aggregation, an interval per output, sending on change (follow-ups of ADR 0012).</li>
 </ul>
 <h2 id="timestamps">Timestamps<a class="headerlink" href="#timestamps" title="Permanent link">&para;</a></h2>
 <ul>
@@ -3162,7 +3257,7 @@
 <li><strong>Counter reconstruction</strong> (<code>accumulate: true</code>): per job instance and series, the store keeps the running total and the last window counted (the <code>windowField</code> value, else the sample timestamp). A sample whose window was already counted adds nothing; negative window values are mapping errors. The totals are persisted with the ledger (table <code>accumulators</code>) and dropped when the series goes stale or its instance is removed, a counter reset receivers handle.</li>
 </ul>
 <h3 id="multiple-outputs">Multiple outputs<a class="headerlink" href="#multiple-outputs" title="Permanent link">&para;</a></h3>
-<p>A job sends to all outputs by default, or to the subset listed in <code>spec.outputs</code>. Each output has its own queue: a slow backend never blocks collection or other outputs.</p>
+<p>A job sends to all outputs by default, or to the subset listed in <code>spec.outputs</code>. Each output has its own queue: a slow backend never blocks collection or other outputs, and its own processing rules: a local backend can stay complete next to a reduced hosted one.</p>
 
 
 
