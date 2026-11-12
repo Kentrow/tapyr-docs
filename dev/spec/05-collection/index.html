@@ -361,6 +361,8 @@
       
         
       
+        
+      
     
     
     
@@ -1003,6 +1005,8 @@
       
         
       
+        
+      
     
     
     
@@ -1179,6 +1183,33 @@
     
   
   juniper-mist
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../providers/cisco-thousandeyes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  cisco-thousandeyes
 
     
   </span>
@@ -3006,7 +3037,7 @@
 <h2 id="request-building">Request building<a class="headerlink" href="#request-building" title="Permanent link">&para;</a></h2>
 <ul>
 <li><code>path</code> is a template with <code>{var}</code> placeholders resolved from variables (discovery vars, account params, target params). Values are URL-path-escaped.</li>
-<li><code>query</code> values are Values: literal strings, CEL expressions (<code>{ expr: "..." }</code>) or secret references (<code>{ secret: name }</code>, redacted everywhere).</li>
+<li><code>query</code> values are Values: literal strings, CEL expressions (<code>{ expr: "..." }</code>) or secret references (<code>{ secret: name }</code>, redacted everywhere). An expression that returns <code>null</code> omits the parameter, for an optional account param: <code>{ expr: "default(account.params.accountGroupId, dyn(null))" }</code>; an empty string is sent as such.</li>
 <li><code>headers</code> merge provider defaults, template, then job (job wins).</li>
 <li><code>body</code> (for POST-based query APIs such as GraphQL) is supported: JSON with CEL-evaluated values. Tapyr remains read-only: POST is allowed only for queries, declared explicitly with <code>readOnly: true</code> in the template, and never retried unless <code>idempotent: true</code>.</li>
 </ul>

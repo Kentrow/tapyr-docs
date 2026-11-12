@@ -361,6 +361,8 @@
       
         
       
+        
+      
     
     
     
@@ -1003,6 +1005,8 @@
       
         
       
+        
+      
     
     
     
@@ -1179,6 +1183,33 @@
     
   
   juniper-mist
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../providers/cisco-thousandeyes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  cisco-thousandeyes
 
     
   </span>
@@ -2177,6 +2208,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#cisco-thousandeyes" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        cisco-thousandeyes
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#provider-package-checklist-definition-of-done" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -2730,6 +2772,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#cisco-thousandeyes" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        cisco-thousandeyes
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#provider-package-checklist-definition-of-done" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -2802,6 +2855,12 @@
 <td>Cloud, hourly quota per token, regional clouds</td>
 <td>Simulator only (docs + public OpenAPI spec)</td>
 <td>Validates header auth with a format, page pagination, hourly windows</td>
+</tr>
+<tr>
+<td><code>cisco-thousandeyes</code></td>
+<td>Cloud, per-minute quota per organization starting at the first request</td>
+<td>Simulator only (docs + official SDKs)</td>
+<td>Validates windows followed through the reset header, source timestamps per round, optional query params</td>
 </tr>
 </tbody>
 </table>
@@ -2898,6 +2957,23 @@
 <li><code>mist-sites</code> (<code>GET /api/v1/orgs/{orgId}/stats/sites</code>: device and client counts per site);</li>
 <li><code>mist-alarms</code> (<code>GET /api/v1/orgs/{orgId}/alarms/count?distinct=severity&amp;duration=1d</code>).</li>
 <li><strong>Deliverables</strong>: provider package, synthetic simulator enforcing the hourly quota, scenarios, dashboard, contract test. No e2e test (no access).</li>
+</ul>
+<h2 id="cisco-thousandeyes">cisco-thousandeyes<a class="headerlink" href="#cisco-thousandeyes" title="Permanent link">&para;</a></h2>
+<p>Cisco ThousandEyes API v7. Checked in November 2026 against the <a href="https://developer.cisco.com/docs/thousandeyes/rate-limits/">rate limit documentation</a> and the official SDKs (<a href="https://github.com/thousandeyes/thousandeyes-sdk-python">thousandeyes-sdk-python</a> 7.0.110).</p>
+<ul>
+<li><strong>Auth</strong>: bearer token of a user (<code>Authorization: Bearer &lt;token&gt;</code>); the account group is the optional account param <code>accountGroupId</code> (the <code>aid</code> query parameter, omitted when unset: the default account group of the user).</li>
+<li><strong>Base URL</strong>: <code>https://api.thousandeyes.com/v7</code> (account param <code>baseURL</code>).</li>
+<li><strong>Rate limits</strong>:</li>
+<li>240 requests a minute per organization, "one minute from the first request in a batch"; instant tests (24 a minute) and template deployments (10 a minute) have limits of their own, unused by the package;</li>
+<li><code>X-Organization-Rate-Limit-Limit</code>, <code>-Remaining</code> and <code>-Reset</code> (the epoch of the next rollover) on every response; <code>429</code> when exceeded, no <code>Retry-After</code>; the documented example shows a limit of 20;</li>
+<li>declared as <code>kind: quota</code>, <code>period: minute</code>, <code>max: auto</code> (<code>initialMax: 240</code>), <code>scope: { by: [account] }</code>, with the three <code>sync</code> headers: the reset header keeps the window on the one of the API (<code>04-budget-engine.md</code>, Header sync).</li>
+<li><strong>Pagination</strong>: <code>_links.next</code> in the body; without a time window, the latest round of every agent fits one page, which the package reads (and reports a next page in <code>thousandeyes_network_results_truncated</code>).</li>
+<li><strong>Budget strategy</strong>: one request per network test and run; about 10 requests a minute for 50 tests at the default 5 minutes.</li>
+<li><strong>Templates</strong> (metrics in the <a href="../../providers/cisco-thousandeyes/">package README</a>):</li>
+<li><code>thousandeyes-tests</code> (inventory, <code>GET /tests</code>);</li>
+<li><code>thousandeyes-agents</code> (<code>GET /agents</code>);</li>
+<li><code>thousandeyes-network-results</code> (<code>GET /test-results/{testId}/network</code>, one instance per enabled <code>agent-to-server</code> or <code>agent-to-agent</code> test, samples stamped with their round).</li>
+<li><strong>Deliverables</strong>: provider package, synthetic simulator enforcing the organization limit with its headers, scenarios, dashboard, contract test. No e2e test (no access).</li>
 </ul>
 <h2 id="provider-package-checklist-definition-of-done">Provider package checklist (definition of done)<a class="headerlink" href="#provider-package-checklist-definition-of-done" title="Permanent link">&para;</a></h2>
 <ul>

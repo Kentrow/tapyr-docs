@@ -363,6 +363,8 @@
       
         
       
+        
+      
     
     
     
@@ -1160,6 +1162,8 @@
       
         
       
+        
+      
     
     
     
@@ -1336,6 +1340,33 @@
     
   
   juniper-mist
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../providers/cisco-thousandeyes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  cisco-thousandeyes
 
     
   </span>
@@ -2895,7 +2926,7 @@ tapyr<span class="w"> </span>plan<span class="w"> </span>--config<span class="w"
 <li>Run <code>tapyr validate</code> and <code>tapyr plan</code> of the new version on your configuration.</li>
 <li>Replace the binary or the image tag, keep the state store, restart.</li>
 </ol>
-<p>Pin the image to a version (<code>ghcr.io/kentrow/tapyr:0.2.1</code>, or <code>0.2</code> for the patches of a minor version) rather than <code>latest</code>, and <a href="../install/#verify-the-signatures">verify its signature</a>.</p>
+<p>Pin the image to a version (<code>ghcr.io/kentrow/tapyr:0.3.0</code>, or <code>0.3</code> for the patches of a minor version) rather than <code>latest</code>, and <a href="../install/#verify-the-signatures">verify its signature</a>.</p>
 <h2 id="capacity">Capacity<a class="headerlink" href="#capacity" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>Outputs.</strong> Each push output has a queue of <code>capacity</code> samples. Size it for the backend outage you want to ride out: samples per minute across your jobs, times the minutes (see <a href="../outputs/#sizing-the-queue">Sizing the queue</a>).</li>

@@ -363,6 +363,8 @@
       
         
       
+        
+      
     
     
     
@@ -1005,6 +1007,8 @@
       
         
       
+        
+      
     
     
     
@@ -1184,6 +1188,33 @@
     
   
   juniper-mist
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../providers/cisco-thousandeyes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  cisco-thousandeyes
 
     
   </span>
@@ -2772,6 +2803,7 @@
 <p>Candidate provider packages, with the rate-limit pattern each one would exercise. Networks are the first use case of Tapyr, not its boundary (<a href="../adr/0011-provider-ecosystem/">ADR 0011</a>): any metric-oriented API whose quota is worth planning can become a package.</p>
 <p>This is a pool of ideas, not a commitment, and contributions are welcome: read <a href="../providers/">Provider packages</a> first. The limits below were gathered from public documentation in November 2026: <strong>verify them before writing a package</strong>, and cite their sources in the package. A provider that needs one of the <a href="#engine-gaps">engine gaps</a> starts with an issue, since the engine changes first.</p>
 <h2 id="network-and-sd-wan-first-use-case">Network and SD-WAN (first use case)<a class="headerlink" href="#network-and-sd-wan-first-use-case" title="Permanent link">&para;</a></h2>
+<p>Juniper Mist and Cisco ThousandEyes, ideas of this page, are built-in packages since v0.3.0: <a href="../providers/juniper-mist/"><code>juniper-mist</code></a> and <a href="../providers/cisco-thousandeyes/"><code>cisco-thousandeyes</code></a>.</p>
 <table>
 <thead>
 <tr>
@@ -2782,18 +2814,6 @@
 </tr>
 </thead>
 <tbody>
-<tr>
-<td>Juniper Mist</td>
-<td>Wi-Fi, switches, SLE (user experience)</td>
-<td>5000 calls/hour per token, reset at the top of the hour</td>
-<td>Natural companion to Aruba and Meraki</td>
-</tr>
-<tr>
-<td>Cisco ThousandEyes</td>
-<td>Path latency, loss, availability, app tests</td>
-<td>240 req/min per organization, window starts with the first request; separate per-endpoint limits (instant tests, template deploy); rich <code>X-Organization-Rate-Limit-*</code> headers</td>
-<td>Needs windows starting at the first request; per-endpoint limits (<code>appliesTo</code>) and header sync exist</td>
-</tr>
 <tr>
 <td>Ubiquiti UniFi Site Manager</td>
 <td>Sites, devices, ISP metrics</td>
@@ -2994,7 +3014,7 @@
 </tbody>
 </table>
 <h2 id="engine-gaps">Engine gaps<a class="headerlink" href="#engine-gaps" title="Permanent link">&para;</a></h2>
-<p>Most of the APIs above fit the configuration model as it is: rate, concurrency, calendar and rolling quota windows, scopes, header sync and <code>Retry-After</code> (<a href="../spec/04-budget-engine/"><code>04-budget-engine.md</code></a>). Five mechanisms are missing. Each one is a generic, configurable feature, designed in its own issue before any package needs it:</p>
+<p>Most of the APIs above fit the configuration model as it is: rate, concurrency, calendar and rolling quota windows, scopes, header sync and <code>Retry-After</code> (<a href="../spec/04-budget-engine/"><code>04-budget-engine.md</code></a>). Four mechanisms are missing. Each one is a generic, configurable feature, designed in its own issue before any package needs it:</p>
 <table>
 <thead>
 <tr>
@@ -3020,23 +3040,17 @@
 <td>Strava (two windows packed in one header), APIs that report their quota in the body</td>
 </tr>
 <tr>
-<td>Windows starting at the first request</td>
-<td>Fixed windows are aligned on the clock</td>
-<td>ThousandEyes (the minute starts with the first request)</td>
-</tr>
-<tr>
 <td>Rate limiting signaled other than by a status</td>
 <td><code>errors.rateLimited</code> matches HTTP statuses</td>
 <td>VirusTotal v2 (204 without a body), APIs answering 200 with an error object</td>
 </tr>
 </tbody>
 </table>
+<p>Windows that start at the first request (ThousandEyes) are not a gap when the API sends a reset header: every response sets the end of the window to the provider's (<a href="../spec/04-budget-engine/#header-sync"><code>04-budget-engine.md</code></a>, Header sync). They would be one for an API that sends none.</p>
 <h2 id="sources">Sources<a class="headerlink" href="#sources" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Strava rate limits: https://developers.strava.com/docs/rate-limits/</li>
 <li>VirusTotal consumption quotas: https://docs.virustotal.com/docs/consumption-quotas-handled</li>
-<li>ThousandEyes rate limits: https://developer.cisco.com/docs/thousandeyes/rate-limits/</li>
-<li>Juniper Mist limit (as documented by IP Fabric): https://docs.ipfabric.io/main/IP_Fabric_Settings/Discovery_and_Snapshots/Discovery_Settings/Vendors_API/juniper_mist/</li>
 <li>Enphase developer plans: https://developer-v4.enphase.com/developer-plans</li>
 <li>SolarEdge daily limit (as documented by Home Assistant): https://www.home-assistant.io/integrations/solaredge</li>
 </ul>
