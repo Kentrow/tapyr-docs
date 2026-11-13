@@ -2991,7 +2991,7 @@
 <li><code>externalConsumption</code> makes another client consume a quota at a steady hourly rate.</li>
 <li><code>errors</code> gives a status to a ratio of the requests to matching routes.</li>
 <li><code>fixtures</code> replaces the fixture of routes during the step (<code>fixtures: { "/orgs/{orgId}/networks": "fixtures/networks-after.json" }</code>), to simulate inventory changes.</li>
-<li><code>latency: { p50: 800ms, p99: 5s }</code> delays responses following a log-normal distribution with these quantiles (seeded), in simulated time.</li>
+<li><code>latency: { p50: 800ms, p99: 5s }</code> delays responses following a log-normal distribution with these quantiles (seeded), in simulated time. The delay is the processing time of the server: a request is counted by the limits when it arrives, then answered after the delay, holding its concurrency slot; a refusal (429) answers at once. Counted after the delay, requests sent at the pace of a rate limit would reach it bunched together and get 429 the client could not foresee.</li>
 <li><code>outage: true</code> closes connections without a response (the client sees a network error) while the step is active; a step without <code>for</code> lasts until the end.</li>
 <li><code>tokenExpiry: true</code> invalidates, when the step starts, every token issued before it (the next request gets <code>authFailed</code>).</li>
 </ul>
