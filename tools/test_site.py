@@ -1,4 +1,4 @@
-"""Tests of tools/site.py. Run: python -m unittest discover -s tools"""
+"""Tests of tools/site_tool.py. Run: python -m unittest discover -s tools"""
 
 import json
 import re
@@ -88,6 +88,12 @@ class PlanTest(unittest.TestCase):
         p = site.plan(tags=["v0.1.1"], main_sha="abc", deployed=[], deployed_default="dev")
         self.assertEqual(p["set_default"], "latest")
 
+    def test_the_ci_builds_every_published_minor_from_its_latest_tag(self):
+        tags = ["v0.1.0", "v0.1.1", "v0.1.2", "v0.2.0", "v0.2.1", "v0.3.0-rc.2", "v0.3.0", "v0.10.0", "junk"]
+        self.assertEqual(site.released_versions(tags), [
+            {"version": "0.10", "ref": "v0.10.0"}, {"version": "0.3", "ref": "v0.3.0"},
+            {"version": "0.2", "ref": "v0.2.1"}, {"version": "0.1", "ref": "v0.1.2"}])
+
     def test_minors_sort_by_number_not_text(self):
         p = site.plan(tags=["v0.9.0", "v0.10.0"], main_sha="abc", deployed=[])
         self.assertEqual(p["builds"][0]["version"], "0.10")
@@ -106,7 +112,7 @@ class PublishTest(unittest.TestCase):
             the_plan, tapyr="/t", work="/w", push=push, engine="e1",
             run=run,
             prepare=lambda *a, **kw: calls.append(["prepare", *a, kw.get("has_release")]),
-            links=lambda d: [],
+            links=lambda d: [], deployed=lambda *a, **kw: calls.append(["deployed", *a[1:], kw]) or [],
         )
         return calls
 
@@ -124,15 +130,35 @@ class PublishTest(unittest.TestCase):
         self.assertIn("source=v0.1.1", deploy)
         self.assertIn("has_release=true", deploy)
         self.assertIn("engine=e1", deploy)
-        self.assertIn("--push", deploy)
         self.assertEqual(deploy[-2:], ["0.1", "latest"])
+        # what mike committed is checked before anything leaves the machine
+        self.assertEqual(calls[4], ["deployed", "0.1", {"dev": False, "has_release": True}])
         props = next(c for c in calls if c[:2] == ["mike", "props"])
         self.assertEqual(props[-3:], ["--set", "hidden=true", "0.0"])
         self.assertIn("-F", props)  # mike reads a configuration even when it builds nothing
-        self.assertIn("--push", props)
         default = next(c for c in calls if c[:2] == ["mike", "set-default"])
         self.assertEqual(default[-1], "latest")
         self.assertIn("-F", default)
+        # one push, at the very end: mike and the root files only commit
+        self.assertFalse(any("--push" in c for c in calls))
+        pushes = [c for c in calls if "push" in c]
+        self.assertEqual(len(pushes), 1)
+        self.assertEqual(pushes[0][-2:], ["origin", "gh-pages"])
+        self.assertIs(calls[-1], pushes[0])
+
+    def test_a_problem_in_the_deployed_pages_pushes_nothing(self):
+        the_plan = {"builds": [{"version": "0.2", "ref": "v0.2.1", "source": "v0.2.1", "aliases": []},
+                               {"version": "dev", "ref": "main", "source": "abc", "aliases": []}],
+                    "default": "latest", "set_default": None, "hide": [], "unhide": []}
+        calls = []
+        with self.assertRaises(SystemExit) as stop:
+            site.publish(the_plan, tapyr="/t", work="/w", push=True,
+                         run=lambda cmd, **kw: calls.append(cmd) or subprocess.CompletedProcess(cmd, 1),
+                         prepare=lambda *a, **kw: None, links=lambda d: [],
+                         deployed=lambda repo, version, **kw: ["dev/index.html: noindex is missing"] if version == "dev" else [])
+        self.assertIn("nothing pushed", str(stop.exception))
+        self.assertEqual(sum(c[:2] == ["mike", "deploy"] for c in calls), 2)  # 0.2 was committed locally
+        self.assertFalse(any("push" in c or "--push" in c for c in calls))
 
     def test_dev_builds_from_origin_main_and_nothing_is_pushed_in_a_dry_run(self):
         the_plan = {"builds": [{"version": "dev", "ref": "main", "source": "abc", "aliases": []}],
@@ -149,7 +175,7 @@ class PublishTest(unittest.TestCase):
         with self.assertRaises(SystemExit):
             site.publish(the_plan, tapyr="/t", work="/w", push=True,
                          run=lambda cmd, **kw: calls.append(cmd),
-                         prepare=lambda *a, **kw: None, links=lambda d: ["x: no such page"])
+                         prepare=lambda *a, **kw: None, links=lambda d: ["x: no such page"], deployed=lambda *a, **kw: [])
         self.assertFalse(any(c[:2] == ["mike", "deploy"] for c in calls))
 
 
@@ -165,7 +191,7 @@ class PublishTest(unittest.TestCase):
             return subprocess.CompletedProcess(cmd, 1)
 
         site.publish(the_plan, tapyr="/t", work="/w", push=True, run=run,
-                     prepare=lambda *a, **kw: None, links=lambda d: [])
+                     prepare=lambda *a, **kw: None, links=lambda d: [], deployed=lambda *a, **kw: [])
         self.assertEqual(written["robots.txt"], b"User-agent: *\nAllow: /\n\nSitemap: https://docs.tapyr.eu/latest/sitemap.xml\n")
         self.assertEqual(sorted(written), ["404.html", "favicon-96.png", "favicon.ico", "favicon.svg", "index.html", "og.png", "robots.txt"])
         add = next(c for c in calls if c[1:3] == ["worktree", "add"] or c[3:5] == ["worktree", "add"])
@@ -214,9 +240,108 @@ class PublishTest(unittest.TestCase):
                 return subprocess.CompletedProcess(cmd, 1 if changed else 0)
 
             site.publish(the_plan, tapyr="/t", work="/w", push=push, run=run,
-                         prepare=lambda *a, **kw: None, links=lambda d: [])
+                         prepare=lambda *a, **kw: None, links=lambda d: [], deployed=lambda *a, **kw: [])
             self.assertFalse(any("push" in c for c in calls), (changed, push))
             self.assertEqual(any("commit" in c for c in calls), changed, (changed, push))
+
+
+class GhPagesTest(unittest.TestCase):
+    """publish against a real repository: a clone with a gh-pages branch, and its origin."""
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+        git = lambda *a, cwd: subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t", *a], cwd=cwd, check=True, capture_output=True, text=True).stdout
+        self.git = git
+        self.origin = self.tmp / "origin.git"
+        git("init", "--quiet", "--bare", "-b", "main", str(self.origin), cwd=self.tmp)
+        self.repo = self.tmp / "repo"
+        git("clone", "--quiet", str(self.origin), str(self.repo), cwd=self.tmp)
+        git("config", "user.name", "t", cwd=self.repo)
+        git("config", "user.email", "t@t", cwd=self.repo)
+        git("checkout", "--quiet", "-b", "gh-pages", cwd=self.repo)
+        (self.repo / "versions.json").write_text("[]")
+        git("add", "versions.json", cwd=self.repo)
+        git("commit", "--quiet", "-m", "start", cwd=self.repo)
+        git("push", "--quiet", "origin", "gh-pages", cwd=self.repo)
+        git("checkout", "--quiet", "-b", "main", cwd=self.repo)
+
+    def remote(self):
+        return self.git("rev-parse", "gh-pages", cwd=self.origin).strip()
+
+    def publish(self, push):
+        the_plan = {"builds": [], "default": "latest", "set_default": None, "hide": [], "unhide": []}
+        site.publish(the_plan, tapyr="/t", work="/w", push=push, repo=self.repo)
+
+    def test_the_root_files_reach_the_origin_in_one_commit_and_an_unchanged_site_pushes_nothing(self):
+        before = self.remote()
+        self.publish(push=True)
+        after = self.remote()
+        self.assertEqual(self.git("rev-list", "--count", f"{before}..{after}", cwd=self.origin).strip(), "1")
+        files = self.git("ls-tree", "--name-only", after, cwd=self.origin).split()
+        self.assertEqual(sorted(files), ["404.html", "favicon-96.png", "favicon.ico", "favicon.svg", "index.html", "og.png", "robots.txt", "versions.json"])
+        self.publish(push=True)
+        self.assertEqual(self.remote(), after)
+
+    def test_a_dry_run_commits_locally_and_leaves_the_origin_alone(self):
+        before = self.remote()
+        self.publish(push=False)
+        self.assertEqual(self.remote(), before)
+        self.assertNotEqual(self.git("rev-parse", "gh-pages", cwd=self.repo).strip(), before)
+
+    def test_the_committed_version_is_read_back_from_the_branch(self):
+        self.git("checkout", "--quiet", "gh-pages", cwd=self.repo)
+        (self.repo / "0.2").mkdir()
+        (self.repo / "0.2" / "index.html").write_text('<link rel="canonical" href="https://docs.tapyr.eu/dev/">')
+        self.git("add", "0.2", cwd=self.repo)
+        self.git("commit", "--quiet", "-m", "0.2", cwd=self.repo)
+        self.git("checkout", "--quiet", "main", cwd=self.repo)
+        problems = site.check_deployed(self.repo, "0.2", dev=False, has_release=True)
+        self.assertEqual(len(problems), 1)
+        self.assertIn("canonical", problems[0])
+
+
+class DeployedTest(unittest.TestCase):
+    def tree(self, files):
+        root = Path(tempfile.mkdtemp())
+        for name, html in files.items():
+            f = root / name
+            f.parent.mkdir(parents=True, exist_ok=True)
+            f.write_text(html)
+        return root
+
+    HOME = '<link rel="canonical" href="https://docs.tapyr.eu/latest/"><a href="install/">i</a>'
+
+    def test_a_released_version_names_latest_as_canonical_and_may_link_the_other_versions(self):
+        tree = self.tree({
+            "0.2/index.html": self.HOME + '<a class="tapyr-version-link" href="../latest/">l</a>',
+            "0.2/install/index.html": '<a class="tapyr-version-link" href="../../latest/">l</a>',
+            "0.2/404.html": '<a href="/0.3/install/">from the root</a><a class="tapyr-version-link" href="/0.2/../latest/">l</a>',
+            "0.3/install/index.html": "",
+        })
+        self.assertEqual(site.deployed_problems(tree, "0.2", dev=False, has_release=True), [])
+
+    def test_a_link_from_the_root_to_a_missing_page_of_another_version_is_reported(self):
+        tree = self.tree({"0.2/index.html": self.HOME, "0.2/install/index.html": "", "0.2/404.html": '<a href="/0.3/gone/">x</a>'})
+        problems = site.deployed_problems(tree, "0.2", dev=False, has_release=True)
+        self.assertEqual(len(problems), 1)
+        self.assertIn("/0.3/gone/", problems[0])
+
+    def test_a_wrong_canonical_a_missing_home_page_and_a_wrong_noindex_are_reported(self):
+        dev = '<link rel="canonical" href="https://docs.tapyr.eu/dev/">'
+        noindex = '<meta name="robots" content="noindex">'
+        cases = [
+            ({"0.2/index.html": dev}, "0.2", False, True, "canonical"),
+            ({"0.2/other.html": ""}, "0.2", False, True, "no home page"),
+            ({"dev/index.html": dev}, "dev", True, True, "noindex is missing"),
+            ({"dev/index.html": dev + noindex}, "dev", True, False, "noindex is set"),
+            ({"0.2/index.html": self.HOME.split("<a")[0] + noindex}, "0.2", False, True, "noindex is set"),
+        ]
+        for files, version, is_dev, has_release, expected in cases:
+            problems = site.deployed_problems(self.tree(files), version, dev=is_dev, has_release=has_release)
+            self.assertEqual(len(problems), 1, (expected, problems))
+            self.assertIn(expected, problems[0])
+        ok = site.deployed_problems(self.tree({"dev/index.html": dev + noindex}), "dev", dev=True, has_release=True)
+        self.assertEqual(ok, [])
 
 
 class DescriptionTest(unittest.TestCase):

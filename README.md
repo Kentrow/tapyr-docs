@@ -37,8 +37,8 @@ mike serve -r origin -b gh-pages
 
 ## How it is published
 
-- **CI** (`.github/workflows/ci.yml`), on every pull request: tool tests, a strict build of `main`, and a check that every internal link reaches a page and an anchor.
-- **Publish** (`.github/workflows/publish.yml`), daily and on demand: builds the minors whose latest stable tag changed and `dev` when `main` moved, then pushes the `gh-pages` branch with mike.
+- **CI** (`.github/workflows/ci.yml`), on every pull request: tool tests, a strict build of `main`, and a check that every internal link reaches a page and an anchor. It also builds every published minor from its tag, since an engine change rebuilds them all.
+- **Publish** (`.github/workflows/publish.yml`), daily and on demand: builds the minors whose latest stable tag changed and `dev` when `main` moved. Each version is committed to `gh-pages` by mike, then read back from the branch and checked (links, canonical URL, `noindex`); the branch is pushed once, at the end, so a failure on the way publishes nothing.
 
 | URL | Built from |
 |---|---|
