@@ -20,20 +20,36 @@
 {% endblock %}
 
 {#- Once a release is out, dev duplicates it: keep it out of search results. Besides the
-    SVG icon of the theme, a PNG one for search results. -#}
+    SVG icon of the theme, a PNG one for search results. Link previews (chats, social
+    networks) read the Open Graph tags; the image sits at the root of the site (root_files). -#}
 {% block extrahead %}
   <link rel="icon" href="{{ 'tapyr-theme/images/favicon-96.png' | url }}" sizes="96x96" type="image/png">
+  {%- if page and page.title %}
+  {%- set home = page.url in ["", "/", "./", "index.html"] %}
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="{{ config.site_name }}">
+  <meta property="og:title" content="{{ 'Tapyr documentation' if home else page.title ~ ' - ' ~ config.site_name }}">
+  <meta property="og:description" content="{{ config.extra.tapyr.descriptions[page.url] | default(config.site_description, true) }}">
+  {%- if page.canonical_url %}
+  <meta property="og:url" content="{{ page.canonical_url }}">
+  {%- endif %}
+  <meta property="og:image" content="https://docs.tapyr.eu/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  {%- endif %}
   {%- if config.extra.tapyr.channel == "dev" and config.extra.tapyr.has_release %}
     <meta name="robots" content="noindex">
   {%- endif %}
 {% endblock %}
 
-{#- The development version always says so; "latest" may not exist yet. -#}
+{#- The development version always says so; "latest" may not exist yet. The versions sit
+    side by side: the link climbs to the root of this one first (the url filter). -#}
 {% block announce %}
   {%- if config.extra.tapyr.channel == "dev" -%}
     This is the development version of the documentation, built from <code>main</code>.
     {%- if config.extra.tapyr.has_release %}
-      <a class="tapyr-version-link" href="{{ '../latest/' }}">Read the documentation of the latest release.</a>
+      <a class="tapyr-version-link" href="{{ '../latest/' | url }}">Read the documentation of the latest release.</a>
     {%- endif -%}
   {%- endif -%}
 {% endblock %}
@@ -42,6 +58,6 @@
 {% block outdated %}
   {%- if config.extra.tapyr.channel != "dev" -%}
     You are reading the documentation of Tapyr {{ config.extra.tapyr.version }}, an older version.
-    <a class="tapyr-version-link" href="{{ '../latest/' }}"><strong>Read the latest.</strong></a>
+    <a class="tapyr-version-link" href="{{ '../latest/' | url }}"><strong>Read the latest.</strong></a>
   {%- endif -%}
 {% endblock %}

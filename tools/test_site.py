@@ -2,6 +2,7 @@
 
 import json
 import re
+import struct
 import subprocess
 import tempfile
 import unittest
@@ -166,7 +167,7 @@ class PublishTest(unittest.TestCase):
         site.publish(the_plan, tapyr="/t", work="/w", push=True, run=run,
                      prepare=lambda *a, **kw: None, links=lambda d: [])
         self.assertEqual(written["robots.txt"], b"User-agent: *\nAllow: /\n\nSitemap: https://docs.tapyr.eu/latest/sitemap.xml\n")
-        self.assertEqual(sorted(written), ["favicon-96.png", "favicon.ico", "favicon.svg", "index.html", "robots.txt"])
+        self.assertEqual(sorted(written), ["404.html", "favicon-96.png", "favicon.ico", "favicon.svg", "index.html", "og.png", "robots.txt"])
         add = next(c for c in calls if c[1:3] == ["worktree", "add"] or c[3:5] == ["worktree", "add"])
         self.assertEqual(add[-1], "gh-pages")
         self.assertTrue(any(c[-2:] == ["origin", "gh-pages"] and "push" in c for c in calls))
@@ -179,6 +180,21 @@ class PublishTest(unittest.TestCase):
             self.assertIn(f'window.location.replace(\n      "{default}/"', index)
             self.assertIn('<link rel="icon" href="favicon.svg" type="image/svg+xml">', index)
             self.assertIn('<link rel="icon" href="favicon-96.png" sizes="96x96" type="image/png">', index)
+
+    def test_an_unknown_url_gets_a_page_of_the_site_that_leads_to_the_latest_version(self):
+        # GitHub Pages serves /404.html for every URL outside a version, at any depth.
+        page = site.root_files("latest")["404.html"]
+        self.assertIn("<title>Page not found - Tapyr docs</title>", page)
+        self.assertIn('<meta name="robots" content="noindex">', page)
+        self.assertIn('<a href="/latest/">', page)
+        self.assertIn('<link rel="icon" href="/favicon.svg" type="image/svg+xml">', page)
+        self.assertNotIn('href="favicon', page)
+        self.assertIn('<a href="/dev/">', site.root_files("dev")["404.html"])
+
+    def test_the_image_of_shared_links_sits_at_the_root(self):
+        image = site.root_files("latest")["og.png"]
+        self.assertTrue(image.startswith(b"\x89PNG"))
+        self.assertEqual(struct.unpack(">II", image[16:24]), (1200, 630))
 
     def test_the_icons_at_the_root_are_those_of_the_theme(self):
         files = site.root_files("latest")
@@ -264,12 +280,29 @@ class LinksTest(unittest.TestCase):
         self.assertIn("nope/", problems[0])
         self.assertIn("#gone", problems[1])
 
-    def test_external_links_and_version_links_are_skipped(self):
+    def test_external_links_are_skipped(self):
         root = self.site({
-            "index.html": '<a href="https://github.com/Kentrow/tapyr">gh</a><a href="mailto:a@b.c">m</a>'
-                          '<a class="tapyr-version-link" href="../latest/">latest</a>',
+            "index.html": '<a href="https://github.com/Kentrow/tapyr">gh</a><a href="mailto:a@b.c">m</a>',
         })
         self.assertEqual(site.check_links(root), [])
+
+    def test_a_version_link_reaches_the_latest_version_next_to_the_site_from_any_depth(self):
+        link = '<a class="tapyr-version-link" href="{}">latest</a>'
+        root = self.site({
+            "index.html": link.format("../latest/"),
+            "install/index.html": link.format("../../latest/"),
+            "providers/rms/index.html": link.format("../../../latest/"),
+            "404.html": link.format("/../latest/"),
+        })
+        self.assertEqual(site.check_links(root), [])
+
+    def test_a_version_link_that_stays_inside_the_version_is_reported(self):
+        # "../latest/" from a page one level down is /<version>/latest/: a 404 once deployed
+        link = '<a class="tapyr-version-link" href="../latest/">latest</a>'
+        root = self.site({"index.html": "", "install/index.html": link, "providers/rms/index.html": link})
+        problems = site.check_links(root)
+        self.assertEqual(len(problems), 2)
+        self.assertIn("install/index.html: ../latest/: not the latest version", problems[0])
 
     def test_root_absolute_links_resolve_from_the_site_root(self):
         root = self.site({
@@ -361,6 +394,24 @@ class ThemeTest(unittest.TestCase):
         self.assertFalse((Path(__file__).parent.parent / "theme/overrides" / name).exists())
         template = Path(zensical_ui.__file__).parent / "templates" / name
         self.assertIn('base=new URL("{{ base_url }}",location)', template.read_text())
+
+    def test_banner_links_to_the_latest_version_are_relative_to_the_page(self):
+        # A bare "../latest/" only works from the home page of a version.
+        main = (Path(__file__).parent.parent / "theme/overrides/main.html").read_text()
+        self.assertEqual(main.count("""href="{{ '../latest/' | url }}\""""), 2)
+        self.assertNotIn("""href="{{ '../latest/' }}\"""", main)
+
+    def test_pages_describe_themselves_to_link_previews(self):
+        main = (Path(__file__).parent.parent / "theme/overrides/main.html").read_text()
+        for tag in ['<meta property="og:type" content="article">', '<meta property="og:site_name" content="{{ config.site_name }}">',
+                    '<meta property="og:image" content="https://docs.tapyr.eu/og.png">', '<meta name="twitter:card" content="summary_large_image">',
+                    'property="og:title"', 'property="og:description"', 'property="og:url"']:
+            self.assertIn(tag, main)
+
+    def test_the_home_page_names_no_provider_so_it_fits_every_version(self):
+        home = (Path(__file__).parent.parent / "home/index.md").read_text()
+        for vendor in ["Aruba", "Meraki", "Teltonika", "Mist", "ThousandEyes"]:
+            self.assertNotIn(vendor, home)
 
     def test_pages_name_a_png_icon_besides_the_svg(self):
         main = (Path(__file__).parent.parent / "theme/overrides/main.html").read_text()
