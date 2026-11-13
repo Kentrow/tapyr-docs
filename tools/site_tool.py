@@ -14,6 +14,7 @@ a built site reaches an existing page and id. Standard library only.
 
 import argparse
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -27,7 +28,7 @@ ROOT = Path(__file__).resolve().parent.parent
 STABLE = re.compile(r"^v(\d+)\.(\d+)\.(\d+)$")
 FIRST = (0, 1, 1)  # first tag with docs/site.yml
 SHOWN = 3  # minors listed in the version selector, plus dev
-SKIP_CLASS = "tapyr-version-link"  # links to other versions, outside a single build
+SKIP_CLASS = "tapyr-version-link"  # links to the latest version, next to the site of a single build
 ENGINE_PATHS = ["mkdocs.yml", "home", "theme", "tools/site_tool.py", "requirements.txt"]  # what changes the output
 SITE = "https://docs.tapyr.eu"
 DESCRIPTION_MAX = 160  # characters of a meta description that search results show
@@ -198,7 +199,7 @@ def prepare(tapyr, ref, version, out, has_release=False):
 class _Page(HTMLParser):
     def __init__(self):
         super().__init__(convert_charrefs=True)
-        self.ids, self.links = set(), []
+        self.ids, self.links, self.version_links = set(), [], []
 
     def handle_starttag(self, tag, attrs):
         a = dict(attrs)
@@ -206,8 +207,9 @@ class _Page(HTMLParser):
             self.ids.add(a["id"])
         if tag == "a" and a.get("name"):
             self.ids.add(a["name"])
-        if tag == "a" and "href" in a and SKIP_CLASS not in (a.get("class") or "").split():
-            self.links.append(a["href"])
+        if tag == "a" and "href" in a:
+            version = SKIP_CLASS in (a.get("class") or "").split()
+            (self.version_links if version else self.links).append(a["href"])
 
 
 def check_links(site_dir):
@@ -221,7 +223,14 @@ def check_links(site_dir):
     if not pages:  # a build that wrote nothing has no broken link, and must not pass
         return [f"{root}: no HTML page"]
     problems = []
+    latest = root.parent / "latest"
     for f, page in pages.items():
+        # Once deployed, the versions sit side by side: the latest one is next to this site.
+        for href in page.version_links:
+            path = unquote(urlsplit(href).path)
+            target = (root / path.lstrip("/")) if path.startswith("/") else (f.parent / path)
+            if Path(os.path.normpath(target)) != latest:
+                problems.append(f"{f.relative_to(root)}: {href}: not the latest version")
         for href in page.links:
             parts = urlsplit(href)
             if parts.scheme or parts.netloc or href.startswith("//"):
@@ -286,12 +295,12 @@ def publish(the_plan, tapyr, work, push, engine=None, run=subprocess.run, prepar
 
 
 def root_files(default):
-    """robots.txt, the redirect to the default version and the icons of the site. Search
-    engines take the icon of a site from its home page, here the redirect: it names the
-    icons at the root, next to favicon.ico."""
+    """robots.txt, the redirect to the default version, the page of unknown URLs, the icons
+    of the site and the image of shared links. Search engines take the icon of a site from
+    its home page, here the redirect: it names the icons at the root, next to favicon.ico."""
     images = ROOT / "theme" / "assets" / "images"
-    files = {"robots.txt": robots_txt(default), "index.html": redirect_html(default)}
-    for name in ["favicon.svg", "favicon-96.png", "favicon.ico"]:
+    files = {"robots.txt": robots_txt(default), "index.html": redirect_html(default), "404.html": not_found_html(default)}
+    for name in ["favicon.svg", "favicon-96.png", "favicon.ico", "og.png"]:
         files[name] = (images / name).read_bytes()
     return files
 
@@ -320,6 +329,39 @@ def redirect_html(default):
 </head>
 <body>
   Redirecting to <a href="{default}/">{default}/</a>...
+</body>
+</html>
+"""
+
+
+def not_found_html(default):
+    """The page GitHub Pages serves for a URL outside every version, at any depth: its
+    links start from the root, and it carries its own few styles."""
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Page not found - Tapyr docs</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon-96.png" sizes="96x96" type="image/png">
+  <style>
+    :root {{ color-scheme: light dark; }}
+    body {{ margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px; box-sizing: border-box;
+      font: 1.05rem/1.6 system-ui, sans-serif; background: light-dark(#f2f8fb, #0b1622); color: light-dark(#0f2a3f, #e6f0f5); }}
+    main {{ max-width: 32em; }}
+    h1 {{ font-size: 1.8rem; line-height: 1.2; margin: 0 0 12px; }}
+    p {{ margin: 0 0 12px; }}
+    a {{ color: light-dark(#0a6890, #7cd0ee); }}
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Page not found</h1>
+    <p>This page does not exist, or it moved with a new version of Tapyr.</p>
+    <p><a href="/{default}/">Go to the Tapyr documentation</a></p>
+  </main>
 </body>
 </html>
 """

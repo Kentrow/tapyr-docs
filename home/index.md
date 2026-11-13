@@ -8,7 +8,7 @@ New to Tapyr? The project site, [tapyr.eu](https://tapyr.eu), shows what it does
 
 <a href="install/"><strong>Install</strong><span>Binaries, container image and deployment.</span></a>
 <a href="getting-started/"><strong>Getting started</strong><span>Collect metrics from a simulated API in ten minutes, with the binary alone.</span></a>
-<a href="providers/"><strong>Providers</strong><span>Aruba Central, Cisco Meraki, Teltonika RMS and RutOS.</span></a>
+<a href="providers/"><strong>Providers</strong><span>One package per vendor API: what it collects, its limits and its dashboard.</span></a>
 <a href="https://github.com/Kentrow/tapyr"><strong>GitHub</strong><span>Source, releases and issues.</span></a>
 
 </div>
