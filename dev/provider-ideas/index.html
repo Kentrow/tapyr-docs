@@ -374,6 +374,8 @@
       
         
       
+        
+      
     
     
     
@@ -1018,6 +1020,8 @@
       
         
       
+        
+      
     
     
     
@@ -1224,6 +1228,33 @@
     
   
   cisco-thousandeyes
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../providers/unifi-site-manager/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  unifi-site-manager
 
     
   </span>
@@ -2812,7 +2843,7 @@
 <p>Candidate provider packages, with the rate-limit pattern each one would exercise. Networks are the first use case of Tapyr, not its boundary (<a href="../adr/0011-provider-ecosystem/">ADR 0011</a>): any metric-oriented API whose quota is worth planning can become a package.</p>
 <p>This is a pool of ideas, not a commitment, and contributions are welcome: read <a href="../providers/">Provider packages</a> first. The limits below were gathered from public documentation in November 2026: <strong>verify them before writing a package</strong>, and cite their sources in the package. A provider that needs one of the <a href="#engine-gaps">engine gaps</a> starts with an issue, since the engine changes first.</p>
 <h2 id="network-and-sd-wan-first-use-case">Network and SD-WAN (first use case)<a class="headerlink" href="#network-and-sd-wan-first-use-case" title="Permanent link">&para;</a></h2>
-<p>Juniper Mist and Cisco ThousandEyes, ideas of this page, are built-in packages since v0.3.0: <a href="../providers/juniper-mist/"><code>juniper-mist</code></a> and <a href="../providers/cisco-thousandeyes/"><code>cisco-thousandeyes</code></a>.</p>
+<p>Juniper Mist and Cisco ThousandEyes, ideas of this page, are built-in packages since v0.3.0: <a href="../providers/juniper-mist/"><code>juniper-mist</code></a> and <a href="../providers/cisco-thousandeyes/"><code>cisco-thousandeyes</code></a>. UniFi Site Manager is one too: <a href="../providers/unifi-site-manager/"><code>unifi-site-manager</code></a>.</p>
 <table>
 <thead>
 <tr>
@@ -2823,12 +2854,6 @@
 </tr>
 </thead>
 <tbody>
-<tr>
-<td>Ubiquiti UniFi Site Manager</td>
-<td>Sites, devices, ISP metrics</td>
-<td>Verify</td>
-<td>Large homelab and SMB audience</td>
-</tr>
 <tr>
 <td>VeloCloud Orchestrator</td>
 <td>SD-WAN links, QoE, failovers</td>

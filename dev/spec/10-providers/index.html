@@ -372,6 +372,8 @@
       
         
       
+        
+      
     
     
     
@@ -1016,6 +1018,8 @@
       
         
       
+        
+      
     
     
     
@@ -1219,6 +1223,33 @@
     
   
   cisco-thousandeyes
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../providers/unifi-site-manager/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  unifi-site-manager
 
     
   </span>
@@ -2228,6 +2259,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#unifi-site-manager" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        unifi-site-manager
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#provider-package-checklist-definition-of-done" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -2792,6 +2834,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#unifi-site-manager" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        unifi-site-manager
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#provider-package-checklist-definition-of-done" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -2870,6 +2923,12 @@
 <td>Cloud, per-minute quota per organization starting at the first request</td>
 <td>Simulator only (docs + official SDKs)</td>
 <td>Validates windows followed through the reset header, source timestamps per round, optional query params</td>
+</tr>
+<tr>
+<td><code>unifi-site-manager</code></td>
+<td>Cloud, one API key for every console of a UI account, rate limit per key</td>
+<td>Real account, read-only (November 2026) + simulator</td>
+<td>Validates cursor pagination in the body, windows published late with source timestamps, several item kinds from one response</td>
 </tr>
 </tbody>
 </table>
@@ -2983,6 +3042,25 @@
 <li><code>thousandeyes-agents</code> (<code>GET /agents</code>);</li>
 <li><code>thousandeyes-network-results</code> (<code>GET /test-results/{testId}/network</code>, one instance per enabled <code>agent-to-server</code> or <code>agent-to-agent</code> test, samples stamped with their round).</li>
 <li><strong>Deliverables</strong>: provider package, synthetic simulator enforcing the organization limit with its headers, scenarios, dashboard, contract test. No e2e test (no access).</li>
+</ul>
+<h2 id="unifi-site-manager">unifi-site-manager<a class="headerlink" href="#unifi-site-manager" title="Permanent link">&para;</a></h2>
+<p>UniFi Site Manager API v1. Checked in November 2026 against the <a href="https://developer.ui.com/site-manager/v1.0.0/gettingstarted">Getting Started page</a>, the <a href="https://developer.ui.com/site-manager/v1.0.0/openapi.json">OpenAPI description</a> (Site Manager API 1.0.0) and the responses of a real account (read-only).</p>
+<ul>
+<li><strong>Auth</strong>: an API key of the UI account in the <code>X-API-Key</code> header (unifi.ui.com, Settings &gt; API Keys, the Site Manager scope only); the key sees every console the account owns or administers.</li>
+<li><strong>Base URL</strong>: <code>https://api.ui.com</code> (account param <code>baseURL</code>).</li>
+<li><strong>Rate limits</strong>:</li>
+<li>10,000 requests a minute for the v1 stable release, 100 for Early Access endpoints (unused); <code>429</code> with <code>Retry-After</code> in seconds when exceeded; no quota header (checked on a real account);</li>
+<li>the scope is not documented: declared as <code>kind: rate</code>, <code>rate: 10000/m</code>, <code>scope: { by: [credential] }</code>;</li>
+<li>the connector (<code>/v1/connector/consoles/{id}/...</code>, 100 requests a minute per console, which also accepts writes) is not used.</li>
+<li><strong>Pagination</strong>: an opaque cursor, <code>pageSize</code> and <code>nextToken</code> in the query, <code>nextToken</code> in the body (absent on the last page); on <code>/v1/devices</code>, a page counts consoles, each with all its devices. No maximum page size is documented.</li>
+<li><strong>Budget strategy</strong>: account-wide lists, no fan-out: 4 requests every 5 minutes and one every 15 minutes for up to 100 consoles.</li>
+<li><strong>Templates</strong> (metrics in the <a href="../../providers/unifi-site-manager/">package README</a>):</li>
+<li><code>unifi-hosts</code> (<code>GET /v1/hosts</code>);</li>
+<li><code>unifi-sites</code> (<code>GET /v1/sites</code>, one item per site and per WAN interface);</li>
+<li><code>unifi-devices</code> (<code>GET /v1/devices</code>);</li>
+<li><code>unifi-isp-metrics</code> (<code>GET /v1/isp-metrics/5m?beginTimestamp=&lt;now - 1h&gt;</code>, windows published about 30 minutes late, stamped with their start);</li>
+<li><code>unifi-isp-metrics-hourly</code> (<code>GET /v1/isp-metrics/1h</code>, optional).</li>
+<li><strong>Deliverables</strong>: provider package, synthetic simulator (the lists paginate themselves with a body cursor), scenarios, dashboard, contract test. No e2e test.</li>
 </ul>
 <h2 id="provider-package-checklist-definition-of-done">Provider package checklist (definition of done)<a class="headerlink" href="#provider-package-checklist-definition-of-done" title="Permanent link">&para;</a></h2>
 <ul>

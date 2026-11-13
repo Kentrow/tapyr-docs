@@ -372,6 +372,8 @@
       
         
       
+        
+      
     
     
     
@@ -1016,6 +1018,8 @@
       
         
       
+        
+      
     
     
     
@@ -1219,6 +1223,33 @@
     
   
   cisco-thousandeyes
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../providers/unifi-site-manager/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  unifi-site-manager
 
     
   </span>
@@ -3099,6 +3130,7 @@ aruba-central-classic/daily  24h          4500           529                    
 <li><strong>Outputs</strong>: queue fill, send rate, failures, last success.</li>
 <li><strong>Live debug</strong> (only when enabled): pick a job instance, see the last raw response (pretty JSON, collapsible) side by side with the samples produced. Refresh on new run (SSE).</li>
 </ol>
+<p>Every page shows, at the foot of the navigation, the version of the running Tapyr (<code>Tapyr v0.3.0</code>; a binary built without a version, such as <code>go build</code> in a clone, shows <code>Tapyr dev</code> and its short revision), with the full version, the revision and the Go version in its tooltip. It is read from <code>GET /api/v1/status</code> when the UI loads and again when the event stream reconnects, so an upgrade shows after the restart.</p>
 <h3 id="non-functional">Non-functional<a class="headerlink" href="#non-functional" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Responsive down to tablet width; usable on a phone for the overview.</li>
