@@ -64,3 +64,67 @@ jobs:
           zensical build --strict -f build/mkdocs.yml
       - name: Every internal link reaches a page and an id
         run: python tools/site_tool.py check-links build/site
+
+  # An engine change (theme, tool, Zensical) rebuilds every published version at the next
+  # Publish: each of them must still build here, from its frozen tag.
+  versions:
+    name: List the published versions
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    outputs:
+      matrix: ${{ steps.list.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: Kentrow/tapyr
+          ref: main
+          path: tapyr
+          fetch-depth: 0 # every tag, to find the latest of each minor
+          persist-credentials: false
+      - id: list
+        run: echo "matrix=$(python3 tools/site_tool.py versions --tapyr tapyr)" >> "$GITHUB_OUTPUT"
+
+  released:
+    name: Build ${{ matrix.build.version }}, strict, links checked
+    needs: versions
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        build: ${{ fromJSON(needs.versions.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: Kentrow/tapyr
+          ref: ${{ matrix.build.ref }}
+          path: tapyr
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: tapyr/go.mod
+          cache: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.13"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Export the tag and build without warnings
+        env:
+          REF: ${{ matrix.build.ref }}
+          VERSION: ${{ matrix.build.version }}
+        run: |
+          python tools/site_tool.py prepare --tapyr tapyr --ref "$REF" --version "$VERSION" --has-release --out build
+          zensical build --strict -f build/mkdocs.yml
+      - name: Every internal link reaches a page and an id
+        run: python tools/site_tool.py check-links build/site

@@ -212,9 +212,13 @@ class _Page(HTMLParser):
             (self.version_links if version else self.links).append(a["href"])
 
 
-def check_links(site_dir):
-    """Problems with internal links: target page missing, outside the site, or id missing."""
+def check_links(site_dir, web_root=None):
+    """Problems with internal links: target page missing, outside the site, or id missing.
+
+    web_root is the directory served at / when the site is one version among others (the
+    gh-pages tree): links from the root resolve there, and may reach another version."""
     root = Path(site_dir).resolve()
+    web_root = Path(web_root).resolve() if web_root else root
     pages = {}
     for f in sorted(root.rglob("*.html")):
         p = _Page()
@@ -228,7 +232,7 @@ def check_links(site_dir):
         # Once deployed, the versions sit side by side: the latest one is next to this site.
         for href in page.version_links:
             path = unquote(urlsplit(href).path)
-            target = (root / path.lstrip("/")) if path.startswith("/") else (f.parent / path)
+            target = (web_root / path.lstrip("/")) if path.startswith("/") else (f.parent / path)
             if Path(os.path.normpath(target)) != latest:
                 problems.append(f"{f.relative_to(root)}: {href}: not the latest version")
         for href in page.links:
@@ -238,13 +242,15 @@ def check_links(site_dir):
             if not parts.path:
                 target = f
             elif parts.path.startswith("/"):  # 404.html links from the site root
-                target = (root / unquote(parts.path).lstrip("/")).resolve()
+                target = (web_root / unquote(parts.path).lstrip("/")).resolve()
             else:
                 target = (f.parent / unquote(parts.path)).resolve()
             if target.is_dir() or parts.path.endswith("/"):
                 target = target / "index.html"
             where = f"{f.relative_to(root)}: {href}"
             if root not in target.parents and target != root:
+                if web_root in target.parents and target.is_file():
+                    continue  # a page of another version, checked with its own version
                 problems.append(f"{where}: leaves the site")
                 continue
             if target not in pages:
@@ -257,12 +263,16 @@ def check_links(site_dir):
 
 # ---------- publish ----------
 
-def publish(the_plan, tapyr, work, push, engine=None, run=subprocess.run, prepare=prepare, links=check_links):
+def publish(the_plan, tapyr, work, push, engine=None, run=subprocess.run, prepare=prepare, links=check_links,
+            deployed=None, repo=ROOT):
     """Carries out a plan: each build is exported, built in strict mode, link checked,
-    then deployed with mike to the gh-pages branch of this repository."""
-    target = ["-r", "origin", "-b", "gh-pages"] + (["--push"] if push else [])
+    committed by mike to the local gh-pages branch, then checked again as committed.
+    The branch is pushed once, at the end: a failure on the way publishes nothing."""
+    deployed = deployed or check_deployed
+    target = ["-r", "origin", "-b", "gh-pages"]
     has_release = the_plan["default"] == "latest"
     config = str(Path(work) / "mkdocs.yml")
+    changed = False
     for b in the_plan["builds"]:
         ref = "origin/main" if b["ref"] == "main" else b["ref"]
         run(["git", "-C", tapyr, "checkout", "--quiet", "--detach", ref], check=True)
@@ -279,6 +289,13 @@ def publish(the_plan, tapyr, work, push, engine=None, run=subprocess.run, prepar
              *(["--prop-set-string", f"engine={engine}"] if engine else []),
              "-m", f"docs: {b['version']} from {b['ref']} ({b['source']})",
              b["version"], *b["aliases"]], check=True)
+        # mike builds again, with its own site URL: what it committed is what gets served.
+        problems = deployed(repo, b["version"], dev=b["ref"] == "main", has_release=has_release)
+        if problems:
+            for line in problems:
+                print(line, file=sys.stderr)
+            sys.exit(f"{b['version']}: {len(problems)} problems in the deployed pages, nothing pushed")
+        changed = True
     if the_plan["hide"] or the_plan["unhide"] or the_plan["set_default"]:
         # mike loads a configuration even for commands that build nothing.
         stub = Path(tempfile.mkdtemp(prefix="mike-"))
@@ -291,7 +308,38 @@ def publish(the_plan, tapyr, work, push, engine=None, run=subprocess.run, prepar
             run(["mike", "props", *meta, "--delete", "hidden", v], check=True)
         if the_plan["set_default"]:
             run(["mike", "set-default", *meta, the_plan["set_default"]], check=True)
-    write_root_files(root_files(the_plan["default"]), push, run=run)
+        changed = True
+    changed = write_root_files(root_files(the_plan["default"]), run=run, repo=repo) or changed
+    if changed and push:
+        run(["git", "-C", str(repo), "push", "--quiet", "origin", "gh-pages"], check=True)
+
+
+def check_deployed(repo, version, dev, has_release):
+    """Problems in a version as committed to the local gh-pages branch: its links, among
+    the other versions, and what only the deployed build carries (canonical URL, noindex)."""
+    tree = Path(tempfile.mkdtemp(prefix="deployed-"))
+    try:
+        archive = subprocess.run(["git", "-C", str(repo), "archive", "gh-pages"], check=True, capture_output=True).stdout
+        subprocess.run(["tar", "-x", "-C", str(tree)], input=archive, check=True)
+        return deployed_problems(tree, version, dev, has_release)
+    finally:
+        shutil.rmtree(tree, ignore_errors=True)
+
+
+def deployed_problems(tree, version, dev, has_release):
+    site = Path(tree) / version
+    problems = check_links(site, web_root=tree)
+    home = site / "index.html"
+    if not home.is_file():
+        return problems + [f"{version}: no home page"]
+    html = home.read_text(errors="replace")
+    canonical = f'<link rel="canonical" href="{SITE}/{"dev" if dev else "latest"}/">'
+    if canonical not in html:
+        problems.append(f"{version}/index.html: canonical URL is not {canonical}")
+    noindex = '<meta name="robots" content="noindex">' in html
+    if noindex != (dev and has_release):
+        problems.append(f"{version}/index.html: noindex is {'set' if noindex else 'missing'}")
+    return problems
 
 
 def root_files(default):
@@ -367,8 +415,9 @@ def not_found_html(default):
 """
 
 
-def write_root_files(files, push, run=subprocess.run, repo=ROOT):
-    """Files at the root of the gh-pages branch, committed only when they change (index.html after mike)."""
+def write_root_files(files, run=subprocess.run, repo=ROOT):
+    """Files at the root of the gh-pages branch, committed only when they change
+    (index.html after mike). True when a commit was made; publish pushes."""
     tree = tempfile.mkdtemp(prefix="gh-pages-")
     run(["git", "-C", str(repo), "worktree", "add", "--quiet", tree, "gh-pages"], check=True)
     try:
@@ -378,10 +427,10 @@ def write_root_files(files, push, run=subprocess.run, repo=ROOT):
             else:
                 (Path(tree) / name).write_text(content)
             run(["git", "-C", tree, "add", name], check=True)
-        if run(["git", "-C", tree, "diff", "--cached", "--quiet"]).returncode:
-            run(["git", "-C", tree, "commit", "--quiet", "-m", f"docs: update {', '.join(files)}"], check=True)
-            if push:
-                run(["git", "-C", tree, "push", "--quiet", "origin", "gh-pages"], check=True)
+        if not run(["git", "-C", tree, "diff", "--cached", "--quiet"]).returncode:
+            return False
+        run(["git", "-C", tree, "commit", "--quiet", "-m", f"docs: update {', '.join(files)}"], check=True)
+        return True
     finally:
         run(["git", "-C", str(repo), "worktree", "remove", "--force", tree], check=True)
 
@@ -419,6 +468,12 @@ def current_plan(tapyr):
     return plan(tags, main_sha, deployed, default, engine=engine_commit())
 
 
+def released_versions(tags):
+    """Every published minor with the tag it is built from, for the CI matrix."""
+    builds = plan(tags, None, [])["builds"]
+    return [{"version": b["version"], "ref": b["ref"]} for b in builds if b["ref"] != "main"]
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -434,6 +489,8 @@ def main(argv=None):
     u.add_argument("--tapyr", required=True, help="checkout of Kentrow/tapyr with its tags")
     u.add_argument("--work", default=str(ROOT / "build"))
     u.add_argument("--push", action="store_true", help="push gh-pages (CI); without it, commit locally only")
+    r = sub.add_parser("versions", help="print the published minors and their tags, as JSON")
+    r.add_argument("--tapyr", required=True, help="checkout of Kentrow/tapyr with its tags")
     c = sub.add_parser("check-links", help="check the internal links of a built site")
     c.add_argument("site")
     args = ap.parse_args(argv)
@@ -446,6 +503,8 @@ def main(argv=None):
         the_plan = current_plan(args.tapyr)
         print(json.dumps(the_plan, indent=2))
         publish(the_plan, args.tapyr, args.work, args.push, engine=engine_commit())
+    elif args.cmd == "versions":
+        print(json.dumps(released_versions(_git("tag", "--list", "v*", cwd=args.tapyr).split())))
     elif args.cmd == "check-links":
         problems = check_links(args.site)
         for line in problems:
