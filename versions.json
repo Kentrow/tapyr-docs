@@ -10,11 +10,21 @@
     }
   },
   {
-    "version": "0.3",
-    "title": "0.3",
+    "version": "0.4",
+    "title": "0.4",
     "aliases": [
       "latest"
     ],
+    "properties": {
+      "source": "v0.4.0",
+      "has_release": true,
+      "engine": "ed44c28cdecd12a8ae519729d96bb7e4c2267d0c"
+    }
+  },
+  {
+    "version": "0.3",
+    "title": "0.3",
+    "aliases": [],
     "properties": {
       "source": "v0.3.0",
       "has_release": true,
