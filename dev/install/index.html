@@ -2865,7 +2865,7 @@
 <p>Tapyr is a single static binary with the web UI embedded. Releases ship it for Linux, macOS and Windows (amd64, arm64), and as the multi-arch image <code>ghcr.io/kentrow/tapyr</code>.</p>
 <h2 id="binary">Binary<a class="headerlink" href="#binary" title="Permanent link">&para;</a></h2>
 <p>Download the archive of your platform and <code>checksums.txt</code> from the <a href="https://github.com/kentrow/tapyr/releases">releases page</a>, check it, then put <code>tapyr</code> in your <code>PATH</code>. On Linux:</p>
-<div class="highlight"><pre><span></span><code><span class="nv">VERSION</span><span class="o">=</span><span class="m">0</span>.3.0
+<div class="highlight"><pre><span></span><code><span class="nv">VERSION</span><span class="o">=</span><span class="m">0</span>.4.0
 <span class="nv">ARCH</span><span class="o">=</span><span class="k">$(</span>uname<span class="w"> </span>-m<span class="w"> </span><span class="p">|</span><span class="w"> </span>sed<span class="w"> </span><span class="s1">'s/x86_64/amd64/; s/aarch64/arm64/'</span><span class="k">)</span>
 curl<span class="w"> </span>-LO<span class="w"> </span>https://github.com/kentrow/tapyr/releases/download/v<span class="nv">$VERSION</span>/tapyr_<span class="si">${</span><span class="nv">VERSION</span><span class="si">}</span>_linux_<span class="si">${</span><span class="nv">ARCH</span><span class="si">}</span>.tar.gz
 curl<span class="w"> </span>-LO<span class="w"> </span>https://github.com/kentrow/tapyr/releases/download/v<span class="nv">$VERSION</span>/checksums.txt
@@ -2883,7 +2883,7 @@ brew<span class="w"> </span>trust<span class="w"> </span>kentrow/tap<span class=
 <p>The binary is not notarized by Apple: the cask removes its quarantine attribute at install, otherwise macOS would refuse to run it. To check what you run, <a href="#verify-the-signatures">verify the signatures</a> of the release first.</p>
 <h2 id="deb-and-rpm-packages">deb and rpm packages<a class="headerlink" href="#deb-and-rpm-packages" title="Permanent link">&para;</a></h2>
 <p>From v0.2.1, every release has <code>.deb</code> and <code>.rpm</code> packages for amd64 and arm64: the binary in <code>/usr/bin</code>, the <a href="../examples/systemd/">hardened systemd unit</a> and an example in <code>/etc/tapyr</code>. They are static, without dependencies, and covered by the checksums, their signature and the provenance below.</p>
-<div class="highlight"><pre><span></span><code><span class="nv">VERSION</span><span class="o">=</span><span class="m">0</span>.3.0
+<div class="highlight"><pre><span></span><code><span class="nv">VERSION</span><span class="o">=</span><span class="m">0</span>.4.0
 <span class="nv">ARCH</span><span class="o">=</span><span class="k">$(</span>dpkg<span class="w"> </span>--print-architecture<span class="k">)</span><span class="w">    </span><span class="c1"># or: uname -m | sed 's/x86_64/amd64/; s/aarch64/arm64/'</span>
 curl<span class="w"> </span>-LO<span class="w"> </span>https://github.com/kentrow/tapyr/releases/download/v<span class="nv">$VERSION</span>/tapyr_<span class="si">${</span><span class="nv">VERSION</span><span class="si">}</span>_linux_<span class="si">${</span><span class="nv">ARCH</span><span class="si">}</span>.deb<span class="w">    </span><span class="c1"># or .rpm</span>
 curl<span class="w"> </span>-LO<span class="w"> </span>https://github.com/kentrow/tapyr/releases/download/v<span class="nv">$VERSION</span>/checksums.txt
@@ -2897,7 +2897,7 @@ sudo<span class="w"> </span>dpkg<span class="w"> </span>-i<span class="w"> </spa
 <span class="w">  </span>-v<span class="w"> </span><span class="s2">"</span><span class="nv">$PWD</span><span class="s2">/config:/etc/tapyr:ro"</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-v<span class="w"> </span>tapyr-data:/home/nonroot/data<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-p<span class="w"> </span><span class="m">9790</span>:9790<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>ghcr.io/kentrow/tapyr:0.3.0
+<span class="w">  </span>ghcr.io/kentrow/tapyr:0.4.0
 </code></pre></div>
 <ul>
 <li>The image runs <code>tapyr run --config /etc/tapyr</code> as the <code>nonroot</code> user (uid 65532), on <code>gcr.io/distroless/static-debian12</code>.</li>
