@@ -2988,7 +2988,7 @@
 <p>A step applies from <code>at</code> until <code>at + for</code>, or until the end when <code>for</code> is omitted. <code>at</code> is measured from the simulator start, in simulated time. Step actions:</p>
 <ul>
 <li><code>limits</code> overrides the <code>max</code> of named quota limits, for example <code>limits: { daily: { max: 1500 } }</code>.</li>
-<li><code>externalConsumption</code> makes another client consume a quota at a steady hourly rate.</li>
+<li><code>externalConsumption</code> makes another client consume a quota at a steady hourly rate, spread over time: each window receives what was consumed during it, however long ago the previous request came (a minute window gets at most a minute of it).</li>
 <li><code>errors</code> gives a status to a ratio of the requests to matching routes.</li>
 <li><code>fixtures</code> replaces the fixture of routes during the step (<code>fixtures: { "/orgs/{orgId}/networks": "fixtures/networks-after.json" }</code>), to simulate inventory changes.</li>
 <li><code>latency: { p50: 800ms, p99: 5s }</code> delays responses following a log-normal distribution with these quantiles (seeded), in simulated time. The delay is the processing time of the server: a request is counted by the limits when it arrives, then answered after the delay, holding its concurrency slot; a refusal (429) answers at once. Counted after the delay, requests sent at the pace of a rate limit would reach it bunched together and get 429 the client could not foresee.</li>

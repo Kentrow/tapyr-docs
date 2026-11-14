@@ -2200,6 +2200,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#health" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Health
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#implementation-notes" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -2825,6 +2836,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#health" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Health
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#implementation-notes" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -3062,7 +3084,7 @@ aruba-central-classic/daily  24h          4500           529                    
 </tr>
 <tr>
 <td><code>GET /api/v1/accounts</code> / <code>{name}</code></td>
-<td>Accounts (no secrets), targets, labels, circuit state, auth status</td>
+<td>Accounts (no secrets), targets, labels, circuit state, auth status, health and its reasons</td>
 </tr>
 <tr>
 <td><code>GET /api/v1/jobs</code> / <code>{name}</code></td>
@@ -3078,7 +3100,7 @@ aruba-central-classic/daily  24h          4500           529                    
 </tr>
 <tr>
 <td><code>GET /api/v1/budgets</code></td>
-<td>Every limit and scope key: kind, max, used, remaining (internal and observed), external usage, reserve, window bounds, projection</td>
+<td>Every limit and scope key: kind, max, used, remaining (internal and observed), external usage, reserve, window bounds, projection, and the accounts whose requests count in the scope (named by its account, target or credential dimension; every account of the provider for a scope without one)</td>
 </tr>
 <tr>
 <td><code>GET /api/v1/budgets/{limit}/timeline?scope=</code></td>
@@ -3107,6 +3129,15 @@ aruba-central-classic/daily  24h          4500           529                    
 </tbody>
 </table>
 <p>Rules: never expose secrets; redact headers as in logs; paginate list endpoints (<code>?limit=&amp;cursor=</code>); stable field names (snake_case); ISO 8601 timestamps.</p>
+<h3 id="health">Health<a class="headerlink" href="#health" title="Permanent link">&para;</a></h3>
+<p>Every job, account and provider has a health: <code>ok</code>, <code>degraded</code>, <code>failing</code>, or <code>unknown</code> before its first run. Parts combine the same way at every level: <code>ok</code> or <code>failing</code> when every known part is, <code>degraded</code> when they differ, <code>unknown</code> parts left out.</p>
+<ul>
+<li><strong>Run</strong>: <code>success</code> is ok, <code>failed</code> is failing; <code>partial</code> and the skipped runs (<code>skipped_budget</code>, <code>skipped_overlap</code>, <code>skipped_circuit</code>) are degraded: nothing failed, but not everything was collected.</li>
+<li><strong>Job</strong>: the last runs of its instances.</li>
+<li><strong>Account</strong>: the last runs of its job instances, made worse by its credentials (a manual re-bootstrap required fails it) and by its circuits (open for the account or for every target fails it; open for some targets, or half open, degrades it). <code>health_reasons</code> says why, when it is not ok: the redacted errors of its jobs (the jobs that share an error share a reason, three reasons at most, then how many more), the re-bootstrap, the open circuits. A rejected key shows as a failing account with the <code>401</code> of its jobs.</li>
+<li><strong>Provider</strong>: its accounts. One account failing out of several degrades the provider instead of failing it.</li>
+</ul>
+<p>The Overview lists the accounts that are not ok with their reasons, and the Graph colors the account nodes with their health and shows the reasons in the detail panel.</p>
 <h3 id="implementation-notes">Implementation notes<a class="headerlink" href="#implementation-notes" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>internal/api</code> serves the API from a read-only <code>Source</code> interface implemented by <code>tapyr run</code>; it never reaches into the collector state directly. The OpenAPI description (OpenAPI 3.1) is maintained by hand; a test checks that every route is documented and that every response of the test suite validates against its schema.</li>
@@ -3122,7 +3153,7 @@ aruba-central-classic/daily  24h          4500           529                    
 <p>The UI is built in CI and in <code>make build</code>; a binary built without UI assets serves a minimal page explaining how to build them.</p>
 <h3 id="pages">Pages<a class="headerlink" href="#pages" title="Permanent link">&para;</a></h3>
 <ol>
-<li><strong>Overview</strong>: health summary, plan feasibility banner, providers and accounts cards with status, quota gauges (used / projected / limit per window), recent errors.</li>
+<li><strong>Overview</strong>: health summary, plan feasibility banner, providers and accounts cards with status, quota gauges (used / projected / limit per window, named by the accounts of their scope), recent errors.</li>
 <li><strong>Graph</strong>: provider -&gt; account -&gt; (targets) -&gt; inventory jobs -&gt; metric jobs -&gt; outputs. Node color by health. Click a node to open its detail panel. Fan-out shown as grouped nodes with instance counts.</li>
 <li><strong>Job detail</strong>: effective config (YAML view), desired vs effective interval with stretch reason, instances table, recent runs (result, duration, requests, pages, retries, samples), errors.</li>
 <li><strong>Budgets</strong>: one card per limit and scope: timeline of consumption over the window with projection line, reserve, external usage, window reset time. Rate limits show wait time and 429s.</li>
