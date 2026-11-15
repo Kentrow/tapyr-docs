@@ -533,6 +533,13 @@ class ThemeTest(unittest.TestCase):
                     'property="og:title"', 'property="og:description"', 'property="og:url"']:
             self.assertIn(tag, main)
 
+    def test_the_home_page_leads_to_the_live_demo(self):
+        home = (Path(__file__).parent.parent / "home/index.md").read_text()
+        cards = re.findall(r'<a href="([^"]+)"><strong>([^<]+)</strong>', home)
+        self.assertIn(("https://demo.tapyr.eu/", "See it live"), cards)
+        # an even number of cards keeps the two-column grid full
+        self.assertEqual(len(cards) % 2, 0, cards)
+
     def test_the_home_page_names_no_provider_so_it_fits_every_version(self):
         home = (Path(__file__).parent.parent / "home/index.md").read_text()
         for vendor in ["Aruba", "Meraki", "Teltonika", "Mist", "ThousandEyes"]:
