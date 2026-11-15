@@ -2333,6 +2333,10 @@
       
         
       
+        
+      
+        
+      
     
     
     
@@ -2701,6 +2705,60 @@
 
                 
               
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0013-unconsumed-jobs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0013 - Jobs whose metrics no output keeps are not collected
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0014-output-series/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0014 - Series per output: estimates, a limit and their visibility
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
             </ul>
           </nav>
         
@@ -2934,6 +2992,7 @@ configuration is invalid: 1 error
 <li><strong>Unknown template or provider.</strong> <code>tapyr provider list</code> shows the packages Tapyr knows; user packages need <code>settings.providerPaths</code>, and each package README lists its templates.</li>
 <li><strong>A secret is not set.</strong> <code>--check-secrets</code> checks that every referenced environment variable or file exists and is not empty. Without it, <code>validate</code> checks the configuration only, which suits a CI without the secrets.</li>
 <li><strong>Nothing is collected and no error.</strong> <code>configuration is valid: ... 0 accounts, 0 jobs</code> means the paths contain no document: check <code>--config</code> (files must end in <code>.yaml</code> or <code>.yml</code>, hidden files are skipped).</li>
+<li><strong>A job never runs.</strong> <code>warning: job "..." is not collected: no output keeps its metrics</code> means the processing rules of every output receiving it drop all its metrics by name, so Tapyr makes no API call for it (<a href="../outputs/#sending-less-to-an-output">Sending less to an output</a>). Change the rules, route the job to another output, or set <code>settings.collection.skipUnconsumed: false</code>.</li>
 </ul>
 <h2 id="tapyr-does-not-start">Tapyr does not start<a class="headerlink" href="#tapyr-does-not-start" title="Permanent link">&para;</a></h2>
 <ul>

@@ -2422,6 +2422,10 @@
       
         
       
+        
+      
+        
+      
     
     
     
@@ -2790,6 +2794,60 @@
 
                 
               
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0013-unconsumed-jobs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0013 - Jobs whose metrics no output keeps are not collected
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0014-output-series/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0014 - Series per output: estimates, a limit and their visibility
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
             </ul>
           </nav>
         
@@ -3112,7 +3170,7 @@
 <p>The quota headers of a provider announce a maximum different from the one declared in its definition. Tapyr follows the headers; update the limit in the provider definition (<code>max: auto</code> with <code>initialMax</code> when the maximum depends on the account) so that <code>tapyr plan</code> is accurate.</p>
 <h2 id="outputs-and-state">Outputs and state<a class="headerlink" href="#outputs-and-state" title="Permanent link">&para;</a></h2>
 <h3 id="tapyroutputdropping">TapyrOutputDropping<a class="headerlink" href="#tapyroutputdropping" title="Permanent link">&para;</a></h3>
-<p>A push output (remote write or OTLP) drops samples: <code>queue_full</code> when the backend is slower than the collection, <code>rejected</code> or <code>out_of_order</code> when it refuses them. <code>tapyr_output_send_failures_total</code> gives the class of the errors; for <code>out_of_order</code>, check that no other writer sends the same series.</p>
+<p>A push output (remote write or OTLP) drops samples: <code>queue_full</code> when the backend is slower than the collection, <code>rejected</code> or <code>out_of_order</code> when it refuses them. <code>tapyr_output_send_failures_total</code> gives the class of the errors; for <code>out_of_order</code>, check that no other writer sends the same series. <code>duplicate</code> means that processing rules made two series identical. <code>series_limit</code> means that the output reached its <code>limits.maxSeries</code>: the series already sent keep flowing, new ones are not sent; the Outputs page of the web UI says how many are held back. Raise the limit, or drop metrics with processing rules (<a href="../outputs/#series-and-limits">Series and limits</a>).</p>
 <h3 id="tapyroutputfailing">TapyrOutputFailing<a class="headerlink" href="#tapyroutputfailing" title="Permanent link">&para;</a></h3>
 <p>A push output has not delivered anything for 10 minutes, or keeps failing without having ever delivered (a wrong URL or credentials from the start). The samples wait in the bounded queue, and the oldest are dropped when it is full. Check that the backend is up and reachable, and its authentication.</p>
 <h3 id="tapyrconfigreloadfailed">TapyrConfigReloadFailed<a class="headerlink" href="#tapyrconfigreloadfailed" title="Permanent link">&para;</a></h3>

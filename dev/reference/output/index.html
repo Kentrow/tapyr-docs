@@ -1647,6 +1647,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#outputlimits" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        OutputLimits
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#otlpoutput" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -2357,6 +2368,10 @@
       
         
       
+        
+      
+        
+      
     
     
     
@@ -2725,6 +2740,60 @@
 
                 
               
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0013-unconsumed-jobs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0013 - Jobs whose metrics no output keeps are not collected
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0014-output-series/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0014 - Series per output: estimates, a limit and their visibility
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
             </ul>
           </nav>
         
@@ -2809,6 +2878,17 @@
     <span class="md-ellipsis">
       <span class="md-typeset">
         Name
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#outputlimits" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        OutputLimits
       </span>
     </span>
   </a>
@@ -3021,6 +3101,12 @@
 <td><code>externalLabels</code> added to every sample sent through this output. Keys match <code>^[a-zA-Z_][a-zA-Z0-9_]*$</code>.</td>
 </tr>
 <tr>
+<td><code>limits</code></td>
+<td><a href="#outputlimits">OutputLimits</a></td>
+<td></td>
+<td>Limits caps what the output receives (ADR 0014).</td>
+</tr>
+<tr>
 <td><code>otlp</code></td>
 <td><a href="#otlpoutput">OTLPOutput</a></td>
 <td></td>
@@ -3064,6 +3150,26 @@
 </ul>
 <h2 id="name">Name<a class="headerlink" href="#name" title="Permanent link">&para;</a></h2>
 <p>Type: string. Pattern <code>^[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])?$</code>.</p>
+<h2 id="outputlimits">OutputLimits<a class="headerlink" href="#outputlimits" title="Permanent link">&para;</a></h2>
+<p>OutputLimits caps what an output receives.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>maxSeries</code></td>
+<td>integer</td>
+<td></td>
+<td><code>maxSeries</code> is the most series the output receives, after its processing rules: the series already sent keep flowing, the samples of a new series beyond it are dropped and counted (tapyr_output_samples_dropped_total{reason="series_limit"}). Minimum 1.</td>
+</tr>
+</tbody>
+</table>
 <h2 id="otlpoutput">OTLPOutput<a class="headerlink" href="#otlpoutput" title="Permanent link">&para;</a></h2>
 <p>OTLPOutput configures OTLP metrics export.</p>
 <table>

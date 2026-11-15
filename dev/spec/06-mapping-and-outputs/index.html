@@ -2235,6 +2235,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#series-per-output-and-limit" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Series per output and limit
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#multiple-outputs" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -2375,6 +2386,10 @@
   
     
     
+      
+        
+      
+        
       
         
       
@@ -2771,6 +2786,60 @@
 
                 
               
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0013-unconsumed-jobs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0013 - Jobs whose metrics no output keeps are not collected
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0014-output-series/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0014 - Series per output: estimates, a limit and their visibility
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
             </ul>
           </nav>
         
@@ -2989,6 +3058,17 @@
     <span class="md-ellipsis">
       <span class="md-typeset">
         Implementation notes
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#series-per-output-and-limit" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Series per output and limit
       </span>
     </span>
   </a>
@@ -3279,6 +3359,7 @@
 <li>Samples removed by <code>keep</code> and <code>drop</code> are counted in <code>tapyr_output_samples_filtered_total</code>.</li>
 <li>Self-metrics are never processed, on <code>/metrics/self</code> or pushed through an output.</li>
 <li><code>tapyr validate</code> rejects an unknown action, a missing or extra field, an invalid regex or label name, and a rule that would remove <code>__name__</code> (<code>labelkeep</code> not matching it, <code>labeldrop</code> matching it); it warns about a <code>keep</code> or <code>drop</code> on <code>__name__</code> alone that matches no metric of the jobs sent to the output.</li>
+<li><strong>Jobs not collected</strong> (<a href="../../adr/0013-unconsumed-jobs/">ADR 0013</a>): a job none of whose metrics can reach an output, judged by the rules on the metric name, is not collected: no API call, no quota, its series withdrawn as for a removed job. The parent of a fan-out is collected when one of its children is. The rules are evaluated on the name alone: a <code>keep</code> or <code>drop</code> on <code>[__name__]</code> is decided, one on any other label cannot be before the call and keeps the job collected, <code>labelkeep</code> and <code>labeldrop</code> never drop a sample. Without any output, every job is collected. <code>settings.collection.skipUnconsumed: false</code> turns it off; <code>validate</code>, <code>plan</code> and <code>run</code> warn about every job not collected, the status API reports <code>collected: false</code>, and <code>tapyr_job_collected</code> is 0.</li>
 <li>Not yet: <code>replace</code>, <code>labelmap</code>, conditions in CEL, aggregation, an interval per output, sending on change (follow-ups of ADR 0012).</li>
 </ul>
 <h2 id="timestamps">Timestamps<a class="headerlink" href="#timestamps" title="Permanent link">&para;</a></h2>
@@ -3326,6 +3407,13 @@
 <li><strong>Remote write</strong> sends <code>Content-Encoding: snappy</code>, <code>Content-Type: application/x-protobuf</code>, <code>X-Prometheus-Remote-Write-Version: 0.1.0</code> and <code>User-Agent: tapyr/&lt;version&gt;</code>; the time series of a request are sorted by labels with their samples in time order. Metadata (<code>TYPE</code>, <code>HELP</code>, unit) of every metric family seen is sent in a request of its own on the first send and every 1 minute.</li>
 <li><strong>OTLP</strong> groups samples by resource (provider and account of the job instance) and metric name; the instrumentation scope is <code>github.com/kentrow/tapyr</code> with the Tapyr version. <code>service.instance.id</code> is a random identifier created on first start and kept in the state store (<code>resourceAttributes</code> may override it). HTTP: <code>POST</code> to the endpoint, with <code>/v1/metrics</code> appended when the endpoint has no path; gRPC: <code>http://</code> endpoints are plaintext, <code>https://</code> use TLS with the system roots. Retryable: HTTP 429, 502, 503, 504 and gRPC <code>UNAVAILABLE</code>, <code>RESOURCE_EXHAUSTED</code> (with <code>RetryInfo</code>); rejected data points of a partial success are counted as <code>rejected</code>. The start time of a cumulative sum is the first time the output saw the series in this process, or its earliest timestamp when a source timestamp is older; a restart starts the sums again, which receivers treat as a reset.</li>
 <li><strong>Counter reconstruction</strong> (<code>accumulate: true</code>): per job instance and series, the store keeps the running total and the last window counted (the <code>windowField</code> value, else the sample timestamp). A sample whose window was already counted adds nothing; negative window values are mapping errors. The totals are persisted with the ledger (table <code>accumulators</code>) and dropped when the series goes stale or its instance is removed, a counter reset receivers handle.</li>
+</ul>
+<h3 id="series-per-output-and-limit">Series per output and limit<a class="headerlink" href="#series-per-output-and-limit" title="Permanent link">&para;</a></h3>
+<p><a href="../../adr/0014-output-series/">ADR 0014</a>.</p>
+<ul>
+<li><strong>Counting.</strong> The series an output receives are those of the last successful run of every job instance routed to it, after its processing rules (and its limit). <code>tapyr plan</code> counts them offline from the series kept in the state store, with samples per minute (the series of an instance over the effective interval of its job), and lists the jobs never run yet, whose series are unknown (the total is then a lower bound). The status API (<code>GET /api/v1/outputs</code>: <code>series</code>, <code>max_series</code>, <code>series_refused</code>, <code>samples_refused</code>, <code>unmeasured_jobs</code>) and <code>tapyr_output_series</code> count them online.</li>
+<li><strong>Limit.</strong> <code>spec.limits.maxSeries</code> caps the series of an output, after its processing rules, for every output type. The series already sent keep flowing; a new series is sent only while the output has fewer series than the limit, in key order within a run; the samples of the others are dropped and counted in <code>tapyr_output_samples_dropped_total{reason="series_limit"}</code>. A series that stops (stale, withdrawn, its instance removed) frees its place. A limit lowered below the current count keeps the series sent and admits none. The series admitted per instance are not persisted: after a restart or a reload, the registry gives each instance routed to the output the series of its last run, in instance and key order, up to the limit.</li>
+<li><code>tapyr run</code> logs a warning when an output starts holding series back, and an info when no series is held back any more.</li>
 </ul>
 <h3 id="multiple-outputs">Multiple outputs<a class="headerlink" href="#multiple-outputs" title="Permanent link">&para;</a></h3>
 <p>A job sends to all outputs by default, or to the subset listed in <code>spec.outputs</code>. Each output has its own queue: a slow backend never blocks collection or other outputs, and its own processing rules: a local backend can stay complete next to a reduced hosted one.</p>

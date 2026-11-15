@@ -2355,6 +2355,10 @@
       
         
       
+        
+      
+        
+      
     
     
     
@@ -2714,6 +2718,60 @@
     
   
   ADR 0012 - Processing per output, first step: keep and drop metrics and labels
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0013-unconsumed-jobs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0013 - Jobs whose metrics no output keeps are not collected
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0014-output-series/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0014 - Series per output: estimates, a limit and their visibility
 
     
   </span>
@@ -3184,6 +3242,12 @@
 <td>series produced by the last runs</td>
 </tr>
 <tr>
+<td><code>tapyr_job_collected</code></td>
+<td>gauge</td>
+<td>provider, account, job</td>
+<td>1 when collected, 0 when no output keeps its metrics or no collected job takes its inventory (<a href="../../adr/0013-unconsumed-jobs/">ADR 0013</a>)</td>
+</tr>
+<tr>
 <td><code>tapyr_job_pages_per_run</code></td>
 <td>histogram</td>
 <td>provider, job</td>
@@ -3267,7 +3331,7 @@
 <td><code>tapyr_output_samples_dropped_total</code></td>
 <td>counter</td>
 <td>output, reason</td>
-<td>queue_full, rejected, out_of_order, duplicate (samples that processing rules made identical)</td>
+<td>queue_full, rejected, out_of_order, duplicate (samples that processing rules made identical), series_limit (new series beyond <code>limits.maxSeries</code>, ADR 0014)</td>
 </tr>
 <tr>
 <td><code>tapyr_output_samples_filtered_total</code></td>
@@ -3298,6 +3362,18 @@
 <td>gauge</td>
 <td>output</td>
 <td></td>
+</tr>
+<tr>
+<td><code>tapyr_output_series</code></td>
+<td>gauge</td>
+<td>output</td>
+<td>series the output receives: those of the last successful run of every job instance sent to it, after its processing rules and its limit (<a href="../../adr/0014-output-series/">ADR 0014</a>)</td>
+</tr>
+<tr>
+<td><code>tapyr_output_series_limit</code></td>
+<td>gauge</td>
+<td>output</td>
+<td><code>limits.maxSeries</code> of the output, when it has one</td>
 </tr>
 </tbody>
 </table>

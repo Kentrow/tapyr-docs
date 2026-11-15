@@ -2434,6 +2434,10 @@
       
         
       
+        
+      
+        
+      
     
     
     
@@ -2790,6 +2794,60 @@
     
   
   ADR 0012 - Processing per output, first step: keep and drop metrics and labels
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0013-unconsumed-jobs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0013 - Jobs whose metrics no output keeps are not collected
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0014-output-series/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0014 - Series per output: estimates, a limit and their visibility
 
     
   </span>
@@ -3331,6 +3389,12 @@
 <td>integer</td>
 <td></td>
 <td><code>maxConcurrentRequests</code> bounds in-flight requests across all providers. Default <code>32</code>. Minimum 1.</td>
+</tr>
+<tr>
+<td><code>skipUnconsumed</code></td>
+<td>boolean</td>
+<td></td>
+<td><code>skipUnconsumed</code> does not collect the jobs whose metrics no output keeps (the processing rules of every output receiving them drop them by name), nor the parents whose inventory no collected job takes: no API call, no quota spent (ADR 0013). Set it to false to keep every job running, for example as an authentication probe or for the live debug. Default <code>true</code>.</td>
 </tr>
 </tbody>
 </table>
