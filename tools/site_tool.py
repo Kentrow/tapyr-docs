@@ -32,6 +32,14 @@ SKIP_CLASS = "tapyr-version-link"  # links to the latest version, next to the si
 ENGINE_PATHS = ["mkdocs.yml", "home", "theme", "tools/site_tool.py", "requirements.txt"]  # what changes the output
 SITE = "https://docs.tapyr.eu"
 DESCRIPTION_MAX = 160  # characters of a meta description that search results show
+GLOSSARY = "glossary.md"  # from v0.6.0
+# Glossary terms that get a tooltip on every page: the rare ones. A word also used in its
+# everyday sense ("a burst of errors") would show a wrong definition, a common one
+# (account, job, quota) a tooltip on every line.
+GLOSSARY_TERMS = [
+    "Budget share", "Circuit breaker", "Effective interval", "External usage", "Fan-out", "Implicit job",
+    "Pages per run", "Quota headers", "Replan", "Retry reserve", "Stretch", "Unexpected 429",
+]
 NOT_PROSE = re.compile(r"^(#|\||<|[-*+] |\d+\. |> |!\[|-{3,}$|!!! |\?\?\? |=== )")
 
 
@@ -118,13 +126,17 @@ def description(markdown):
             break
     if not paragraph:
         return None
-    plain = " ".join(paragraph)
-    plain = re.sub(r"!?\[([^\]]*)\]\([^)]*\)", r"\1", plain)  # links keep their text
-    plain = re.sub(r"`([^`]*)`|\*\*([^*]+)\*\*", lambda m: m.group(1) or m.group(2), plain)
-    plain = re.sub(r"\s+", " ", plain).strip()
+    plain = plain_text(" ".join(paragraph))
     if len(plain) > DESCRIPTION_MAX:
         plain = plain[: DESCRIPTION_MAX - 1].rsplit(" ", 1)[0].rstrip(",;:") + "…"
     return plain
+
+
+def plain_text(markdown):
+    """Inline Markdown as plain text: links keep their text, code and bold lose their marks."""
+    plain = re.sub(r"!?\[([^\]]*)\]\([^)]*\)", r"\1", markdown)
+    plain = re.sub(r"`([^`]*)`|\*\*([^*]+)\*\*", lambda m: m.group(1) or m.group(2), plain)
+    return re.sub(r"\s+", " ", plain).strip()
 
 
 def page_descriptions(docs, index):
@@ -135,6 +147,42 @@ def page_descriptions(docs, index):
         if text:
             found[page_url(path)] = text
     return found
+
+
+def glossary_abbreviations(glossary, terms=None):
+    """Markdown abbreviations giving each term the first sentence of its glossary entry.
+
+    The capitalized and the lowercase form of every term, so that it matches at the
+    start of a sentence and in its middle. A term the glossary no longer has stops the build.
+    """
+    entries = {}
+    for m in re.finditer(r"(?m)^## (.+)\n\n((?:.+\n?)+)", glossary):
+        entries[m.group(1).strip()] = re.split(r"(?<=\.)\s", plain_text(m.group(2)), maxsplit=1)[0]
+    lines = []
+    for term in GLOSSARY_TERMS if terms is None else terms:
+        if term not in entries:
+            sys.exit(f"the glossary has no entry {term!r}: update GLOSSARY_TERMS")
+        for form in dict.fromkeys([term, term[0].lower() + term[1:]]):
+            lines.append(f"*[{form}]: {entries[term]}")
+    return "\n".join(lines) + "\n"
+
+
+def add_glossary_tooltips(docs, index, terms=None):
+    """Appends the abbreviations of the glossary to every exported page but the glossary itself.
+
+    Zensical shows them as tooltips (abbr and content.tooltips in mkdocs.yml). A version
+    without a glossary is left as it is. The home page is not in the index, so it gets none.
+    """
+    docs = Path(docs)
+    glossary = docs / GLOSSARY
+    if not glossary.is_file():
+        return
+    block = glossary_abbreviations(glossary.read_text(), terms)
+    for page in index["pages"]:
+        if page["path"] == GLOSSARY:
+            continue
+        path = docs / page["path"]
+        path.write_text(path.read_text().rstrip("\n") + "\n\n" + block)
 
 
 def generated_config(index, version, channel, has_release, descriptions=None):
@@ -184,6 +232,7 @@ def prepare(tapyr, ref, version, out, has_release=False):
     shutil.copytree(ROOT / "theme" / "assets", docs / "tapyr-theme")
     shutil.copytree(ROOT / "theme" / "overrides", out / "overrides")
     index = json.loads(index_file.read_text())
+    add_glossary_tooltips(docs, index)
     channel = "dev" if ref == "main" else "release"
     extra = generated_config(index, version, channel, has_release, page_descriptions(docs, index))
     # The base configuration stays text: its slug function is a Python tag that a
