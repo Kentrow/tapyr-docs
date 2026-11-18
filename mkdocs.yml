@@ -25,6 +25,7 @@ theme:
     - search.highlight
     - content.action.edit
     - content.code.copy
+    - content.tooltips
     - toc.follow
   icon:
     repo: fontawesome/brands/github
@@ -53,6 +54,7 @@ extra_css:
   - tapyr-theme/stylesheets/tapyr.css
 
 markdown_extensions:
+  - abbr
   - admonition
   - tables
   - pymdownx.superfences

@@ -479,6 +479,66 @@ class ConfigTest(unittest.TestCase):
             self.assertNotRegex(base, rf"(?m)^{key}:")
 
 
+class GlossaryTest(unittest.TestCase):
+    GLOSSARY = (
+        "# Glossary\n\nThe words Tapyr uses.\n\n"
+        "## Stretch\n\nThe factor by which the [planner](#planner) lengthens the interval of a job: `x2` runs it\n"
+        "half as often. Jobs of a priority are stretched together.\n\n"
+        "## Retry reserve\n\nThe part of every quota kept for **retries** (`settings.budget.retryReserve`). More.\n\n"
+        "## Planner\n\nDecides the intervals.\n"
+    )
+
+    def test_each_term_reads_the_first_sentence_of_its_entry_in_plain_text(self):
+        lines = site.glossary_abbreviations(self.GLOSSARY, ["Stretch", "Retry reserve"]).splitlines()
+        self.assertEqual(lines, [
+            "*[Stretch]: The factor by which the planner lengthens the interval of a job: x2 runs it half as often.",
+            "*[stretch]: The factor by which the planner lengthens the interval of a job: x2 runs it half as often.",
+            "*[Retry reserve]: The part of every quota kept for retries (settings.budget.retryReserve).",
+            "*[retry reserve]: The part of every quota kept for retries (settings.budget.retryReserve).",
+        ])
+
+    def test_a_term_missing_from_the_glossary_stops_the_build(self):
+        # a renamed entry would otherwise lose its tooltips without a word
+        with self.assertRaises(SystemExit) as stop:
+            site.glossary_abbreviations(self.GLOSSARY, ["Stretch", "Fan-out"])
+        self.assertIn("Fan-out", str(stop.exception))
+
+    def test_every_page_but_the_glossary_and_the_home_gets_the_tooltips(self):
+        with tempfile.TemporaryDirectory() as d:
+            docs = Path(d)
+            (docs / "spec").mkdir()
+            pages = {"index.md": "# Home\n", "glossary.md": self.GLOSSARY, "concepts.md": "# Concepts\n\nThe planner may stretch it.\n",
+                     "spec/04.md": "# Budget\n\nNo trailing newline"}
+            for path, text in pages.items():
+                (docs / path).write_text(text)
+            index = {"pages": [{"path": p} for p in ["glossary.md", "concepts.md", "spec/04.md"]]}
+            site.add_glossary_tooltips(docs, index, terms=["Stretch"])
+            for path in ["index.md", "glossary.md"]:
+                self.assertEqual((docs / path).read_text(), pages[path], path)
+            block = "*[Stretch]: The factor by which the planner lengthens the interval of a job: x2 runs it half as often."
+            self.assertTrue((docs / "concepts.md").read_text().startswith(pages["concepts.md"]))
+            self.assertIn("\n\n" + block + "\n", (docs / "concepts.md").read_text())
+            self.assertIn("No trailing newline\n\n" + block + "\n", (docs / "spec/04.md").read_text())
+
+    def test_a_version_without_a_glossary_is_left_as_it_is(self):
+        with tempfile.TemporaryDirectory() as d:
+            docs = Path(d)
+            (docs / "concepts.md").write_text("# Concepts\n")
+            site.add_glossary_tooltips(docs, {"pages": [{"path": "concepts.md"}]})
+            self.assertEqual((docs / "concepts.md").read_text(), "# Concepts\n")
+
+    def test_only_rare_terms_get_a_tooltip(self):
+        # a word also used in its everyday sense would show a wrong definition
+        self.assertNotIn("Burst", site.GLOSSARY_TERMS)
+        for common in ["Account", "Job", "Budget", "Quota", "Output", "Scope"]:
+            self.assertNotIn(common, site.GLOSSARY_TERMS)
+
+    def test_the_configuration_turns_on_abbreviations_and_their_tooltips(self):
+        base = (site.ROOT / "mkdocs.yml").read_text()
+        self.assertRegex(base, r"(?m)^markdown_extensions:\n(  - .*\n)*  - abbr$")
+        self.assertRegex(base, r"(?m)^    - content\.tooltips$")
+
+
 class CommitsTest(unittest.TestCase):
     SCRIPT = Path(__file__).resolve().parent.parent / "scripts" / "check-commits.sh"
 
