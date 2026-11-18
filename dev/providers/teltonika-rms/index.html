@@ -2258,6 +2258,8 @@
       
         
       
+        
+      
     
     
     
@@ -2680,6 +2682,33 @@
 
                 
               
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0015-persistent-output-buffer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0015 - A persistent buffer for the push outputs
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
             </ul>
           </nav>
         
@@ -2948,7 +2977,7 @@
 <h2 id="end-to-end-test">End-to-end test<a class="headerlink" href="#end-to-end-test" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><span class="nv">TAPYR_E2E_RMS_TOKEN</span><span class="o">=</span>...<span class="w"> </span>go<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-tags<span class="w"> </span>e2e<span class="w"> </span>-run<span class="w"> </span>TestTeltonikaRMS<span class="w"> </span>./test/e2e/
 </code></pre></div>
-<p>It lists the devices once, checks that the samples have the expected shape and that the quota headers are learned, and spends one request per 100 devices plus one data-usage request per device.</p>
+<p>It lists the devices once, checks that the samples have the expected shape and that the <abbr title="Response headers in which an API announces its quota: its maximum, what is left, when it resets.">quota headers</abbr> are learned, and spends one request per 100 devices plus one data-usage request per device.</p>
 
 
 
@@ -3075,7 +3104,7 @@
       
         
         
-      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["navigation.tabs","navigation.sections","navigation.top","navigation.footer","navigation.indexes","search.highlight","content.action.edit","content.code.copy","toc.follow"],"redirect":null,"search":"../../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":{"alias":true,"default":"latest","provider":"mike"}}</script>
+      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["navigation.tabs","navigation.sections","navigation.top","navigation.footer","navigation.indexes","search.highlight","content.action.edit","content.code.copy","content.tooltips","toc.follow"],"redirect":null,"search":"../../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":{"alias":true,"default":"latest","provider":"mike"}}</script>
     
     
       <script src="../../assets/javascripts/bundle.3cb411a8.min.js"></script>

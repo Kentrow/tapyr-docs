@@ -2443,6 +2443,8 @@
       
         
       
+        
+      
     
     
     
@@ -2865,6 +2867,33 @@
 
                 
               
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0015-persistent-output-buffer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0015 - A persistent buffer for the push outputs
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
             </ul>
           </nav>
         
@@ -3108,7 +3137,7 @@
 </tbody>
 </table>
 <h2 id="tapyr-plan">tapyr plan<a class="headerlink" href="#tapyr-plan" title="Permanent link">&para;</a></h2>
-<p>Compute, offline, the effective interval of every job and the projected consumption of every quota scope over a full window. Estimates use the run history of the state store when it exists, else estimate.pagesPerRun. Exit code 3 when the plan is infeasible.</p>
+<p>Compute, offline, the <abbr title="The interval a job actually runs at: its desired interval, or longer when the planner stretches it to fit a quota.">effective interval</abbr> of every job and the projected consumption of every quota scope over a full window. Estimates use the run history of the state store when it exists, else estimate.pagesPerRun. Exit code 3 when the plan is infeasible.</p>
 <div class="highlight"><pre><span></span><code>tapyr plan [flags]
 </code></pre></div>
 <table>
@@ -3123,7 +3152,7 @@
 <tr>
 <td><code>--fanout string</code></td>
 <td></td>
-<td>fan-out hint: &lt;parent&gt;=&lt;instances&gt;, the parent as named in forEach (its template, or its job with forEach.job), repeatable</td>
+<td><abbr title="A job whose template has forEach: it runs once per item listed by its parent, as many instances.">fan-out</abbr> hint: &lt;parent&gt;=&lt;instances&gt;, the parent as named in forEach (its template, or its job with forEach.job), repeatable</td>
 </tr>
 <tr>
 <td><code>--output string</code></td>
@@ -3218,7 +3247,7 @@
 </tbody>
 </table>
 <h2 id="tapyr-record">tapyr record<a class="headerlink" href="#tapyr-record" title="Permanent link">&para;</a></h2>
-<p>Run every instance of the selected jobs once, through the budget engine, and write the responses, anonymized, into --out: one JSON file per page, index.yaml and report.txt (the replaced paths, never the values). Parents of the selected fan-out jobs run too. Review report.txt before committing anything.</p>
+<p>Run every instance of the selected jobs once, through the budget engine, and write the responses, anonymized, into --out: one JSON file per page, index.yaml and report.txt (the replaced paths, never the values). Parents of the selected <abbr title="A job whose template has forEach: it runs once per item listed by its parent, as many instances.">fan-out</abbr> jobs run too. Review report.txt before committing anything.</p>
 <div class="highlight"><pre><span></span><code>tapyr record --job J [--job ...] --out DIR [--anonymize FILE] [flags]
 </code></pre></div>
 <table>
@@ -3282,7 +3311,7 @@
 </tbody>
 </table>
 <h2 id="tapyr-sim">tapyr sim<a class="headerlink" href="#tapyr-sim" title="Permanent link">&para;</a></h2>
-<p>Serve the simulator of a provider package: its fixtures, with the auth, pagination and limits declared by the provider (429 with Retry-After and quota headers). --scenario overlays faults; --time-scale accelerates the simulated clock. --all serves every simulator from --listen-base, at the portOffset of its package (the next free offsets, in provider name order, for packages without one).</p>
+<p>Serve the simulator of a provider package: its fixtures, with the auth, pagination and limits declared by the provider (429 with Retry-After and <abbr title="Response headers in which an API announces its quota: its maximum, what is left, when it resets.">quota headers</abbr>). --scenario overlays faults; --time-scale accelerates the simulated clock. --all serves every simulator from --listen-base, at the portOffset of its package (the next free offsets, in provider name order, for packages without one).</p>
 <div class="highlight"><pre><span></span><code>tapyr sim [flags]
 </code></pre></div>
 <table>
@@ -3493,7 +3522,7 @@
       
         
         
-      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["navigation.tabs","navigation.sections","navigation.top","navigation.footer","navigation.indexes","search.highlight","content.action.edit","content.code.copy","toc.follow"],"redirect":null,"search":"../../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":{"alias":true,"default":"latest","provider":"mike"}}</script>
+      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["navigation.tabs","navigation.sections","navigation.top","navigation.footer","navigation.indexes","search.highlight","content.action.edit","content.code.copy","content.tooltips","toc.follow"],"redirect":null,"search":"../../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":{"alias":true,"default":"latest","provider":"mike"}}</script>
     
     
       <script src="../../assets/javascripts/bundle.3cb411a8.min.js"></script>

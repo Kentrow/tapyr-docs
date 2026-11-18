@@ -2438,6 +2438,8 @@
       
         
       
+        
+      
     
     
     
@@ -2860,6 +2862,33 @@
 
                 
               
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0015-persistent-output-buffer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0015 - A persistent buffer for the push outputs
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
             </ul>
           </nav>
         
@@ -3150,12 +3179,12 @@
 <span class="w">  </span><span class="nt">interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5m</span><span class="w">           </span><span class="c1"># the desired interval, defaults to the template's</span>
 <span class="w">  </span><span class="nt">priority</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">high</span><span class="w">         </span><span class="c1"># critical, high, normal (default) or low</span>
 </code></pre></div>
-<p>The <strong>interval</strong> is a wish: the planner may stretch it to fit the quotas (see below). The <strong>priority</strong> decides who slows down first. A job sends its samples to every output, or to the subset in <code>outputs</code>; <code>labels</code> are added to its samples, and win over target and account labels.</p>
+<p>The <strong>interval</strong> is a wish: the planner may <abbr title="The factor by which the planner lengthens the interval of a job to fit a quota: x2 runs it half as often.">stretch</abbr> it to fit the quotas (see below). The <strong>priority</strong> decides who slows down first. A job sends its samples to every output, or to the subset in <code>outputs</code>; <code>labels</code> are added to its samples, and win over target and account labels.</p>
 <h3 id="discovery">Discovery<a class="headerlink" href="#discovery" title="Permanent link">&para;</a></h3>
 <p>Many APIs are hierarchical: organizations contain networks, networks contain devices, and the URL of a request needs the identifier of its parent. An <strong>inventory</strong> template (<code>role: inventory</code>, or <code>both</code> when it also produces metrics) lists items; a template with <code>forEach</code> runs <strong>once per item</strong> of its parent, with the variables of the item in its request:</p>
 <div class="highlight"><pre><span></span><code>organizations (inventory) -&gt; networks (inventory, one instance per organization) -&gt; devices (one instance per network)
 </code></pre></div>
-<p>These per-item runs are <strong>instances</strong> of the job. You only declare the job you want: parents that no job of the account instantiates run implicitly, named <code>&lt;account&gt;.&lt;template&gt;</code>, at priority <code>low</code>. The inventory is cached in the state store, so a restart does not wait for discovery; the instances of a fan-out are spread over their interval instead of firing together (a newly discovered one runs first within the jitter, then at its point of the interval), and <code>forEach.maxInstances</code> (default 10000) protects against a runaway discovery.</p>
+<p>These per-item runs are <strong>instances</strong> of the job. You only declare the job you want: parents that no job of the account instantiates run implicitly, named <code>&lt;account&gt;.&lt;template&gt;</code>, at priority <code>low</code>. The inventory is cached in the state store, so a restart does not wait for discovery; the instances of a <abbr title="A job whose template has forEach: it runs once per item listed by its parent, as many instances.">fan-out</abbr> are spread over their interval instead of firing together (a newly discovered one runs first within the jitter, then at its point of the interval), and <code>forEach.maxInstances</code> (default 10000) protects against a runaway discovery.</p>
 <h2 id="mapping">Mapping<a class="headerlink" href="#mapping" title="Permanent link">&para;</a></h2>
 <p>A template maps the JSON of a response to samples with <a href="https://cel.dev">CEL</a> expressions: which list holds the items, and for every metric its value and labels.</p>
 <div class="highlight"><pre><span></span><code><span class="nt">extract</span><span class="p">:</span>
@@ -3206,17 +3235,17 @@
 <p>A limit has a <strong>scope</strong>: one counter for the whole Tapyr instance, per account, per credential, per endpoint, or per value of a request variable such as an organization. <strong>Every request</strong> reserves its place in every limit that applies to it before leaving, retries, pages, token requests and discovery included: this is how Tapyr guarantees that it never exceeds a declared limit.</p>
 <p>The engine also learns from the provider:</p>
 <ul>
-<li><strong>Quota headers.</strong> When the API announces its quota in response headers, Tapyr follows them: the real maximum (<code>max: auto</code>), what is left, and when the window resets. What the provider counts beyond Tapyr's own requests is the <strong>external usage</strong>, from another tool or a script using the same quota.</li>
+<li><strong><abbr title="Response headers in which an API announces its quota: its maximum, what is left, when it resets.">Quota headers</abbr>.</strong> When the API announces its quota in response headers, Tapyr follows them: the real maximum (<code>max: auto</code>), what is left, and when the window resets. What the provider counts beyond Tapyr's own requests is the <strong><abbr title="The calls of other clients of the same quota (the vendor UI, scripts, other integrations): what the provider counts minus what Tapyr made.">external usage</abbr></strong>, from another tool or a script using the same quota.</li>
 <li><strong>429 responses.</strong> A <code>429 Too Many Requests</code> puts its scope in penalty for its <code>Retry-After</code>, growing on repeated ones. An <strong>unexpected</strong> 429, one that no declared limit predicted, is counted apart: it means the definition misses a limit, or someone else shares it.</li>
-<li><strong>Retry reserve.</strong> 10% of every quota (<code>settings.budget.retryReserve</code>) is kept for retries, so that a burst of errors does not starve the rest of the day.</li>
+<li><strong><abbr title="The part of every quota kept for retries and for critical jobs, 10% by default (settings.budget.retryReserve): the planner leaves it out, so that a retry never finds the quota empty.">Retry reserve</abbr>.</strong> 10% of every quota (<code>settings.budget.retryReserve</code>) is kept for retries, so that a burst of errors does not starve the rest of the day.</li>
 </ul>
 <h2 id="planner">Planner<a class="headerlink" href="#planner" title="Permanent link">&para;</a></h2>
-<p>Before running, and again while running, the planner checks that the jobs fit every quota. For each quota scope, it projects the calls of every job over the window: calls per run (from the run history, or the estimate of the template), times the instances of the fan-out, times the runs per window.</p>
+<p>Before running, and again while running, the planner checks that the jobs fit every quota. For each quota scope, it projects the calls of every job over the window: calls per run (from the run history, or the estimate of the template), times the instances of the <abbr title="A job whose template has forEach: it runs once per item listed by its parent, as many instances.">fan-out</abbr>, times the runs per window.</p>
 <ul>
 <li>When the projection fits, every job runs at its desired interval.</li>
-<li>When it does not, the planner <strong>stretches</strong> the intervals, lowest priority first: all the <code>low</code> jobs of the scope by a common factor, up to 12 times (<code>settings.budget.maxStretch</code>), then the <code>normal</code> ones, then <code>high</code>. The interval actually used is the <strong>effective interval</strong>.</li>
+<li>When it does not, the planner <strong>stretches</strong> the intervals, lowest priority first: all the <code>low</code> jobs of the scope by a common factor, up to 12 times (<code>settings.budget.maxStretch</code>), then the <code>normal</code> ones, then <code>high</code>. The interval actually used is the <strong><abbr title="The interval a job actually runs at: its desired interval, or longer when the planner stretches it to fit a quota.">effective interval</abbr></strong>.</li>
 <li><code>critical</code> jobs are never stretched. When they alone exceed a quota, the plan is <strong>infeasible</strong>: <code>tapyr plan</code> exits with code 3, and <code>tapyr run</code> starts anyway with a warning.</li>
-<li>Every 15 minutes (<code>settings.budget.replanInterval</code>), and after a reload or an inventory change, the planner starts again from what is left in the window and from the pace of the external usage, so that a morning of retries tightens the afternoon instead of exhausting the quota.</li>
+<li>Every 15 minutes (<code>settings.budget.replanInterval</code>), and after a reload or an inventory change, the planner starts again from what is left in the window and from the pace of the <abbr title="The calls of other clients of the same quota (the vendor UI, scripts, other integrations): what the provider counts minus what Tapyr made.">external usage</abbr>, so that a morning of retries tightens the afternoon instead of exhausting the quota.</li>
 <li>Between two of these, when another client suddenly spends the same quota, or Tapyr needs more requests than planned, the current plan may no longer fit: Tapyr checks it at most once a minute and replans at once when it would exhaust a quota before the reset (<code>settings.budget.replanOnProjection</code>, on by default).</li>
 </ul>
 <p><code>tapyr plan</code> runs the same planner offline, before you deploy a configuration: see the <a href="../getting-started/#3-check-what-it-will-spend">getting started</a> guide.</p>
@@ -3228,12 +3257,12 @@
 <li><strong>Authentication</strong> failures with a token (OAuth2, session login) drop the token and retry once with a new one. A rejected token or login request backs off from 1 minute up to 1 hour, so that a wrong password never locks an account.</li>
 <li>Other client errors and responses that cannot be decoded fail the run without a retry.</li>
 </ul>
-<p>After 5 consecutive transient failures, the <strong>circuit breaker</strong> of the account (or of the target) opens: Tapyr stops calling it and spends no quota, then probes again after a cooldown of 2 minutes, doubling up to 30 minutes. A run ends as <code>success</code>, <code>partial</code>, <code>failed</code>, or skipped (<code>skipped_budget</code>, <code>skipped_circuit</code>, <code>skipped_overlap</code> when the previous run is still going).</p>
+<p>After 5 consecutive transient failures, the <strong><abbr title="Protects an account (or a target) that keeps failing: after 5 consecutive transient failures it opens, and Tapyr stops calling, so no quota is spent.">circuit breaker</abbr></strong> of the account (or of the target) opens: Tapyr stops calling it and spends no quota, then probes again after a cooldown of 2 minutes, doubling up to 30 minutes. A run ends as <code>success</code>, <code>partial</code>, <code>failed</code>, or skipped (<code>skipped_budget</code>, <code>skipped_circuit</code>, <code>skipped_overlap</code> when the previous run is still going).</p>
 <h2 id="series-and-outputs">Series and outputs<a class="headerlink" href="#series-and-outputs" title="Permanent link">&para;</a></h2>
 <p>Tapyr keeps track of the series each job instance produced at its last successful run:</p>
 <ul>
 <li>A series that disappears from the answer (a device removed) is <strong>stale</strong>: it leaves the Prometheus exposition, and push outputs receive a stale marker.</li>
-<li>A <strong>failed</strong> run changes nothing: the series stay until <code>staleAfter</code> (3 times the effective interval by default), then go stale.</li>
+<li>A <strong>failed</strong> run changes nothing: the series stay until <code>staleAfter</code> (3 times the <abbr title="The interval a job actually runs at: its desired interval, or longer when the planner stretches it to fit a quota.">effective interval</abbr> by default), then go stale.</li>
 <li>A sample whose source timestamp was already sent is dropped, since APIs often return overlapping windows.</li>
 </ul>
 <p>Three output types deliver the samples: <code>prometheus</code> (served on <code>/metrics</code> for a scrape), <code>remote_write</code> (Prometheus, VictoriaMetrics, Mimir, Thanos) and <code>otlp</code> (an OpenTelemetry Collector or any OTLP backend). Each push output has its own bounded queue: a slow backend never blocks the collection or the other outputs. <a href="../outputs/">Outputs</a> has the details.</p>
@@ -3253,7 +3282,7 @@
 <li>the tokens of the providers, encrypted when <code>TAPYR_STATE_KEY</code> is set;</li>
 <li>the series of every job instance and the last timestamps sent.</li>
 </ul>
-<p>Losing it is not fatal, since the quota headers correct the counters, but keep it on persistent storage: see <a href="../operations/#state-store">Operations</a>.</p>
+<p>Losing it is not fatal, since the <abbr title="Response headers in which an API announces its quota: its maximum, what is left, when it resets.">quota headers</abbr> correct the counters, but keep it on persistent storage: see <a href="../operations/#state-store">Operations</a>.</p>
 
 
 
@@ -3380,7 +3409,7 @@
       
         
         
-      <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["navigation.tabs","navigation.sections","navigation.top","navigation.footer","navigation.indexes","search.highlight","content.action.edit","content.code.copy","toc.follow"],"redirect":null,"search":"../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":{"alias":true,"default":"latest","provider":"mike"}}</script>
+      <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["navigation.tabs","navigation.sections","navigation.top","navigation.footer","navigation.indexes","search.highlight","content.action.edit","content.code.copy","content.tooltips","toc.follow"],"redirect":null,"search":"../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":{"alias":true,"default":"latest","provider":"mike"}}</script>
     
     
       <script src="../assets/javascripts/bundle.3cb411a8.min.js"></script>

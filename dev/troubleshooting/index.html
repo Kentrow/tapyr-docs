@@ -2432,6 +2432,8 @@
       
         
       
+        
+      
     
     
     
@@ -2854,6 +2856,33 @@
 
                 
               
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0015-persistent-output-buffer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0015 - A persistent buffer for the push outputs
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
             </ul>
           </nav>
         
@@ -3110,7 +3139,7 @@ configuration is invalid: 1 error
 <h2 id="no-data-yet">No data yet<a class="headerlink" href="#no-data-yet" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>First runs are spread.</strong> Jobs start at a random point within the first 10% of their interval (<code>settings.collection.jitter</code>), so that a restart does not fire every request at once: a job polled every hour may wait up to 6 minutes for its first run.</li>
-<li><strong>Discovery comes first.</strong> A fan-out job waits for the first run of its parents (organizations, then networks...). A newly discovered instance runs first within the jitter of its interval, then at its own point of the interval, so that a thousand networks never fire at once: with the default jitter, each level of the chain adds at most a tenth of its interval. After that, the inventory is cached and restarts no longer wait. The Graph page of the UI shows the chain.</li>
+<li><strong>Discovery comes first.</strong> A <abbr title="A job whose template has forEach: it runs once per item listed by its parent, as many instances.">fan-out</abbr> job waits for the first run of its parents (organizations, then networks...). A newly discovered instance runs first within the jitter of its interval, then at its own point of the interval, so that a thousand networks never fire at once: with the default jitter, each level of the chain adds at most a tenth of its interval. After that, the inventory is cached and restarts no longer wait. The Graph page of the UI shows the chain.</li>
 <li><strong>No output.</strong> Without any Output document, <code>validate</code>, <code>plan</code> and <code>run</code> warn and show the smallest one to add: the jobs run, but their metrics go nowhere. <code>/metrics</code> serves the samples only with a <code>prometheus</code> output; push outputs deliver to their backend (see <a href="#samples-do-not-reach-the-backend">their troubleshooting</a>).</li>
 <li><strong>The job fails.</strong> Open it in the UI, or <code>GET /api/v1/jobs/&lt;name&gt;/runs</code>: every run has its result and its error.</li>
 </ul>
@@ -3129,7 +3158,7 @@ configuration is invalid: 1 error
 <li><strong>If it lasts</strong>, check the status page of the provider, then the network between Tapyr and the provider: DNS, an HTTP proxy (<code>HTTPS_PROXY</code>), a firewall, the TLS settings of the account (<code>spec.tls</code>) for a private certificate authority.</li>
 </ul>
 <h2 id="quota-problems">Quota problems<a class="headerlink" href="#quota-problems" title="Permanent link">&para;</a></h2>
-<p>The budget engine is meant to make these impossible: when they happen, one of its inputs is wrong. The Budgets page of the UI and <code>GET /api/v1/budgets</code> show every limit and scope: what Tapyr used, what is left as Tapyr counts it and as the provider reports it, the external usage and the projection.</p>
+<p>The budget engine is meant to make these impossible: when they happen, one of its inputs is wrong. The Budgets page of the UI and <code>GET /api/v1/budgets</code> show every limit and scope: what Tapyr used, what is left as Tapyr counts it and as the provider reports it, the <abbr title="The calls of other clients of the same quota (the vendor UI, scripts, other integrations): what the provider counts minus what Tapyr made.">external usage</abbr> and the projection.</p>
 <table>
 <thead>
 <tr>
@@ -3156,7 +3185,7 @@ configuration is invalid: 1 error
 </tr>
 <tr>
 <td>Consumption above the plan</td>
-<td>More fan-out instances or pages than estimated, many retries</td>
+<td>More <abbr title="A job whose template has forEach: it runs once per item listed by its parent, as many instances.">fan-out</abbr> instances or pages than estimated, many retries</td>
 <td>Compare <code>tapyr plan</code> with the runs (requests, pages, retries per run)</td>
 </tr>
 <tr>
@@ -3167,7 +3196,7 @@ configuration is invalid: 1 error
 <tr>
 <td><code>tapyr plan</code> exits with code 3, <code>TapyrPlanInfeasible</code>, "Plan does not fit" in the UI</td>
 <td><code>critical</code> jobs alone exceed a quota, or the other jobs do even slowed down as much as allowed</td>
-<td>Its conclusion, the Plan page and the log say which job, by how much to raise its interval, or to lower its priority to <code>high</code>; or reduce the fan-out</td>
+<td>Its conclusion, the Plan page and the log say which job, by how much to raise its interval, or to lower its priority to <code>high</code>; or reduce the <abbr title="A job whose template has forEach: it runs once per item listed by its parent, as many instances.">fan-out</abbr></td>
 </tr>
 <tr>
 <td>Requests refused with <code>quota_exhausted</code> right after a restart</td>
@@ -3177,15 +3206,15 @@ configuration is invalid: 1 error
 </tbody>
 </table>
 <h3 id="jobs-run-less-often-than-configured">Jobs run less often than configured<a class="headerlink" href="#jobs-run-less-often-than-configured" title="Permanent link">&para;</a></h3>
-<p>The planner gives every job an <strong>effective interval</strong> that fits the quotas, and stretches the lower priorities first (<a href="../concepts/#planner">Concepts</a>). It is working as intended; to see why, read the plan: <code>tapyr plan</code>, the Plan page of the UI, or <code>GET /api/v1/plan</code>. Each job slowed down says by how much, why, and which quota constrains it:</p>
+<p>The planner gives every job an <strong><abbr title="The interval a job actually runs at: its desired interval, or longer when the planner stretches it to fit a quota.">effective interval</abbr></strong> that fits the quotas, and stretches the lower priorities first (<a href="../concepts/#planner">Concepts</a>). It is working as intended; to see why, read the plan: <code>tapyr plan</code>, the Plan page of the UI, or <code>GET /api/v1/plan</code>. Each job slowed down says by how much, why, and which quota constrains it:</p>
 <div class="highlight"><pre><span></span><code>job network-devices  desired 5m  effective 1h  24 runs x 1 page = 25  (slowed down x12, priority normal, to fit the daily quota of account demo)
 </code></pre></div>
-<p>To change the outcome: raise the priority of what matters (and lower the rest), raise intervals of jobs that can wait, filter the fan-out (<code>forEach.filter</code>), or get a larger quota. The log line <code>effective interval changed</code> records every change with its reason.</p>
-<p>Runs can also start late without any stretch when they wait for rate or concurrency limits (<code>TapyrJobLagging</code>): <code>tapyr_budget_wait_seconds</code> shows the waits by limit.</p>
+<p>To change the outcome: raise the priority of what matters (and lower the rest), raise intervals of jobs that can wait, filter the <abbr title="A job whose template has forEach: it runs once per item listed by its parent, as many instances.">fan-out</abbr> (<code>forEach.filter</code>), or get a larger quota. The log line <code>effective interval changed</code> records every change with its reason.</p>
+<p>Runs can also start late without any <abbr title="The factor by which the planner lengthens the interval of a job to fit a quota: x2 runs it half as often.">stretch</abbr> when they wait for rate or concurrency limits (<code>TapyrJobLagging</code>): <code>tapyr_budget_wait_seconds</code> shows the waits by limit.</p>
 <h2 id="metrics-are-wrong-or-missing">Metrics are wrong or missing<a class="headerlink" href="#metrics-are-wrong-or-missing" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>Mapping errors.</strong> <code>tapyr_mapping_errors_total{job, metric}</code> counts the samples a mapping could not produce, for example a field the API no longer sends. Enable the debug endpoint (<code>settings.server.debug.enabled: true</code>) and open the Live debug page: the last raw response of the job, side by side with the samples it produced.</li>
-<li><strong>Series disappear.</strong> A series absent from the last successful run goes stale at once (a device removed from the API). After failed runs, the series stay until <code>staleAfter</code>, 3 times the effective interval by default, then go stale too.</li>
+<li><strong>Series disappear.</strong> A series absent from the last successful run goes stale at once (a device removed from the API). After failed runs, the series stay until <code>staleAfter</code>, 3 times the <abbr title="The interval a job actually runs at: its desired interval, or longer when the planner stretches it to fit a quota.">effective interval</abbr> by default, then go stale too.</li>
 <li><strong>Labels collide.</strong> A label set by the mapping and by the account, target or job takes the value of the job, then target, then account. <code>settings.mapping.labelConflict: error</code> turns collisions into run errors instead.</li>
 <li><strong>The self-metrics have <code>exported_job</code> instead of <code>job</code>.</strong> The scrape of <code>/metrics/self</code> needs <code>honor_labels: true</code> (<a href="../operations/#monitoring-tapyr">Operations</a>).</li>
 </ul>
@@ -3336,7 +3365,7 @@ configuration is invalid: 1 error
       
         
         
-      <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["navigation.tabs","navigation.sections","navigation.top","navigation.footer","navigation.indexes","search.highlight","content.action.edit","content.code.copy","toc.follow"],"redirect":null,"search":"../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":{"alias":true,"default":"latest","provider":"mike"}}</script>
+      <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["navigation.tabs","navigation.sections","navigation.top","navigation.footer","navigation.indexes","search.highlight","content.action.edit","content.code.copy","content.tooltips","toc.follow"],"redirect":null,"search":"../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":{"alias":true,"default":"latest","provider":"mike"}}</script>
     
     
       <script src="../assets/javascripts/bundle.3cb411a8.min.js"></script>

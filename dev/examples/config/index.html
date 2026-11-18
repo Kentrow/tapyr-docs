@@ -2268,6 +2268,8 @@
       
         
       
+        
+      
     
     
     
@@ -2690,6 +2692,33 @@
 
                 
               
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0015-persistent-output-buffer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0015 - A persistent buffer for the push outputs
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
             </ul>
           </nav>
         
@@ -2763,7 +2792,7 @@
 curl<span class="w"> </span>-s<span class="w"> </span>http://127.0.0.1:9790/metrics
 </code></pre></div>
 <p><code>go run ./cmd/tapyr validate --config ./examples/config --check-secrets</code> reports the API key when <code>TAPYR_EXAMPLE_API_KEY</code> is not set.</p>
-<p><code>demo-network-devices</code> discovers its instances: the sites (<code>demo-sites</code>) list the networks of each site (<code>demo.example-sim-networks</code>, run implicitly), and every network gets its own instance. <code>tapyr plan</code> needs the expected number of instances of a fan-out before the first runs:</p>
+<p><code>demo-network-devices</code> discovers its instances: the sites (<code>demo-sites</code>) list the networks of each site (<code>demo.example-sim-networks</code>, run implicitly), and every network gets its own instance. <code>tapyr plan</code> needs the expected number of instances of a <abbr title="A job whose template has forEach: it runs once per item listed by its parent, as many instances.">fan-out</abbr> before the first runs:</p>
 <div class="highlight"><pre><span></span><code><span class="nv">TAPYR_EXAMPLE_API_KEY</span><span class="o">=</span>sim-api-key<span class="w"> </span>go<span class="w"> </span>run<span class="w"> </span>./cmd/tapyr<span class="w"> </span>plan<span class="w"> </span>--config<span class="w"> </span>./examples/config<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--fanout<span class="w"> </span>example-sim-sites<span class="o">=</span><span class="m">3</span><span class="w"> </span>--fanout<span class="w"> </span>example-sim-networks<span class="o">=</span><span class="m">5</span>
 </code></pre></div>
@@ -2901,7 +2930,7 @@ curl<span class="w"> </span>-s<span class="w"> </span>http://127.0.0.1:9790/read
       
         
         
-      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["navigation.tabs","navigation.sections","navigation.top","navigation.footer","navigation.indexes","search.highlight","content.action.edit","content.code.copy","toc.follow"],"redirect":null,"search":"../../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":{"alias":true,"default":"latest","provider":"mike"}}</script>
+      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["navigation.tabs","navigation.sections","navigation.top","navigation.footer","navigation.indexes","search.highlight","content.action.edit","content.code.copy","content.tooltips","toc.follow"],"redirect":null,"search":"../../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":{"alias":true,"default":"latest","provider":"mike"}}</script>
     
     
       <script src="../../assets/javascripts/bundle.3cb411a8.min.js"></script>

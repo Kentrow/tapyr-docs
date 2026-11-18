@@ -2410,6 +2410,8 @@
       
         
       
+        
+      
     
     
     
@@ -2832,6 +2834,33 @@
 
                 
               
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0015-persistent-output-buffer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0015 - A persistent buffer for the push outputs
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
             </ul>
           </nav>
         
@@ -3019,7 +3048,7 @@
 <p>What to know to run Tapyr for real: where it keeps its state, how to change its configuration, how to watch it and how to expose it safely. <a href="../install/">Install</a> covers the binary, the image, the <a href="../examples/systemd/">systemd unit</a> and the <a href="../examples/kubernetes/">Kubernetes manifests</a>.</p>
 <h2 id="one-instance-per-set-of-accounts">One instance per set of accounts<a class="headerlink" href="#one-instance-per-set-of-accounts" title="Permanent link">&para;</a></h2>
 <p>Run a single <code>tapyr run</code> for a given set of accounts. Two instances polling the same accounts do not coordinate: each one spends the whole quota it was given, and together they exceed it. On Kubernetes, keep one replica with the <code>Recreate</code> strategy, as the example manifests do.</p>
-<p>When another tool must keep using the same credentials, give Tapyr its part with <code>budget.share</code> on the account (<code>0.5</code> for half of every quota). Tapyr also measures what others consume through the quota headers, when the provider sends them, and slows down accordingly; <code>budget.share</code> makes the split explicit.</p>
+<p>When another tool must keep using the same credentials, give Tapyr its part with <code>budget.share</code> on the account (<code>0.5</code> for half of every quota). Tapyr also measures what others consume through the <abbr title="Response headers in which an API announces its quota: its maximum, what is left, when it resets.">quota headers</abbr>, when the provider sends them, and slows down accordingly; <code>budget.share</code> makes the split explicit.</p>
 <h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h2>
 <p><code>--config</code> takes files or directories, and can be repeated (<code>TAPYR_CONFIG</code> in the environment, paths separated like in <code>PATH</code>: <code>:</code> on Linux and macOS). In a directory, Tapyr reads the <code>*.yaml</code> and <code>*.yml</code> files of the directory and its subdirectories, sorted by path, and skips hidden files and directories; a file can hold several documents separated by <code>---</code>. Relative paths in a document (a secret file, a CA bundle, <code>providerPaths</code>, the state path) are resolved against the file that declares them.</p>
 <p>Before applying a change, check it:</p>
@@ -3108,12 +3137,12 @@ tapyr<span class="w"> </span>plan<span class="w"> </span>--config<span class="w"
 <li>Run <code>tapyr validate</code> and <code>tapyr plan</code> of the new version on your configuration.</li>
 <li>Replace the binary or the image tag, keep the state store, restart.</li>
 </ol>
-<p>Pin the image to a version (<code>ghcr.io/kentrow/tapyr:0.5.0</code>, or <code>0.5</code> for the patches of a minor version) rather than <code>latest</code>, and <a href="../install/#verify-the-signatures">verify its signature</a>.</p>
+<p>Pin the image to a version (<code>ghcr.io/kentrow/tapyr:0.6.0</code>, or <code>0.6</code> for the patches of a minor version) rather than <code>latest</code>, and <a href="../install/#verify-the-signatures">verify its signature</a>.</p>
 <h2 id="capacity">Capacity<a class="headerlink" href="#capacity" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>Outputs.</strong> Each push output has a queue of <code>capacity</code> samples. Size it for the backend outage you want to ride out: samples per minute across your jobs, times the minutes (see <a href="../outputs/#sizing-the-queue">Sizing the queue</a>).</li>
 <li><strong>Concurrency.</strong> <code>settings.collection.maxConcurrentRequests</code> (default 32) bounds the requests in flight across all providers; the concurrency limits of the providers apply on top of it.</li>
-<li><strong>Runaway discovery.</strong> <code>forEach.maxInstances</code> (default 10000) caps the instances of a fan-out, and <code>settings.mapping</code> caps the items and samples of a run and the cost of CEL expressions.</li>
+<li><strong>Runaway discovery.</strong> <code>forEach.maxInstances</code> (default 10000) caps the instances of a <abbr title="A job whose template has forEach: it runs once per item listed by its parent, as many instances.">fan-out</abbr>, and <code>settings.mapping</code> caps the items and samples of a run and the cost of CEL expressions.</li>
 </ul>
 
 
@@ -3241,7 +3270,7 @@ tapyr<span class="w"> </span>plan<span class="w"> </span>--config<span class="w"
       
         
         
-      <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["navigation.tabs","navigation.sections","navigation.top","navigation.footer","navigation.indexes","search.highlight","content.action.edit","content.code.copy","toc.follow"],"redirect":null,"search":"../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":{"alias":true,"default":"latest","provider":"mike"}}</script>
+      <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["navigation.tabs","navigation.sections","navigation.top","navigation.footer","navigation.indexes","search.highlight","content.action.edit","content.code.copy","content.tooltips","toc.follow"],"redirect":null,"search":"../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":{"alias":true,"default":"latest","provider":"mike"}}</script>
     
     
       <script src="../assets/javascripts/bundle.3cb411a8.min.js"></script>

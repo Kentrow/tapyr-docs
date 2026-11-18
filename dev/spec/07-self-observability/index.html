@@ -2443,6 +2443,8 @@
       
         
       
+        
+      
     
     
     
@@ -2868,6 +2870,33 @@
 
                 
               
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0015-persistent-output-buffer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0015 - A persistent buffer for the push outputs
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
             </ul>
           </nav>
         
@@ -3208,7 +3237,7 @@
 <td><code>tapyr_budget_reserve_remaining</code></td>
 <td>gauge</td>
 <td>provider, limit, scope</td>
-<td>retry reserve left</td>
+<td><abbr title="The part of every quota kept for retries and for critical jobs, 10% by default (settings.budget.retryReserve): the planner leaves it out, so that a retry never finds the quota empty.">retry reserve</abbr> left</td>
 </tr>
 <tr>
 <td><code>tapyr_budget_window_end_timestamp_seconds</code></td>
@@ -3268,7 +3297,7 @@
 <td><code>tapyr_plan_recomputations_total</code></td>
 <td>counter</td>
 <td>reason</td>
-<td>start, reload, interval, limit_learned, inventory, projection (<code>04-budget-engine.md</code>, Replan on projection)</td>
+<td>start, reload, interval, limit_learned, inventory, projection (<code>04-budget-engine.md</code>, <abbr title="The planner computing the plan again from what is left in each window, so that a morning of retries or another client tightens the afternoon instead of exhausting the quota.">Replan</abbr> on projection)</td>
 </tr>
 </tbody>
 </table>
@@ -3323,7 +3352,7 @@
 <td><code>tapyr_job_instances</code></td>
 <td>gauge</td>
 <td>provider, account, job</td>
-<td>fan-out size</td>
+<td><abbr title="A job whose template has forEach: it runs once per item listed by its parent, as many instances.">fan-out</abbr> size</td>
 </tr>
 <tr>
 <td><code>tapyr_job_series</code></td>
@@ -3533,12 +3562,12 @@
 </ul>
 <h2 id="shipped-dashboards-and-alerts">Shipped dashboards and alerts<a class="headerlink" href="#shipped-dashboards-and-alerts" title="Permanent link">&para;</a></h2>
 <ul>
-<li><code>dashboards/tapyr-overview.json</code>: providers health, budgets (used vs limit, projections, external usage), job freshness, errors, outputs.</li>
+<li><code>dashboards/tapyr-overview.json</code>: providers health, budgets (used vs limit, projections, <abbr title="The calls of other clients of the same quota (the vendor UI, scripts, other integrations): what the provider counts minus what Tapyr made.">external usage</abbr>), job freshness, errors, outputs.</li>
 <li>
 <p><code>docs/alerts.md</code> (and an example rules file in <code>examples/</code>): quota exhaustion projected before window end, unexpected 429s, job stale for 3x interval, circuit open, re-auth required, output dropping samples, plan infeasible.</p>
 </li>
 <li>
-<p><code>dashboards/tapyr-overview.json</code> has rows Health (plan, failed runs, unexpected 429, open circuits, re-bootstrap conditions, version), Quotas (left, projected exhaustion, consumption against the limit with external usage), Jobs (runs by result, lag, desired and effective intervals), Provider calls (requests by status, retries, p95 durations and waits) and Outputs, with <code>datasource</code> and <code>provider</code> variables.</p>
+<p><code>dashboards/tapyr-overview.json</code> has rows Health (plan, failed runs, <abbr title="A 429 Too Many Requests that no declared limit predicted: the provider definition misses a limit, or another client shares it.">unexpected 429</abbr>, open circuits, re-bootstrap conditions, version), Quotas (left, projected exhaustion, consumption against the limit with <abbr title="The calls of other clients of the same quota (the vendor UI, scripts, other integrations): what the provider counts minus what Tapyr made.">external usage</abbr>), Jobs (runs by result, lag, desired and effective intervals), Provider calls (requests by status, retries, p95 durations and waits) and Outputs, with <code>datasource</code> and <code>provider</code> variables.</p>
 </li>
 <li>The rules are in <code>examples/alerts/tapyr-alerts.yaml</code> (14 alerts, <code>severity</code> critical, warning or info), with promtool unit tests (<code>make alerts-check</code>). A Go test checks that every metric used by the dashboard and the rules is documented in the tables above, and that every alert has its section in <code>docs/alerts.md</code>.</li>
 <li>The self-metrics carry the <code>job</code> label of the Tapyr job: a scrape of <code>/metrics/self</code> needs <code>honor_labels: true</code>, or the label becomes <code>exported_job</code>.</li>
@@ -3669,7 +3698,7 @@
       
         
         
-      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["navigation.tabs","navigation.sections","navigation.top","navigation.footer","navigation.indexes","search.highlight","content.action.edit","content.code.copy","toc.follow"],"redirect":null,"search":"../../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":{"alias":true,"default":"latest","provider":"mike"}}</script>
+      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["navigation.tabs","navigation.sections","navigation.top","navigation.footer","navigation.indexes","search.highlight","content.action.edit","content.code.copy","content.tooltips","toc.follow"],"redirect":null,"search":"../../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":{"alias":true,"default":"latest","provider":"mike"}}</script>
     
     
       <script src="../../assets/javascripts/bundle.3cb411a8.min.js"></script>

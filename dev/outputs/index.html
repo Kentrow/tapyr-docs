@@ -2421,6 +2421,8 @@
       
         
       
+        
+      
     
     
     
@@ -2843,6 +2845,33 @@
 
                 
               
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0015-persistent-output-buffer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0015 - A persistent buffer for the push outputs
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
             </ul>
           </nav>
         
@@ -3074,7 +3103,7 @@
 <span class="w">  </span><span class="nt">prometheus</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">exposeTimestamps</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w">   </span><span class="c1"># the default, as recommended by Prometheus</span>
 </code></pre></div>
-<p><code>/metrics</code> holds the samples of the last successful run of every job instance. A series that a run no longer produces leaves the exposition at once; the series of a failing instance stay until <code>staleAfter</code> (3x the effective interval by default). The exposition is served in the Prometheus text format or OpenMetrics, by content negotiation, and gzip-compressed for the scrapers that accept it (all the usual ones do). At most one <code>prometheus</code> output may be configured.</p>
+<p><code>/metrics</code> holds the samples of the last successful run of every job instance. A series that a run no longer produces leaves the exposition at once; the series of a failing instance stay until <code>staleAfter</code> (3x the <abbr title="The interval a job actually runs at: its desired interval, or longer when the planner stretches it to fit a quota.">effective interval</abbr> by default). The exposition is served in the Prometheus text format or OpenMetrics, by content negotiation, and gzip-compressed for the scrapers that accept it (all the usual ones do). At most one <code>prometheus</code> output may be configured.</p>
 <h2 id="remote_write"><code>remote_write</code><a class="headerlink" href="#remote_write" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tapyr/v1alpha1</span>
 <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Output</span>
@@ -3179,7 +3208,7 @@
 <li>A <code>labeldrop</code> can make two series identical; the duplicates are dropped and counted in <code>tapyr_output_samples_dropped_total{reason="duplicate"}</code>, which the <code>TapyrOutputDropping</code> alert reports: remove a label only when the others still tell the series apart.</li>
 <li>A changed rule applies from the next run of each job instance; the series it removes or renames get a stale marker then.</li>
 <li>Tapyr's self-metrics are never filtered.</li>
-<li><strong>Rules on the metric name save API calls.</strong> When the rules of every output receiving a job drop all its metrics by name (<code>sourceLabels: [__name__]</code>), the job is not collected at all: no API call, no quota spent, and its quota goes to the other jobs. The parents of a fan-out stop too when none of their children is collected. <code>tapyr validate</code> and <code>tapyr plan</code> print a warning for every such job, so a rule broader than intended shows before you reload. A rule on another label (<code>[__name__, site]</code> above) filters the samples, but the call is still made: the values are only known after it. Set <code>settings.collection.skipUnconsumed: false</code> to keep every job running (<a href="../adr/0013-unconsumed-jobs/">ADR 0013</a>).</li>
+<li><strong>Rules on the metric name save API calls.</strong> When the rules of every output receiving a job drop all its metrics by name (<code>sourceLabels: [__name__]</code>), the job is not collected at all: no API call, no quota spent, and its quota goes to the other jobs. The parents of a <abbr title="A job whose template has forEach: it runs once per item listed by its parent, as many instances.">fan-out</abbr> stop too when none of their children is collected. <code>tapyr validate</code> and <code>tapyr plan</code> print a warning for every such job, so a rule broader than intended shows before you reload. A rule on another label (<code>[__name__, site]</code> above) filters the samples, but the call is still made: the values are only known after it. Set <code>settings.collection.skipUnconsumed: false</code> to keep every job running (<a href="../adr/0013-unconsumed-jobs/">ADR 0013</a>).</li>
 </ul>
 <h2 id="series-and-limits">Series and limits<a class="headerlink" href="#series-and-limits" title="Permanent link">&para;</a></h2>
 <p>Backends count <strong>series</strong>: one metric with one set of label values, such as the clients of one access point. Hosted backends bill by active series, self-hosted ones pay in memory and disk. Tapyr tells you how many series each output receives, and can cap them (<a href="../adr/0014-output-series/">ADR 0014</a>).</p>
@@ -3381,7 +3410,7 @@
       
         
         
-      <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["navigation.tabs","navigation.sections","navigation.top","navigation.footer","navigation.indexes","search.highlight","content.action.edit","content.code.copy","toc.follow"],"redirect":null,"search":"../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":{"alias":true,"default":"latest","provider":"mike"}}</script>
+      <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["navigation.tabs","navigation.sections","navigation.top","navigation.footer","navigation.indexes","search.highlight","content.action.edit","content.code.copy","content.tooltips","toc.follow"],"redirect":null,"search":"../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":{"alias":true,"default":"latest","provider":"mike"}}</script>
     
     
       <script src="../assets/javascripts/bundle.3cb411a8.min.js"></script>

@@ -2544,6 +2544,8 @@
       
         
       
+        
+      
     
     
     
@@ -2954,6 +2956,33 @@
     
   
   ADR 0014 - Series per output: estimates, a limit and their visibility
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0015-persistent-output-buffer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0015 - A persistent buffer for the push outputs
 
     
   </span>
@@ -3432,7 +3461,7 @@
 <td><code>pagesPerRun</code></td>
 <td>integer</td>
 <td></td>
-<td><code>pagesPerRun</code> is the expected number of pages per run. Minimum 1.</td>
+<td><code>pagesPerRun</code> is the expected number of <abbr title="The requests a run makes when the answer comes in several pages: the median of the last runs, else the estimate of the template, else 1.">pages per run</abbr>. Minimum 1.</td>
 </tr>
 </tbody>
 </table>
@@ -3520,7 +3549,7 @@
 <td><code>maxInstances</code></td>
 <td>integer</td>
 <td></td>
-<td><code>maxInstances</code> caps the fan-out, against runaway discovery. Default <code>10000</code>. Minimum 1.</td>
+<td><code>maxInstances</code> caps the <abbr title="A job whose template has forEach: it runs once per item listed by its parent, as many instances.">fan-out</abbr>, against runaway discovery. Default <code>10000</code>. Minimum 1.</td>
 </tr>
 <tr>
 <td><code>template</code></td>
@@ -3570,7 +3599,7 @@
 <td><code>maxPages</code></td>
 <td>integer</td>
 <td></td>
-<td><code>maxPages</code> is a hard safety cap on pages per run. Default <code>100</code>. Minimum 1.</td>
+<td><code>maxPages</code> is a hard safety cap on <abbr title="The requests a run makes when the answer comes in several pages: the median of the last runs, else the estimate of the template, else 1.">pages per run</abbr>. Default <code>100</code>. Minimum 1.</td>
 </tr>
 <tr>
 <td><code>offset</code></td>
@@ -3731,7 +3760,7 @@
 <td><code>ttl</code></td>
 <td><a href="#duration">Duration</a></td>
 <td></td>
-<td><code>ttl</code> of cached items. Default: 3x the job's effective interval.</td>
+<td><code>ttl</code> of cached items. Default: 3x the job's <abbr title="The interval a job actually runs at: its desired interval, or longer when the planner stretches it to fit a quota.">effective interval</abbr>.</td>
 </tr>
 </tbody>
 </table>
@@ -4161,7 +4190,7 @@
       
         
         
-      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["navigation.tabs","navigation.sections","navigation.top","navigation.footer","navigation.indexes","search.highlight","content.action.edit","content.code.copy","toc.follow"],"redirect":null,"search":"../../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":{"alias":true,"default":"latest","provider":"mike"}}</script>
+      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["navigation.tabs","navigation.sections","navigation.top","navigation.footer","navigation.indexes","search.highlight","content.action.edit","content.code.copy","content.tooltips","toc.follow"],"redirect":null,"search":"../../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":{"alias":true,"default":"latest","provider":"mike"}}</script>
     
     
       <script src="../../assets/javascripts/bundle.3cb411a8.min.js"></script>

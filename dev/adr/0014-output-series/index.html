@@ -19,6 +19,8 @@
         <link rel="prev" href="../0013-unconsumed-jobs/">
       
       
+        <link rel="next" href="../0015-persistent-output-buffer/">
+      
       
         
       
@@ -2258,6 +2260,8 @@
       
         
       
+        
+      
     
     
     
@@ -2774,6 +2778,33 @@
 
                 
               
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0015-persistent-output-buffer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0015 - A persistent buffer for the push outputs
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
             </ul>
           </nav>
         
@@ -2908,7 +2939,7 @@
 <h2 id="decision">Decision<a class="headerlink" href="#decision" title="Permanent link">&para;</a></h2>
 <ol>
 <li><strong>Count the series of an output from what was collected.</strong> The series an output receives are the series of the last successful run of every job instance routed to it, after its processing rules. The same computation serves:</li>
-<li><code>tapyr plan</code>, offline, from the series persisted in the state store: a section per output with its series and samples per minute (series of each instance divided by the effective interval of its job), and the collected jobs never run yet, whose series are unknown (the total is then a lower bound);</li>
+<li><code>tapyr plan</code>, offline, from the series persisted in the state store: a section per output with its series and samples per minute (series of each instance divided by the <abbr title="The interval a job actually runs at: its desired interval, or longer when the planner stretches it to fit a quota.">effective interval</abbr> of its job), and the collected jobs never run yet, whose series are unknown (the total is then a lower bound);</li>
 <li>the status API and the web UI, online, from the registry;</li>
 <li>the self-metric <code>tapyr_output_series{output}</code>.</li>
 </ol>
@@ -3000,6 +3031,22 @@
           </a>
         
         
+          
+          <a href="../0015-persistent-output-buffer/" class="md-footer__link md-footer__link--next" aria-label="Next: ADR 0015 - A persistent buffer for the push outputs">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                ADR 0015 - A persistent buffer for the push outputs
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
+          </a>
+        
       </nav>
     
   
@@ -3057,7 +3104,7 @@
       
         
         
-      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["navigation.tabs","navigation.sections","navigation.top","navigation.footer","navigation.indexes","search.highlight","content.action.edit","content.code.copy","toc.follow"],"redirect":null,"search":"../../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":{"alias":true,"default":"latest","provider":"mike"}}</script>
+      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["navigation.tabs","navigation.sections","navigation.top","navigation.footer","navigation.indexes","search.highlight","content.action.edit","content.code.copy","content.tooltips","toc.follow"],"redirect":null,"search":"../../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":{"alias":true,"default":"latest","provider":"mike"}}</script>
     
     
       <script src="../../assets/javascripts/bundle.3cb411a8.min.js"></script>

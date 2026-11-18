@@ -2575,6 +2575,8 @@
       
         
       
+        
+      
     
     
     
@@ -3000,6 +3002,33 @@
 
                 
               
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0015-persistent-output-buffer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0015 - A persistent buffer for the push outputs
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
             </ul>
           </nav>
         
@@ -3398,13 +3427,13 @@
 <li>Exposes provider definitions to the compiler and to the simulator.</li>
 </ul>
 <h3 id="budget-engine-internalbudget">Budget engine (<code>internal/budget</code>)<a class="headerlink" href="#budget-engine-internalbudget" title="Permanent link">&para;</a></h3>
-<p>The heart of the project, see <code>04-budget-engine.md</code>. Responsibilities: limit evaluation for each request, reservations, waiting, ledger persistence, header sync, 429 penalties, retry reserve, projections.</p>
+<p>The heart of the project, see <code>04-budget-engine.md</code>. Responsibilities: limit evaluation for each request, reservations, waiting, ledger persistence, header sync, 429 penalties, <abbr title="The part of every quota kept for retries and for critical jobs, 10% by default (settings.budget.retryReserve): the planner leaves it out, so that a retry never finds the quota empty.">retry reserve</abbr>, projections.</p>
 <h3 id="planner-internalbudgetplanner">Planner (<code>internal/budget/planner</code>)<a class="headerlink" href="#planner-internalbudgetplanner" title="Permanent link">&para;</a></h3>
 <p>Computes effective intervals for all jobs given quotas, priorities and estimated calls per run. Used at startup, on reload, on inventory changes, periodically, and offline by <code>tapyr plan</code>.</p>
 <h3 id="scheduler-internalscheduler">Scheduler (<code>internal/scheduler</code>)<a class="headerlink" href="#scheduler-internalscheduler" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Triggers job runs according to effective intervals, with jitter to avoid synchronized bursts: every job instance gets a random phase in <code>[0, jitter x interval)</code> and runs at <code>phase + k x interval</code>, without drift.</li>
-<li>Manages discovery fan-out: parent job results produce child run instances.</li>
+<li>Manages discovery <abbr title="A job whose template has forEach: it runs once per item listed by its parent, as many instances.">fan-out</abbr>: parent job results produce child run instances.</li>
 <li>Enforces one run at a time per job instance (no overlap). If a run overruns its interval, the next run is skipped and counted.</li>
 <li>Orders pending work by priority when the budget engine signals contention.</li>
 </ul>
@@ -3451,8 +3480,8 @@
 <li>The executor asks the budget engine to <code>Reserve(descriptor)</code>. The descriptor carries provider, account, target, credential, templated endpoint, variables, job priority, and whether the request is a retry.</li>
 <li>The budget engine evaluates every limit whose scope matches, atomically. It returns a reservation, possibly after waiting (rate, concurrency), or a refusal (quota exhausted, scope penalized, circuit open) with a reason.</li>
 <li>The request is sent with a per-request timeout.</li>
-<li>On response, the executor reports the outcome to the budget engine (status code, quota headers, <code>Retry-After</code>), releases concurrency, and records self-metrics.</li>
-<li>Errors are classified; retryable errors re-enter step 4 as retries (consuming from the retry reserve).</li>
+<li>On response, the executor reports the outcome to the budget engine (status code, <abbr title="Response headers in which an API announces its quota: its maximum, what is left, when it resets.">quota headers</abbr>, <code>Retry-After</code>), releases concurrency, and records self-metrics.</li>
+<li>Errors are classified; retryable errors re-enter step 4 as retries (consuming from the <abbr title="The part of every quota kept for retries and for critical jobs, 10% by default (settings.budget.retryReserve): the planner leaves it out, so that a retry never finds the quota empty.">retry reserve</abbr>).</li>
 <li>Pagination computes the next request (back to step 2) until done or <code>maxPages</code>.</li>
 <li>All pages are passed to the mapping, which produces samples.</li>
 <li>The series registry applies dedup and staleness, then samples are enqueued to the job's outputs.</li>
@@ -3776,7 +3805,7 @@
       
         
         
-      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["navigation.tabs","navigation.sections","navigation.top","navigation.footer","navigation.indexes","search.highlight","content.action.edit","content.code.copy","toc.follow"],"redirect":null,"search":"../../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":{"alias":true,"default":"latest","provider":"mike"}}</script>
+      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["navigation.tabs","navigation.sections","navigation.top","navigation.footer","navigation.indexes","search.highlight","content.action.edit","content.code.copy","content.tooltips","toc.follow"],"redirect":null,"search":"../../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":{"alias":true,"default":"latest","provider":"mike"}}</script>
     
     
       <script src="../../assets/javascripts/bundle.3cb411a8.min.js"></script>

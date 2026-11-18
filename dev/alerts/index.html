@@ -2510,6 +2510,8 @@
       
         
       
+        
+      
     
     
     
@@ -2932,6 +2934,33 @@
 
                 
               
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0015-persistent-output-buffer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0015 - A persistent buffer for the push outputs
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
             </ul>
           </nav>
         
@@ -3245,13 +3274,13 @@
 <h3 id="tapyrquotaalmostexhausted">TapyrQuotaAlmostExhausted<a class="headerlink" href="#tapyrquotaalmostexhausted" title="Permanent link">&para;</a></h3>
 <p>Less than 5% of a quota is left before its reset. The planner already pauses the low-priority jobs; critical jobs stop when the quota is spent. If Tapyr is the only client, the plan was too optimistic: check <code>tapyr plan</code>. Otherwise another client consumes the same quota (<code>tapyr_budget_external_usage</code>).</p>
 <h3 id="tapyrquotaexhaustionprojected">TapyrQuotaExhaustionProjected<a class="headerlink" href="#tapyrquotaexhaustionprojected" title="Permanent link">&para;</a></h3>
-<p>At the current pace, a quota runs out within 6 hours, before its reset. The usual cause is another client using the same credentials or organization: its consumption shows as external usage in the Budgets page of the UI. Lower the priority or raise the interval of jobs, or give Tapyr its own credentials.</p>
+<p>At the current pace, a quota runs out within 6 hours, before its reset. The usual cause is another client using the same credentials or organization: its consumption shows as <abbr title="The calls of other clients of the same quota (the vendor UI, scripts, other integrations): what the provider counts minus what Tapyr made.">external usage</abbr> in the Budgets page of the UI. Lower the priority or raise the interval of jobs, or give Tapyr its own credentials.</p>
 <h3 id="tapyrplaninfeasible">TapyrPlanInfeasible<a class="headerlink" href="#tapyrplaninfeasible" title="Permanent link">&para;</a></h3>
-<p>The critical jobs do not fit a quota at their desired interval, even with every other job paused. <code>tapyr plan</code> (or the Plan page) lists the jobs and their consumption: raise intervals, reduce the fan-out (<code>forEach.maxInstances</code>, filters), or ask the provider for a larger quota.</p>
+<p>The critical jobs do not fit a quota at their desired interval, even with every other job paused. <code>tapyr plan</code> (or the Plan page) lists the jobs and their consumption: raise intervals, reduce the <abbr title="A job whose template has forEach: it runs once per item listed by its parent, as many instances.">fan-out</abbr> (<code>forEach.maxInstances</code>, filters), or ask the provider for a larger quota.</p>
 <h3 id="tapyrunexpected429">TapyrUnexpected429<a class="headerlink" href="#tapyrunexpected429" title="Permanent link">&para;</a></h3>
 <p>A provider returned <code>429 Too Many Requests</code> that no declared limit predicted. Either the provider definition misses a limit (or declares it too high), or another client shares the credentials. Tapyr honors <code>Retry-After</code> and backs off, but the definition should be fixed: open an issue with the provider, the endpoint and the headers of the response (the debug endpoint shows them, secrets redacted).</p>
 <h3 id="tapyrlimitmismatch">TapyrLimitMismatch<a class="headerlink" href="#tapyrlimitmismatch" title="Permanent link">&para;</a></h3>
-<p>The quota headers of a provider announce a maximum different from the one declared in its definition. Tapyr follows the headers; update the limit in the provider definition (<code>max: auto</code> with <code>initialMax</code> when the maximum depends on the account) so that <code>tapyr plan</code> is accurate.</p>
+<p>The <abbr title="Response headers in which an API announces its quota: its maximum, what is left, when it resets.">quota headers</abbr> of a provider announce a maximum different from the one declared in its definition. Tapyr follows the headers; update the limit in the provider definition (<code>max: auto</code> with <code>initialMax</code> when the maximum depends on the account) so that <code>tapyr plan</code> is accurate.</p>
 <h2 id="outputs-and-state">Outputs and state<a class="headerlink" href="#outputs-and-state" title="Permanent link">&para;</a></h2>
 <h3 id="tapyroutputdropping">TapyrOutputDropping<a class="headerlink" href="#tapyroutputdropping" title="Permanent link">&para;</a></h3>
 <p>A push output (remote write or OTLP) drops samples: <code>queue_full</code> when the backend is slower than the collection, <code>rejected</code> or <code>out_of_order</code> when it refuses them. <code>tapyr_output_send_failures_total</code> gives the class of the errors; for <code>out_of_order</code>, check that no other writer sends the same series. <code>duplicate</code> means that processing rules made two series identical. <code>series_limit</code> means that the output reached its <code>limits.maxSeries</code>: the series already sent keep flowing, new ones are not sent; the Outputs page of the web UI says how many are held back. Raise the limit, or drop metrics with processing rules (<a href="../outputs/#series-and-limits">Series and limits</a>).</p>
@@ -3387,7 +3416,7 @@
       
         
         
-      <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["navigation.tabs","navigation.sections","navigation.top","navigation.footer","navigation.indexes","search.highlight","content.action.edit","content.code.copy","toc.follow"],"redirect":null,"search":"../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":{"alias":true,"default":"latest","provider":"mike"}}</script>
+      <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["navigation.tabs","navigation.sections","navigation.top","navigation.footer","navigation.indexes","search.highlight","content.action.edit","content.code.copy","content.tooltips","toc.follow"],"redirect":null,"search":"../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":{"alias":true,"default":"latest","provider":"mike"}}</script>
     
     
       <script src="../assets/javascripts/bundle.3cb411a8.min.js"></script>

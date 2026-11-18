@@ -2410,6 +2410,8 @@
       
         
       
+        
+      
     
     
     
@@ -2835,6 +2837,33 @@
 
                 
               
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0015-persistent-output-buffer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0015 - A persistent buffer for the push outputs
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
             </ul>
           </nav>
         
@@ -3115,7 +3144,7 @@
 <li>per organization: 10 requests per second, token bucket, with 10 more allowed in the first second (30 in two seconds), shared by every application of the organization: <code>rate: 10/s</code>, <code>burst: 20</code>, scoped by <code>var:organizationId</code> on the organization endpoints;</li>
 <li>per source IP: 100 requests per second, shared by every client on the address: <code>rate: 100/s</code> per instance;</li>
 <li>concurrency: not documented officially (10 per IP is community knowledge): <code>concurrency: 10</code> per instance, marked assumed;</li>
-<li><code>429</code> with <code>Retry-After</code>, body <code>{"errors": ["API rate limit exceeded for organization"]}</code>; no quota headers.</li>
+<li><code>429</code> with <code>Retry-After</code>, body <code>{"errors": ["API rate limit exceeded for organization"]}</code>; no <abbr title="Response headers in which an API announces its quota: its maximum, what is left, when it resets.">quota headers</abbr>.</li>
 <li><strong>Pagination</strong>: <code>Link</code> header (RFC 8288) with <code>perPage</code>; the <code>startingAfter</code> and <code>endingBefore</code> tokens are opaque, the <code>rel=next</code> link is followed (<a href="https://developer.cisco.com/meraki/api-v1/pagination/">pagination</a>).</li>
 <li><strong>Discovery chain</strong>: organizations -&gt; organization-wide endpoints (one call for every device of an organization), networks only for <code>_info</code> labels.</li>
 <li><strong>Templates</strong> (metrics in the <a href="../../providers/meraki-dashboard/">package README</a>):</li>
@@ -3128,7 +3157,7 @@
 <li><strong>Deliverables</strong>: provider package, synthetic simulator (inventory generator sized by config), fixtures derived from the OpenAPI examples, dashboard, contract tests, and an e2e test run against a DevNet sandbox organization (November 2026, every template; the sandbox appliance reports no uplink, so the uplink metrics are validated against the simulator only).</li>
 </ul>
 <h2 id="aruba-central-classic">aruba-central-classic<a class="headerlink" href="#aruba-central-classic" title="Permanent link">&para;</a></h2>
-<p>HPE Aruba Networking Central (classic platform) REST API. Checked in November 2026 against the <a href="https://developer.arubanetworks.com/aruba-central/">Aruba developer hub</a> and the official <code>pycentral</code> SDK, then against a real Central account, read-only: every template, the token rotation and the quota headers.</p>
+<p>HPE Aruba Networking Central (classic platform) REST API. Checked in November 2026 against the <a href="https://developer.arubanetworks.com/aruba-central/">Aruba developer hub</a> and the official <code>pycentral</code> SDK, then against a real Central account, read-only: every template, the token rotation and the <abbr title="Response headers in which an API announces its quota: its maximum, what is left, when it resets.">quota headers</abbr>.</p>
 <ul>
 <li><strong>Auth</strong>: OAuth access tokens valid 2 hours and <strong>rotating refresh tokens</strong> valid 15 days, implemented by the <code>aruba_central_classic</code> auth plugin (see <code>05-collection.md</code>). Bootstrap: client ID and secret of an API Gateway application and the token pair downloaded from API Gateway &gt; System Apps &amp; Tokens (or My Apps &amp; Tokens).</li>
 <li><strong>Base URL</strong>: regional API gateway (account param <code>baseURL</code>, required), for example <code>https://apigw-eucentral3.central.arubanetworks.com</code>; the README lists the clusters. A token only works on the gateway of its cluster.</li>
@@ -3195,7 +3224,7 @@
 <li>the scope is not documented: declared as <code>kind: rate</code>, <code>rate: 10000/m</code>, <code>scope: { by: [credential] }</code>;</li>
 <li>the connector (<code>/v1/connector/consoles/{id}/...</code>, 100 requests a minute per console, which also accepts writes) is not used.</li>
 <li><strong>Pagination</strong>: an opaque cursor, <code>pageSize</code> and <code>nextToken</code> in the query, <code>nextToken</code> in the body (absent on the last page); on <code>/v1/devices</code>, a page counts consoles, each with all its devices. No maximum page size is documented.</li>
-<li><strong>Budget strategy</strong>: account-wide lists, no fan-out: 4 requests every 5 minutes and one every 15 minutes for up to 100 consoles.</li>
+<li><strong>Budget strategy</strong>: account-wide lists, no <abbr title="A job whose template has forEach: it runs once per item listed by its parent, as many instances.">fan-out</abbr>: 4 requests every 5 minutes and one every 15 minutes for up to 100 consoles.</li>
 <li><strong>Templates</strong> (metrics in the <a href="../../providers/unifi-site-manager/">package README</a>):</li>
 <li><code>unifi-hosts</code> (<code>GET /v1/hosts</code>);</li>
 <li><code>unifi-sites</code> (<code>GET /v1/sites</code>, one item per site and per WAN interface);</li>
@@ -3341,7 +3370,7 @@
       
         
         
-      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["navigation.tabs","navigation.sections","navigation.top","navigation.footer","navigation.indexes","search.highlight","content.action.edit","content.code.copy","toc.follow"],"redirect":null,"search":"../../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":{"alias":true,"default":"latest","provider":"mike"}}</script>
+      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["navigation.tabs","navigation.sections","navigation.top","navigation.footer","navigation.indexes","search.highlight","content.action.edit","content.code.copy","content.tooltips","toc.follow"],"redirect":null,"search":"../../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":{"alias":true,"default":"latest","provider":"mike"}}</script>
     
     
       <script src="../../assets/javascripts/bundle.3cb411a8.min.js"></script>

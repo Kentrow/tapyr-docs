@@ -2477,6 +2477,8 @@
       
         
       
+        
+      
     
     
     
@@ -2902,6 +2904,33 @@
 
                 
               
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0015-persistent-output-buffer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0015 - A persistent buffer for the push outputs
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
             </ul>
           </nav>
         
@@ -3219,7 +3248,7 @@
 </table>
 <p><code>--provider-path</code> (validate, plan, record, sim, provider list and provider show) loads the provider packages of a directory in addition to the built-in ones and to the <code>providerPaths</code> of the configuration, after the latter: it serves a package being written, before it is built in or referenced by a configuration.</p>
 <p>Signals for <code>run</code>: SIGHUP reloads the configuration (validated first; an invalid config is rejected and the running config kept); SIGINT/SIGTERM trigger graceful shutdown.</p>
-<p><code>tapyr plan</code> reads run history and inventory from the state store when the file exists (read-only); otherwise it uses <code>estimate.pagesPerRun</code> and the <code>--fanout</code> hints. Quotas are evaluated over a full window from now: plan answers "does this configuration fit", while the running engine replans with the remaining budget of the current window. The implicit jobs, which Tapyr adds to list the items of a fan-out that no job declares, are listed after the quotas with what they list and for which jobs (<code>demo.example-sim-networks  lists the networks for network-devices</code>). Scopes read as words: <code>account demo</code>, <code>the Tapyr process</code> for the <code>instance</code> dimension.</p>
+<p><code>tapyr plan</code> reads run history and inventory from the state store when the file exists (read-only); otherwise it uses <code>estimate.pagesPerRun</code> and the <code>--fanout</code> hints. Quotas are evaluated over a full window from now: plan answers "does this configuration fit", while the running engine replans with the remaining budget of the current window. The implicit jobs, which Tapyr adds to list the items of a <abbr title="A job whose template has forEach: it runs once per item listed by its parent, as many instances.">fan-out</abbr> that no job declares, are listed after the quotas with what they list and for which jobs (<code>demo.example-sim-networks  lists the networks for network-devices</code>). Scopes read as words: <code>account demo</code>, <code>the Tapyr process</code> for the <code>instance</code> dimension.</p>
 <p>Example <code>tapyr plan</code> output, for the example configuration of the <code>aruba-central-classic</code> package (a job slowed down to fit a quota says by how much and why). The output ends with a conclusion in words: the plan fits as desired, fits by slowing jobs down, or does not fit, with, for every quota it does not fit, why and what to change (the problem <code>plan_infeasible</code>, see <a href="#messages">Messages</a>):</p>
 <div class="highlight"><pre><span></span><code>QUOTA                        WINDOW       AVAILABLE      PROJECTED                FOR RETRIES  STATUS
 aruba-central-classic/daily  24h          4500           529                      500          fits (11.8%)
@@ -3232,7 +3261,7 @@ aruba-central-classic/daily  24h          4500           529                    
 The plan fits: every job runs at its desired interval.
 </code></pre></div>
 <h3 id="provider-show">Provider show<a class="headerlink" href="#provider-show" title="Permanent link">&para;</a></h3>
-<p><code>tapyr provider show &lt;name&gt;</code> describes a package for the person writing an account: what it is and how it was validated, the secrets and params of its accounts with their descriptions, its templates (default interval, priority when not <code>normal</code>, the template whose items a fan-out runs for, the role of a template that lists items for others, the metrics), and its limits (value, scope, description, source), in the words of the <a href="#messages">status API</a>: no scope keys, no internal names. Templates come parents first. It ends with the command of the example configuration. The text of the built-in package <code>meraki-dashboard</code> is kept in <code>cmd/tapyr/testdata/provider-show.txt</code>; an excerpt:</p>
+<p><code>tapyr provider show &lt;name&gt;</code> describes a package for the person writing an account: what it is and how it was validated, the secrets and params of its accounts with their descriptions, its templates (default interval, priority when not <code>normal</code>, the template whose items a <abbr title="A job whose template has forEach: it runs once per item listed by its parent, as many instances.">fan-out</abbr> runs for, the role of a template that lists items for others, the metrics), and its limits (value, scope, description, source), in the words of the <a href="#messages">status API</a>: no scope keys, no internal names. Templates come parents first. It ends with the command of the example configuration. The text of the built-in package <code>meraki-dashboard</code> is kept in <code>cmd/tapyr/testdata/provider-show.txt</code>; an excerpt:</p>
 <div class="highlight"><pre><span></span><code>meraki-dashboard 0.1.0 - Cisco Meraki Dashboard
 Cisco Meraki Dashboard API v1
 
@@ -3276,7 +3305,7 @@ Example configuration: tapyr provider show meraki-dashboard --example
 <li><code>readme</code>: for a built-in package, the path of its README in this repository (<code>providers/&lt;name&gt;/README.md</code>); the site maps it to the page of the documentation version it publishes;</li>
 <li><code>simulator</code>: whether the package has one; <code>auth</code>: the auth type, <code>plugin:&lt;name&gt;</code> for an auth plugin;</li>
 <li><code>params</code> and <code>secrets</code>: <code>name</code>, <code>required</code> and <code>description</code>, in the order of the package;</li>
-<li><code>templates</code>: <code>name</code>, <code>description</code>, the request <code>path</code>, <code>defaultInterval</code> (<code>5m</code>, <code>1h</code>), <code>defaultPriority</code> (<code>normal</code> when the template sets none), <code>role</code> (<code>metrics</code> when the template sets none), <code>forEach</code> (the template whose items it runs for, for a fan-out) and the sorted <code>metrics</code> names it produces;</li>
+<li><code>templates</code>: <code>name</code>, <code>description</code>, the request <code>path</code>, <code>defaultInterval</code> (<code>5m</code>, <code>1h</code>), <code>defaultPriority</code> (<code>normal</code> when the template sets none), <code>role</code> (<code>metrics</code> when the template sets none), <code>forEach</code> (the template whose items it runs for, for a <abbr title="A job whose template has forEach: it runs once per item listed by its parent, as many instances.">fan-out</abbr>) and the sorted <code>metrics</code> names it produces;</li>
 <li><code>limits</code>: <code>name</code>, <code>kind</code>, <code>value</code> (for humans, defaults applied: <code>10/s, burst 20</code>, <code>4 concurrent requests</code>, <code>100000 per month, reset on day 1 at 00:00 UTC</code>, <code>auto (5000 until learned) per day, reset at 00:00 UTC</code>), <code>scope</code> (the dimensions of <code>scope.by</code>), <code>description</code> and <code>source</code> (<code>kind</code>, <code>url</code>, <code>date</code>).</li>
 </ul>
 <p><code>tapyr provider show &lt;name&gt; --output json</code> prints the entry of one package, as an object of the same shape (the active package of that name).</p>
@@ -3338,11 +3367,11 @@ Example configuration: tapyr provider show meraki-dashboard --example
 </tr>
 <tr>
 <td><code>GET /api/v1/jobs</code> / <code>{name}</code></td>
-<td>Effective config (after defaults and template expansion), desired and effective intervals, instances, last run summary, next run, <code>collected</code> (false, with <code>not_collected_reason</code>, for a job that is not collected, <a href="../../adr/0013-unconsumed-jobs/">ADR 0013</a>), and for an implicit job what it lists (<code>items</code>, from the name of its template without the start the templates of its package share: <code>networks</code>) and the configured jobs it lists them for (<code>discovery_for</code>)</td>
+<td>Effective config (after defaults and template expansion), desired and effective intervals, instances, last run summary, next run, <code>collected</code> (false, with <code>not_collected_reason</code>, for a job that is not collected, <a href="../../adr/0013-unconsumed-jobs/">ADR 0013</a>), and for an <abbr title="The parent of a fan-out that no job of the account declares: Tapyr runs it for you, named &lt;account&gt;.&lt;template&gt; (campus.meraki-organizations), at priority low.">implicit job</abbr> what it lists (<code>items</code>, from the name of its template without the start the templates of its package share: <code>networks</code>) and the configured jobs it lists them for (<code>discovery_for</code>)</td>
 </tr>
 <tr>
 <td><code>GET /api/v1/jobs/{name}/instances</code></td>
-<td>Fan-out instances with their variables and last result</td>
+<td><abbr title="A job whose template has forEach: it runs once per item listed by its parent, as many instances.">Fan-out</abbr> instances with their variables and last result</td>
 </tr>
 <tr>
 <td><code>GET /api/v1/jobs/{name}/runs?instance=</code></td>
@@ -3350,7 +3379,7 @@ Example configuration: tapyr provider show meraki-dashboard --example
 </tr>
 <tr>
 <td><code>GET /api/v1/budgets</code></td>
-<td>Every limit and scope key: kind, max, used, remaining (internal and observed), external usage, reserve, window bounds, projection, and the accounts whose requests count in the scope (named by its account, target or credential dimension; every account of the provider for a scope without one); the description, the source (<code>kind</code>, <code>url</code>, <code>date</code>) and the calendar period of the limit, from the provider definition</td>
+<td>Every limit and scope key: kind, max, used, remaining (internal and observed), <abbr title="The calls of other clients of the same quota (the vendor UI, scripts, other integrations): what the provider counts minus what Tapyr made.">external usage</abbr>, reserve, window bounds, projection, and the accounts whose requests count in the scope (named by its account, target or credential dimension; every account of the provider for a scope without one); the description, the source (<code>kind</code>, <code>url</code>, <code>date</code>) and the calendar period of the limit, from the provider definition</td>
 </tr>
 <tr>
 <td><code>GET /api/v1/budgets/{limit}/timeline?scope=</code></td>
@@ -3468,10 +3497,10 @@ Example configuration: tapyr provider show meraki-dashboard --example
 <p>A collected job that has not run yet <strong>waits</strong>; it does not fail. <code>waiting</code> on the job (<code>GET /api/v1/jobs</code>) says for what, and the graph gives the reason on its job nodes:</p>
 <ul>
 <li><code>first_run</code>: its instances are scheduled; <code>until</code> is their first run.</li>
-<li><code>parent</code>: a fan-out without instances, whose parent has not listed its items yet (it waits for its first run, the budget, or its own parent); <code>parent</code> names it and <code>until</code> is its next run (the next run of the first parent up the chain that has instances).</li>
+<li><code>parent</code>: a <abbr title="A job whose template has forEach: it runs once per item listed by its parent, as many instances.">fan-out</abbr> without instances, whose parent has not listed its items yet (it waits for its first run, the budget, or its own parent); <code>parent</code> names it and <code>until</code> is its next run (the next run of the first parent up the chain that has instances).</li>
 <li><code>parent_failing</code>: the parent, or a parent of the parent, fails: <code>failing_job</code> names it, with the redacted <code>error</code> and <code>failed_at</code> of its last run (<code>failed</code>, or skipped by an open circuit), and <code>until</code> is its next try.</li>
 </ul>
-<p><code>waiting</code> is absent once the job has run, for a job not collected, and for a fan-out whose parent ran and listed no item. The health of a waiting job stays <code>unknown</code>, left out of the health of its account and its provider. The web UI says it in words everywhere: the Overview counts the jobs succeeded, failing and waiting and marks the waiting squares with a dashed border and a legend, the Graph names the reason on the tiles and leaves the waiting jobs out of the health of their group, the jobs list and the job page say what a job waits for and until when (and link to the failing job), and the Plan page lists the jobs it does not hold yet, with what they wait for. The badge of the health <code>unknown</code> reads "no run yet".</p>
+<p><code>waiting</code> is absent once the job has run, for a job not collected, and for a <abbr title="A job whose template has forEach: it runs once per item listed by its parent, as many instances.">fan-out</abbr> whose parent ran and listed no item. The health of a waiting job stays <code>unknown</code>, left out of the health of its account and its provider. The web UI says it in words everywhere: the Overview counts the jobs succeeded, failing and waiting and marks the waiting squares with a dashed border and a legend, the Graph names the reason on the tiles and leaves the waiting jobs out of the health of their group, the jobs list and the job page say what a job waits for and until when (and link to the failing job), and the Plan page lists the jobs it does not hold yet, with what they wait for. The badge of the health <code>unknown</code> reads "no run yet".</p>
 <h3 id="implementation-notes">Implementation notes<a class="headerlink" href="#implementation-notes" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>internal/api</code> serves the API from a read-only <code>Source</code> interface implemented by <code>tapyr run</code>; it never reaches into the collector state directly. The OpenAPI description (OpenAPI 3.1) is maintained by hand; a test checks that every route is documented and that every response of the test suite validates against its schema.</li>
@@ -3488,14 +3517,14 @@ Example configuration: tapyr provider show meraki-dashboard --example
 <h3 id="pages">Pages<a class="headerlink" href="#pages" title="Permanent link">&para;</a></h3>
 <ol>
 <li><strong>Overview</strong>: health summary, plan feasibility (an alert per quota the plan does not fit, with its problem; the quota tile tells when the tightest quota runs out at the current pace, the plan tile when it would with the planned intervals), providers and accounts cards with status, quota gauges (used / projected / limit per window, named by the accounts of their scope), recent errors.</li>
-<li><strong>Graph</strong>: provider -&gt; account -&gt; (targets) -&gt; inventory jobs -&gt; metric jobs -&gt; outputs. Node color by health. Click a node to open its detail panel. Fan-out shown as grouped nodes with instance counts. The graph opens readable: framed on its content, never enlarged past 100% and never below 80%, the zoom at which the tiles still read; a graph too large for that opens on its top left corner, and the wheel scrolls it (Ctrl or ⌘ and the wheel, or a pinch, zooms). Tiles are wide enough for the names of the built-in packages; the full name, and the technical name of an implicit job (named as on the Jobs page), are in the tooltip and the detail panel.</li>
-<li><strong>Job detail</strong>: effective config (YAML view), desired vs effective interval with stretch reason, instances table, recent runs (result, duration, requests, pages, retries, samples), errors. A job that is not collected says so with its reason, on the jobs list and its detail, and stays out of the counts of the Overview and of the Graph.</li>
-<li><strong>Budgets</strong>: one card per limit and scope, named for people ("Account rate", "10 requests per second, for account demo", "5,000 calls per day"), with the description and the source of the limit from the provider definition (the vendor documentation with its link, a measurement with its date, or an assumption): timeline of consumption over the window with projection line, reserve, external usage, window reset time, each figure explained by a tooltip (what "used by others", the "retry reserve" and the remaining "reported by the API" mean). Rate limits show wait time and 429s.</li>
+<li><strong>Graph</strong>: provider -&gt; account -&gt; (targets) -&gt; inventory jobs -&gt; metric jobs -&gt; outputs. Node color by health. Click a node to open its detail panel. <abbr title="A job whose template has forEach: it runs once per item listed by its parent, as many instances.">Fan-out</abbr> shown as grouped nodes with instance counts. The graph opens readable: framed on its content, never enlarged past 100% and never below 80%, the zoom at which the tiles still read; a graph too large for that opens on its top left corner, and the wheel scrolls it (Ctrl or ⌘ and the wheel, or a pinch, zooms). Tiles are wide enough for the names of the built-in packages; the full name, and the technical name of an <abbr title="The parent of a fan-out that no job of the account declares: Tapyr runs it for you, named &lt;account&gt;.&lt;template&gt; (campus.meraki-organizations), at priority low.">implicit job</abbr> (named as on the Jobs page), are in the tooltip and the detail panel.</li>
+<li><strong>Job detail</strong>: effective config (YAML view), desired vs <abbr title="The interval a job actually runs at: its desired interval, or longer when the planner stretches it to fit a quota.">effective interval</abbr> with <abbr title="The factor by which the planner lengthens the interval of a job to fit a quota: x2 runs it half as often.">stretch</abbr> reason, instances table, recent runs (result, duration, requests, pages, retries, samples), errors. A job that is not collected says so with its reason, on the jobs list and its detail, and stays out of the counts of the Overview and of the Graph.</li>
+<li><strong>Budgets</strong>: one card per limit and scope, named for people ("Account rate", "10 requests per second, for account demo", "5,000 calls per day"), with the description and the source of the limit from the provider definition (the vendor documentation with its link, a measurement with its date, or an assumption): timeline of consumption over the window with projection line, reserve, <abbr title="The calls of other clients of the same quota (the vendor UI, scripts, other integrations): what the provider counts minus what Tapyr made.">external usage</abbr>, window reset time, each figure explained by a tooltip (what "used by others", the "<abbr title="The part of every quota kept for retries and for critical jobs, 10% by default (settings.budget.retryReserve): the planner leaves it out, so that a retry never finds the quota empty.">retry reserve</abbr>" and the remaining "reported by the API" mean). Rate limits show wait time and 429s.</li>
 <li><strong>Plan</strong>: the plan table, sortable, with the jobs slowed down highlighted and the reason in words, and the collected jobs the plan does not hold yet (fan-outs without instances) with what they wait for. A plan that does not fit opens with "Why it does not fit" (the problem of every quota it does not fit) and marks the critical jobs of those quotas, which are never slowed down. The plan of the running Tapyr covers what is left of each window; the page says so.</li>
 <li><strong>Outputs</strong>: the series each output receives (against its limit, as a meter, when it has one), in words: within the limit, close to it, at it, or reached with the number of new series held back and samples dropped, and the jobs not counted yet; queue fill, send rate, failures, last success. An output holding series back also shows on the Overview, as an alert and on its chip.</li>
 <li><strong>Live debug</strong> (only when enabled, which the page says as it opens): pick a job instance, see the last raw response (pretty JSON, collapsible) side by side with the samples produced. Refresh on new run (SSE).</li>
 </ol>
-<p><strong>Vocabulary.</strong> Every term of the UI is plain English or has its definition one hover away: the column headers of the Plan and Jobs pages and the figures of the Budgets cards carry a tooltip (a dotted underline) with the definition of the <a href="../../glossary/">glossary</a> in a sentence or two (<code>ui/src/lib/terms.ts</code>, kept in step with the glossary). An implicit job is named by what it lists and for whom ("Networks, listed for network-devices"), its technical name next to it, on every page and in sentences ("waiting for the job listing the networks"). A scope keyed by the <code>instance</code> dimension reads "the whole Tapyr process".</p>
+<p><strong>Vocabulary.</strong> Every term of the UI is plain English or has its definition one hover away: the column headers of the Plan and Jobs pages and the figures of the Budgets cards carry a tooltip (a dotted underline) with the definition of the <a href="../../glossary/">glossary</a> in a sentence or two (<code>ui/src/lib/terms.ts</code>, kept in step with the glossary). An <abbr title="The parent of a fan-out that no job of the account declares: Tapyr runs it for you, named &lt;account&gt;.&lt;template&gt; (campus.meraki-organizations), at priority low.">implicit job</abbr> is named by what it lists and for whom ("Networks, listed for network-devices"), its technical name next to it, on every page and in sentences ("waiting for the job listing the networks"). A scope keyed by the <code>instance</code> dimension reads "the whole Tapyr process".</p>
 <p>Every page shows, at the foot of the navigation, the version of the running Tapyr (<code>Tapyr v0.3.0</code>; a binary built without a version, such as <code>go build</code> in a clone, shows <code>Tapyr dev</code> and its short revision), with the full version, the revision and the Go version in its tooltip. It is read from <code>GET /api/v1/status</code> when the UI loads and again when the event stream reconnects, so an upgrade shows after the restart.</p>
 <h3 id="non-functional">Non-functional<a class="headerlink" href="#non-functional" title="Permanent link">&para;</a></h3>
 <ul>
@@ -3509,7 +3538,7 @@ Example configuration: tapyr provider show meraki-dashboard --example
 <ul>
 <li><strong>Serving.</strong> The UI is served under <code>/ui/</code> (<code>/</code> redirects there) with <code>Content-Security-Policy: default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'</code> (the <code>CSP</code> constant of <code>internal/ui</code>), so that the browser itself refuses any external call; <code>settings.server.ui.enabled: false</code> removes it. Hashed assets are cached for a year, <code>index.html</code> is never cached. A binary built without the UI serves a page explaining <code>make ui</code>.</li>
 <li><strong>Events.</strong> <code>GET /api/v1/events</code> is a Server-Sent Events stream of <code>run_finished</code> (job, instance, result, duration, samples, and the sentence of its problem when it did not succeed), <code>plan_changed</code>, <code>circuit_changed</code> (account, target, state) and <code>config_reloaded</code> (result, error), each <code>data</code> a JSON object with <code>time</code>. A comment line is sent every 15 seconds to keep proxies from closing the stream. Slow clients lose events rather than slowing the collector: the UI refetches what it shows on every event and polls every 15 seconds when the stream is down.</li>
-<li><strong>Debug.</strong> With <code>settings.server.debug.enabled</code>, the collector keeps, per job instance and in memory only, the pages of its last run (status, the <code>Content-Type</code> and quota headers, the body truncated to <code>maxBodyBytes</code>), the response that failed, and the samples it produced. Bodies go through the log redactor, so configured secrets and tokens never appear. Without it, the endpoint answers <code>404</code> with the code <code>debug_disabled</code>.</li>
+<li><strong>Debug.</strong> With <code>settings.server.debug.enabled</code>, the collector keeps, per job instance and in memory only, the pages of its last run (status, the <code>Content-Type</code> and <abbr title="Response headers in which an API announces its quota: its maximum, what is left, when it resets.">quota headers</abbr>, the body truncated to <code>maxBodyBytes</code>), the response that failed, and the samples it produced. Bodies go through the log redactor, so configured secrets and tokens never appear. Without it, the endpoint answers <code>404</code> with the code <code>debug_disabled</code>.</li>
 <li><strong>Look.</strong> The colors, fonts and shapes follow tapyr.eu: background <code>#f2f8fb</code> / <code>#0b1824</code>, surface <code>#ffffff</code> / <code>#102335</code>, ink <code>#0f2a3f</code> / <code>#e4f1f7</code>, cyan <code>#3aa9d6</code> / <code>#5cc3ea</code>, sun <code>#ffc845</code> / <code>#ffd166</code>, red <code>#cc2f35</code> / <code>#ff7a7a</code>; Bricolage Grotesque for titles, JetBrains Mono for data. States always carry a word or an icon next to their color.</li>
 </ul>
 
@@ -3638,7 +3667,7 @@ Example configuration: tapyr provider show meraki-dashboard --example
       
         
         
-      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["navigation.tabs","navigation.sections","navigation.top","navigation.footer","navigation.indexes","search.highlight","content.action.edit","content.code.copy","toc.follow"],"redirect":null,"search":"../../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":{"alias":true,"default":"latest","provider":"mike"}}</script>
+      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["navigation.tabs","navigation.sections","navigation.top","navigation.footer","navigation.indexes","search.highlight","content.action.edit","content.code.copy","content.tooltips","toc.follow"],"redirect":null,"search":"../../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":{"alias":true,"default":"latest","provider":"mike"}}</script>
     
     
       <script src="../../assets/javascripts/bundle.3cb411a8.min.js"></script>

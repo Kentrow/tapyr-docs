@@ -2382,6 +2382,8 @@
       
         
       
+        
+      
     
     
     
@@ -2807,6 +2809,33 @@
 
                 
               
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0015-persistent-output-buffer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0015 - A persistent buffer for the push outputs
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
             </ul>
           </nav>
         
@@ -2975,8 +3004,8 @@
 <ol>
 <li>A <strong>provider</strong> (an API family, e.g. "Meraki Dashboard API v1") is described once, declaratively: base URL, auth, pagination, error semantics, and <strong>all of its rate limits</strong>.</li>
 <li><strong>Accounts</strong> instantiate a provider with credentials (one Meraki API key, one Aruba Central tenant, one Teltonika router).</li>
-<li><strong>Jobs</strong> describe what to collect: an endpoint, a desired interval, a priority, optional discovery fan-out, and a CEL mapping from JSON to metrics.</li>
-<li>A <strong>budget engine</strong> guarantees that every limit is respected, plans effective intervals to fit quotas, keeps a reserve for retries, and syncs with the quota headers returned by the API.</li>
+<li><strong>Jobs</strong> describe what to collect: an endpoint, a desired interval, a priority, optional discovery <abbr title="A job whose template has forEach: it runs once per item listed by its parent, as many instances.">fan-out</abbr>, and a CEL mapping from JSON to metrics.</li>
+<li>A <strong>budget engine</strong> guarantees that every limit is respected, plans effective intervals to fit quotas, keeps a reserve for retries, and syncs with the <abbr title="Response headers in which an API announces its quota: its maximum, what is left, when it resets.">quota headers</abbr> returned by the API.</li>
 <li>Collected data is <strong>exposed or pushed in standard formats</strong>: Prometheus exposition (pull), Prometheus remote write (push, covers Prometheus, VictoriaMetrics, Mimir, Thanos), OTLP (push).</li>
 <li>Tapyr <strong>observes itself</strong> and exposes rich self-metrics.</li>
 <li>Every provider ships with a <strong>simulator</strong> driven by the same definition, enforcing the same limits, so that providers can be developed and tested without access to the vendor platform.</li>
@@ -3021,14 +3050,14 @@
 <p>Functional:</p>
 <ul>
 <li>Declarative config model: <code>Provider</code>, <code>Account</code>, <code>Job</code>, <code>Output</code> (+ <code>Settings</code>), YAML, multi-document, splittable across files, validated by JSON Schema.</li>
-<li>Budget engine: rate (token bucket), concurrency, fixed-window quotas (minute, hour, day, week, month, with reset time and timezone), rolling-window quotas; scopes (instance, account, target, credential, endpoint, request variables); header sync; 429 and <code>Retry-After</code> handling; retry reserve; priority-aware planning; persistent ledger.</li>
+<li>Budget engine: rate (token bucket), concurrency, fixed-window quotas (minute, hour, day, week, month, with reset time and timezone), rolling-window quotas; scopes (instance, account, target, credential, endpoint, request variables); header sync; 429 and <code>Retry-After</code> handling; <abbr title="The part of every quota kept for retries and for critical jobs, 10% by default (settings.budget.retryReserve): the planner leaves it out, so that a retry never finds the quota empty.">retry reserve</abbr>; priority-aware planning; persistent ledger.</li>
 <li><code>tapyr plan</code>: offline estimation of call consumption per quota and effective intervals.</li>
 <li><code>tapyr validate</code>: config and provider validation, including CEL type-checking.</li>
 <li>Collection: auth types <code>none</code>, <code>header</code>, <code>bearer</code>, <code>basic</code>, <code>oauth2_client_credentials</code>, <code>session_login</code> (generic login flow), plus the <code>aruba_central_classic</code> auth plugin (rotating refresh tokens).</li>
 <li>Pagination: <code>none</code>, <code>offset</code>, <code>page</code>, <code>link_header</code>, <code>cursor</code>, <code>expression</code>.</li>
 <li>Discovery: jobs that fan out from the results of a parent job, with an inventory cache.</li>
 <li>Multi-target accounts (one account, N device endpoints, e.g. Teltonika RutOS routers).</li>
-<li>Retries with error classification, exponential backoff with jitter, circuit breaker per account.</li>
+<li>Retries with error classification, exponential backoff with jitter, <abbr title="Protects an account (or a target) that keeps failing: after 5 consecutive transient failures it opens, and Tapyr stops calling, so no quota is spent.">circuit breaker</abbr> per account.</li>
 <li>CEL mapping: gauges, counters, <code>_info</code> metrics, labels, optional source timestamps.</li>
 <li>Series lifecycle: staleness when a series disappears, deduplication of overlapping windows.</li>
 <li>Outputs: Prometheus pull endpoint, Prometheus remote write 1.0, OTLP/HTTP (protobuf) and OTLP/gRPC.</li>
@@ -3049,7 +3078,7 @@
 <h2 id="out-of-scope-keep-in-mind-do-not-build">Out of scope (keep in mind, do not build)<a class="headerlink" href="#out-of-scope-keep-in-mind-do-not-build" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Distributed architecture (workers, sharding, leader election, HA).</li>
-<li>Shared state backends (Redis) and persistent output buffering (WAL).</li>
+<li>Shared state backends (Redis). Persistent output buffering is taken in by <a href="../../adr/0015-persistent-output-buffer/">ADR 0015</a>, for v0.7.</li>
 <li>Editable UI, budget impact simulation in the UI, mapping authoring assistant.</li>
 <li>Push-based sources: webhooks (Meraki), streaming APIs (Aruba Central websocket/protobuf).</li>
 <li>Logs and events as outputs (metrics only).</li>
@@ -3065,7 +3094,7 @@
 <ul>
 <li>A new user runs the demo compose and sees data and self-metrics in Grafana within 5 minutes, without any vendor account.</li>
 <li><code>tapyr plan</code> on a Meraki or Aruba configuration gives a consumption estimate within 15% of the actual consumption measured against the simulator over 24 simulated hours.</li>
-<li>Over a 24-hour simulated run with an undersized quota, Tapyr never receives an unexpected 429 from a quota limit (only from scenario-injected faults), degrades low-priority jobs first, and keeps critical jobs on schedule.</li>
+<li>Over a 24-hour simulated run with an undersized quota, Tapyr never receives an <abbr title="A 429 Too Many Requests that no declared limit predicted: the provider definition misses a limit, or another client shares it.">unexpected 429</abbr> from a quota limit (only from scenario-injected faults), degrades low-priority jobs first, and keeps critical jobs on schedule.</li>
 <li>Teltonika RMS and Teltonika RutOS are validated end-to-end against real platforms.</li>
 <li>Adding a simple new provider requires only YAML and CEL files, no Go code.</li>
 </ul>
@@ -3195,7 +3224,7 @@
       
         
         
-      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["navigation.tabs","navigation.sections","navigation.top","navigation.footer","navigation.indexes","search.highlight","content.action.edit","content.code.copy","toc.follow"],"redirect":null,"search":"../../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":{"alias":true,"default":"latest","provider":"mike"}}</script>
+      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["navigation.tabs","navigation.sections","navigation.top","navigation.footer","navigation.indexes","search.highlight","content.action.edit","content.code.copy","content.tooltips","toc.follow"],"redirect":null,"search":"../../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":{"alias":true,"default":"latest","provider":"mike"}}</script>
     
     
       <script src="../../assets/javascripts/bundle.3cb411a8.min.js"></script>

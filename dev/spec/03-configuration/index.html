@@ -2432,6 +2432,8 @@
       
         
       
+        
+      
     
     
     
@@ -2857,6 +2859,33 @@
 
                 
               
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0015-persistent-output-buffer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0015 - A persistent buffer for the push outputs
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
             </ul>
           </nav>
         
@@ -3134,7 +3163,7 @@
 <tr>
 <td><code>Account</code></td>
 <td>User</td>
-<td>Instance of a provider with credentials, targets, labels, budget share</td>
+<td>Instance of a provider with credentials, targets, labels, <abbr title="The part of every quota an account may spend, budget.share on the account (0.5 leaves half for other tools using the same credentials).">budget share</abbr></td>
 </tr>
 <tr>
 <td><code>Job</code></td>
@@ -3570,7 +3599,7 @@
 <ul>
 <li>Every reference resolves (<code>account -&gt; provider</code>, <code>template -&gt; provider</code>, <code>job -&gt; account</code>, <code>job -&gt; template</code>, <code>forEach -&gt; template | job</code>, <code>outputs -&gt; output</code>, <code>selfMetrics.outputs -&gt; output</code>). Provider names resolve against the configuration, the <code>providerPaths</code> packages and the built-in packages.</li>
 <li>Names are unique per kind; at most one <code>Settings</code> document; at most one <code>prometheus</code> output.</li>
-<li>Discovery graph is acyclic; maximum depth 4 (at most 4 fan-out levels from the root inventory job to the deepest child; a job using a template shares the level of its template).</li>
+<li>Discovery graph is acyclic; maximum depth 4 (at most 4 <abbr title="A job whose template has forEach: it runs once per item listed by its parent, as many instances.">fan-out</abbr> levels from the root inventory job to the deepest child; a job using a template shares the level of its template).</li>
 <li>A job template's <code>provider</code> matches the job account's provider.</li>
 <li>Accounts provide every required param and secret, and no undeclared one.</li>
 <li>Template fields parse as Go templates using only the allowed functions.</li>
@@ -3707,7 +3736,7 @@
       
         
         
-      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["navigation.tabs","navigation.sections","navigation.top","navigation.footer","navigation.indexes","search.highlight","content.action.edit","content.code.copy","toc.follow"],"redirect":null,"search":"../../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":{"alias":true,"default":"latest","provider":"mike"}}</script>
+      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["navigation.tabs","navigation.sections","navigation.top","navigation.footer","navigation.indexes","search.highlight","content.action.edit","content.code.copy","content.tooltips","toc.follow"],"redirect":null,"search":"../../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":{"alias":true,"default":"latest","provider":"mike"}}</script>
     
     
       <script src="../../assets/javascripts/bundle.3cb411a8.min.js"></script>

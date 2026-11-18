@@ -2421,6 +2421,8 @@
       
         
       
+        
+      
     
     
     
@@ -2846,6 +2848,33 @@
 
                 
               
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0015-persistent-output-buffer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0015 - A persistent buffer for the push outputs
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
             </ul>
           </nav>
         
@@ -3047,7 +3076,7 @@
 <ul>
 <li><strong>Same definition, two consumers.</strong> The simulator reads the provider package: the <code>Provider</code> document (limits, pagination, auth, error semantics) and the package's <code>sim/</code> directory (routes, fixtures, scenarios). Limits are declared once.</li>
 <li><strong>Package-internal kinds.</strong> <code>Simulation</code> and <code>Scenario</code> documents live only in a package's <code>sim/</code> directory; user configuration paths reject them.</li>
-<li><strong>Server-side enforcement reuses the budget package</strong> (rate, concurrency, quota windows) in "enforcer" mode, so the simulator returns 429, <code>Retry-After</code> and quota headers exactly as declared.</li>
+<li><strong>Server-side enforcement reuses the budget package</strong> (rate, concurrency, quota windows) in "enforcer" mode, so the simulator returns 429, <code>Retry-After</code> and <abbr title="Response headers in which an API announces its quota: its maximum, what is left, when it resets.">quota headers</abbr> exactly as declared.</li>
 <li><strong>Deterministic by default</strong> (seeded randomness), reproducible in CI.</li>
 <li><strong>Runs on the injected clock.</strong> Automated tests share a fake clock between Tapyr and the simulator and run 24 simulated hours in seconds; <code>--time-scale</code> accelerates the real clock for demos and manual tests.</li>
 </ul>
@@ -3297,7 +3326,7 @@ tapyr sim --all --listen-base 127.0.0.1:8081   # one simulator per provider, at 
       
         
         
-      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["navigation.tabs","navigation.sections","navigation.top","navigation.footer","navigation.indexes","search.highlight","content.action.edit","content.code.copy","toc.follow"],"redirect":null,"search":"../../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":{"alias":true,"default":"latest","provider":"mike"}}</script>
+      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["navigation.tabs","navigation.sections","navigation.top","navigation.footer","navigation.indexes","search.highlight","content.action.edit","content.code.copy","content.tooltips","toc.follow"],"redirect":null,"search":"../../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":{"alias":true,"default":"latest","provider":"mike"}}</script>
     
     
       <script src="../../assets/javascripts/bundle.3cb411a8.min.js"></script>

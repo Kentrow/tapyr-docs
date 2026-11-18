@@ -46,6 +46,9 @@
         <loc>https://docs.tapyr.eu/dev/adr/0014-output-series/</loc>
       </url>
       <url>
+        <loc>https://docs.tapyr.eu/dev/adr/0015-persistent-output-buffer/</loc>
+      </url>
+      <url>
         <loc>https://docs.tapyr.eu/dev/alerts/</loc>
       </url>
       <url>
