@@ -4,15 +4,15 @@ zensical==0.1.1
 zensical-ui==0.0.42
 # Fork of mike for Zensical, not on PyPI: pinned to the commit of tag 2.2.0+zensical-0.1.0
 mike @ git+https://github.com/squidfunk/mike.git@0f62791256ebeba60d20d2f1d8fe6ec3b7d1e2b3
-click==8.5.0
+click==8.5.1
 deepmerge==4.0.0
 inversion==1.0.1
 Jinja2==3.1.6
-Markdown==3.11.2
+Markdown==3.11.3
 MarkupSafe==3.0.4
 pathspec==1.1.1
 Pygments==2.21.0
-pymdown-extensions==12.3
+pymdown-extensions==13.1
 pyparsing==3.3.3
 PyYAML==6.0.3
 tomli==2.5.0
