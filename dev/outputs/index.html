@@ -932,6 +932,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#keeping-the-queue-on-disk" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Keeping the queue on disk
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#self-metrics-to-watch" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -3024,6 +3035,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#keeping-the-queue-on-disk" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Keeping the queue on disk
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#self-metrics-to-watch" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -3238,6 +3260,25 @@
 </ul>
 <h2 id="sizing-the-queue">Sizing the queue<a class="headerlink" href="#sizing-the-queue" title="Permanent link">&para;</a></h2>
 <p>The queue holds <code>capacity</code> samples per output. While a backend is down, the batch at the head of the queue is retried and new samples queue behind it; once full, the oldest samples are dropped and counted. Size <code>capacity</code> for the outage you want to ride out: samples per minute across your jobs, times the minutes. The batch being sent is never dropped while its request is in flight.</p>
+<h2 id="keeping-the-queue-on-disk">Keeping the queue on disk<a class="headerlink" href="#keeping-the-queue-on-disk" title="Permanent link">&para;</a></h2>
+<p>Every sample in a queue cost API quota, and the memory queue loses it when the backend is down longer than the queue lasts, or when Tapyr restarts. <code>queue.disk</code> keeps the queue of a push output on disk as well (<a href="../adr/0015-persistent-output-buffer/">ADR 0015</a>):</p>
+<div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tapyr/v1alpha1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Output</span>
+<span class="nt">metadata</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> name</span><span class="p">:</span><span class="w"> </span><span class="nv">hosted</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">remote_write</span>
+<span class="w">  </span><span class="nt">remoteWrite</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> url</span><span class="p">:</span><span class="w"> </span><span class="nv">https</span><span class="p p-Indicator">:</span><span class="nv">//metrics.example.com/api/v1/write</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">  </span><span class="nt">queue</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">disk</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">maxSize</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">512MiB</span><span class="w">   </span><span class="c1"># the default</span>
+<span class="w">      </span><span class="nt">maxAge</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2h</span><span class="w">        </span><span class="c1"># the default</span>
+</code></pre></div>
+<ul>
+<li>The samples are written to disk before they are queued, and leave it once the backend accepted them. When the memory queue is full, the samples wait on disk instead of being dropped, and are sent in order when the backend answers again.</li>
+<li>After a restart, the samples left on disk are sent first. A crash loses at most the last second of samples.</li>
+<li><code>maxSize</code> bounds the files (sizes take a binary unit: <code>512MiB</code>, <code>2GiB</code>): beyond it, the oldest samples are dropped, counted as <code>buffer_full</code>. <code>maxAge</code> drops the samples that waited longer, counted as <code>too_old</code>, rather than send them to be refused: Prometheus refuses samples older than about 1 to 2 hours unless it has an out-of-order window. Raise <code>maxAge</code> for VictoriaMetrics or Mimir, which accept older samples.</li>
+<li>The buffer lives in <code>buffer/&lt;output name&gt;</code> next to the state store, or in <code>disk.path</code>: keep it on persistent storage, like the state (<a href="../operations/#state-store">Operations</a>). If it cannot be opened or written (a full disk, a directory held by another Tapyr), the output keeps its queue in memory and the log says so; the collection goes on.</li>
+</ul>
 <h2 id="self-metrics-to-watch">Self-metrics to watch<a class="headerlink" href="#self-metrics-to-watch" title="Permanent link">&para;</a></h2>
 <table>
 <thead>

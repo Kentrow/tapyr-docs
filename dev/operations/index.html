@@ -3093,7 +3093,7 @@ tapyr<span class="w"> </span>plan<span class="w"> </span>--config<span class="w"
 </tr>
 </tbody>
 </table>
-<p>Keep it on persistent storage (a volume, <code>StateDirectory=</code> with systemd), and back it up with the host. Do not delete it to "reset" Tapyr. It is written every 5 seconds and on shutdown; <code>tapyr_state_flush_failures_total</code> counts failed writes (full disk, permissions).</p>
+<p>Keep it on persistent storage (a volume, <code>StateDirectory=</code> with systemd), and back it up with the host. The disk buffers of the outputs (<code>queue.disk</code>, <a href="../outputs/#keeping-the-queue-on-disk">Outputs</a>) live next to it by default, in <code>buffer/&lt;output name&gt;</code>: the same volume keeps them. Do not delete it to "reset" Tapyr. It is written every 5 seconds and on shutdown; <code>tapyr_state_flush_failures_total</code> counts failed writes (full disk, permissions).</p>
 <p>Set <code>TAPYR_STATE_KEY</code> to encrypt the tokens in the store (AES-GCM, with a key derived from its value). Without it, Tapyr logs a warning once and stores them in clear. Changing the key makes the stored tokens unreadable: they are requested again, except for rotated tokens that need a new bootstrap.</p>
 <h2 id="monitoring-tapyr">Monitoring Tapyr<a class="headerlink" href="#monitoring-tapyr" title="Permanent link">&para;</a></h2>
 <p>Tapyr exposes its own metrics on <code>/metrics/self</code>. Scrape them with <code>honor_labels: true</code>, since they carry the <code>job</code> label of the Tapyr job:</p>

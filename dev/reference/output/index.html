@@ -1819,10 +1819,32 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#diskbuffer" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        DiskBuffer
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#basicauthsecrets" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
         BasicAuthSecrets
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#size" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Size
       </span>
     </span>
   </a>
@@ -3086,10 +3108,32 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#diskbuffer" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        DiskBuffer
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#basicauthsecrets" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
         BasicAuthSecrets
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#size" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Size
       </span>
     </span>
   </a>
@@ -3404,6 +3448,12 @@
 <td>Capacity in samples; the oldest samples are dropped (with accounting) when full. Default <code>50000</code>. Minimum 1.</td>
 </tr>
 <tr>
+<td><code>disk</code></td>
+<td><a href="#diskbuffer">DiskBuffer</a></td>
+<td></td>
+<td>Disk keeps the queue on disk as well (ADR 0015): the samples survive a backend outage longer than the memory queue and a restart of Tapyr. Off when absent.</td>
+</tr>
+<tr>
 <td><code>flushInterval</code></td>
 <td><a href="#duration">Duration</a></td>
 <td></td>
@@ -3487,6 +3537,38 @@
 </ul>
 <h2 id="duration">Duration<a class="headerlink" href="#duration" title="Permanent link">&para;</a></h2>
 <p>Type: string. Pattern <code>^(&#91;0-9&#93;+(&#92;.&#91;0-9&#93;+)?(ns&#124;us&#124;µs&#124;ms&#124;s&#124;m&#124;h))+$</code>. Examples <code>30s</code>, <code>5m</code>, <code>1h30m</code>.</p>
+<h2 id="diskbuffer">DiskBuffer<a class="headerlink" href="#diskbuffer" title="Permanent link">&para;</a></h2>
+<p>DiskBuffer is the persistent buffer of a push output (ADR 0015): the samples are written to disk before they are queued, and leave it once the backend accepted them.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>maxAge</code></td>
+<td><a href="#duration">Duration</a></td>
+<td></td>
+<td><code>maxAge</code> of a buffered sample: an older one is dropped and counted (reason too_old) instead of being sent, since most backends refuse old samples (Prometheus about 1 to 2 hours, unless it has an out-of-order window). Raise it for VictoriaMetrics or Mimir. At least 1m. Default <code>2h</code>.</td>
+</tr>
+<tr>
+<td><code>maxSize</code></td>
+<td><a href="#size">Size</a></td>
+<td></td>
+<td><code>maxSize</code> of the buffer on disk: beyond it, the oldest samples are dropped and counted (reason buffer_full). At least 8MiB. Default <code>512MiB</code>.</td>
+</tr>
+<tr>
+<td><code>path</code></td>
+<td>string</td>
+<td></td>
+<td>Path of the directory of the buffer, relative to the declaring file. Default: buffer/&lt;output name&gt; next to the state store (settings.state.path). Two outputs never share a directory.</td>
+</tr>
+</tbody>
+</table>
 <h2 id="basicauthsecrets">BasicAuthSecrets<a class="headerlink" href="#basicauthsecrets" title="Permanent link">&para;</a></h2>
 <p>BasicAuthSecrets are HTTP basic credentials read from secrets.</p>
 <table>
@@ -3513,6 +3595,8 @@
 </tr>
 </tbody>
 </table>
+<h2 id="size">Size<a class="headerlink" href="#size" title="Permanent link">&para;</a></h2>
+<p>Type: string. Pattern <code>^&#91;0-9&#93;+(B&#124;KiB&#124;MiB&#124;GiB&#124;TiB)$</code>. Examples <code>512MiB</code>, <code>2GiB</code>.</p>
 <h2 id="secretref">SecretRef<a class="headerlink" href="#secretref" title="Permanent link">&para;</a></h2>
 <p>A secret read from an environment variable ({env: NAME}) or a file ({file: /path}).</p>
 <table>
