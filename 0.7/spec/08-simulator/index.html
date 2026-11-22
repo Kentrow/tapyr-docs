@@ -3153,7 +3153,7 @@
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">at</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8h</span>
 <span class="w">      </span><span class="nt">tokenExpiry</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">                                          </span><span class="c1"># invalidate tokens, force 401</span>
 </code></pre></div>
-<p>Built-in scenarios for every provider: <code>default</code>, <code>quota-tight</code> (undersized daily quota), <code>bad-day</code>.</p>
+<p>Built-in scenarios for every provider: <code>default</code>, <code>quota-tight</code> (undersized daily quota), <code>bad-day</code>. In <code>quota-tight</code>, the <code>externalConsumption</code> of another client leaves part of each quota window to Tapyr, which has to share it and <abbr title="The factor by which the planner lengthens the interval of a job to fit a quota: x2 runs it half as often.">stretch</abbr> its jobs, rather than spending the whole quota by itself: a simulator left running, such as the public demo, would otherwise answer 429 until the end of every window. <code>tapyr provider lint</code> checks it, over the longest window of the quota (31 days for a month).</p>
 <p>A step applies from <code>at</code> until <code>at + for</code>, or until the end when <code>for</code> is omitted. <code>at</code> is measured from the simulator start, in simulated time. Step actions:</p>
 <ul>
 <li><code>limits</code> overrides the <code>max</code> of named quota limits, for example <code>limits: { daily: { max: 1500 } }</code>.</li>

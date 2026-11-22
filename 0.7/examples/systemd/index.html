@@ -2899,7 +2899,7 @@
 
 
 <h1 id="systemd">systemd<a class="headerlink" href="#systemd" title="Permanent link">&para;</a></h1>
-<p><a href="https://github.com/Kentrow/tapyr/blob/v0.7.0/examples/systemd/tapyr.service"><code>tapyr.service</code></a> runs Tapyr as a hardened systemd service: a dynamic user, a read-only system, no capabilities, the network and its state directory only (<code>systemd-analyze security tapyr</code> rates it 1.4, "OK").</p>
+<p><a href="https://github.com/Kentrow/tapyr/blob/v0.7.1/examples/systemd/tapyr.service"><code>tapyr.service</code></a> runs Tapyr as a hardened systemd service: a dynamic user, a read-only system, no capabilities, the network and its state directory only (<code>systemd-analyze security tapyr</code> rates it 1.4, "OK").</p>
 <h2 id="install">Install<a class="headerlink" href="#install" title="Permanent link">&para;</a></h2>
 <p>The <a href="../../install/#deb-and-rpm-packages">deb and rpm packages</a> install this unit: write the configuration and the secrets as below, then <code>sudo systemctl enable --now tapyr</code>.</p>
 <p>With the binary installed by hand, in <code>/usr/local/bin/tapyr</code> (see <a href="../../install/"><code>docs/install.md</code></a>):</p>
