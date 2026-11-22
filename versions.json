@@ -48,7 +48,8 @@
     "properties": {
       "source": "v0.4.0",
       "has_release": true,
-      "engine": "43f9691bf851ff791c373d45225991d6c15f6278"
+      "engine": "43f9691bf851ff791c373d45225991d6c15f6278",
+      "hidden": true
     }
   },
   {
