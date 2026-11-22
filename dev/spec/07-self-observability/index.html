@@ -3450,7 +3450,7 @@
 <td><code>tapyr_output_samples_dropped_total</code></td>
 <td>counter</td>
 <td>output, reason</td>
-<td>queue_full, rejected, out_of_order, duplicate (samples that processing rules made identical), series_limit (new series beyond <code>limits.maxSeries</code>, ADR 0014)</td>
+<td>queue_full, rejected, out_of_order, duplicate (samples that processing rules made identical), series_limit (new series beyond <code>limits.maxSeries</code>, ADR 0014), buffer_full (oldest samples beyond the <code>maxSize</code> of the disk buffer, ADR 0015), too_old (samples that waited longer than its <code>maxAge</code>)</td>
 </tr>
 <tr>
 <td><code>tapyr_output_samples_filtered_total</code></td>
@@ -3493,6 +3493,42 @@
 <td>gauge</td>
 <td>output</td>
 <td><code>limits.maxSeries</code> of the output, when it has one</td>
+</tr>
+<tr>
+<td><code>tapyr_output_buffer_bytes</code></td>
+<td>gauge</td>
+<td>output</td>
+<td>size of the disk buffer of the output (<a href="../../adr/0015-persistent-output-buffer/">ADR 0015</a>), when it has one</td>
+</tr>
+<tr>
+<td><code>tapyr_output_buffer_limit_bytes</code></td>
+<td>gauge</td>
+<td>output</td>
+<td>its <code>maxSize</code></td>
+</tr>
+<tr>
+<td><code>tapyr_output_buffer_oldest_seconds</code></td>
+<td>gauge</td>
+<td>output</td>
+<td>how long the oldest sample of the buffer not acknowledged by the backend has waited; 0 when none</td>
+</tr>
+<tr>
+<td><code>tapyr_output_buffer_max_age_seconds</code></td>
+<td>gauge</td>
+<td>output</td>
+<td>its <code>maxAge</code>: samples that waited longer are dropped (too_old)</td>
+</tr>
+<tr>
+<td><code>tapyr_output_buffer_writable</code></td>
+<td>gauge</td>
+<td>output</td>
+<td>0 while the buffer cannot be written and the queue keeps its samples in memory only</td>
+</tr>
+<tr>
+<td><code>tapyr_output_buffer_errors_total</code></td>
+<td>counter</td>
+<td>output, kind</td>
+<td>write (a write that failed), sync, corrupt (records found corrupt and skipped)</td>
 </tr>
 </tbody>
 </table>

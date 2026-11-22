@@ -2998,7 +2998,7 @@ kubectl<span class="w"> </span>-n<span class="w"> </span>tapyr<span class="w"> <
 <tr>
 <td><code>persistence.enabled</code>, <code>.size</code>, <code>.storageClass</code>, <code>.existingClaim</code></td>
 <td><code>true</code>, <code>1Gi</code>, empty, empty</td>
-<td>The volume of the state store</td>
+<td>The volume of the state store, and of the disk buffers of the outputs with <code>queue.disk</code> (up to their <code>maxSize</code> each, 512MiB by default): size it for them</td>
 </tr>
 <tr>
 <td><code>service.type</code>, <code>.port</code>, <code>.annotations</code></td>

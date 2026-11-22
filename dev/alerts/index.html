@@ -1070,6 +1070,28 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#tapyroutputbehind" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        TapyrOutputBehind
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tapyroutputbuffernotwritable" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        TapyrOutputBufferNotWritable
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#tapyrconfigreloadfailed" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -3197,6 +3219,28 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#tapyroutputbehind" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        TapyrOutputBehind
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tapyroutputbuffernotwritable" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        TapyrOutputBufferNotWritable
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#tapyrconfigreloadfailed" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -3283,9 +3327,13 @@
 <p>The <abbr title="Response headers in which an API announces its quota: its maximum, what is left, when it resets.">quota headers</abbr> of a provider announce a maximum different from the one declared in its definition. Tapyr follows the headers; update the limit in the provider definition (<code>max: auto</code> with <code>initialMax</code> when the maximum depends on the account) so that <code>tapyr plan</code> is accurate.</p>
 <h2 id="outputs-and-state">Outputs and state<a class="headerlink" href="#outputs-and-state" title="Permanent link">&para;</a></h2>
 <h3 id="tapyroutputdropping">TapyrOutputDropping<a class="headerlink" href="#tapyroutputdropping" title="Permanent link">&para;</a></h3>
-<p>A push output (remote write or OTLP) drops samples: <code>queue_full</code> when the backend is slower than the collection, <code>rejected</code> or <code>out_of_order</code> when it refuses them. <code>tapyr_output_send_failures_total</code> gives the class of the errors; for <code>out_of_order</code>, check that no other writer sends the same series. <code>duplicate</code> means that processing rules made two series identical. <code>series_limit</code> means that the output reached its <code>limits.maxSeries</code>: the series already sent keep flowing, new ones are not sent; the Outputs page of the web UI says how many are held back. Raise the limit, or drop metrics with processing rules (<a href="../outputs/#series-and-limits">Series and limits</a>).</p>
+<p>A push output (remote write or OTLP) drops samples: <code>queue_full</code> when the backend is slower than the collection, <code>rejected</code> or <code>out_of_order</code> when it refuses them. <code>tapyr_output_send_failures_total</code> gives the class of the errors; for <code>out_of_order</code>, check that no other writer sends the same series. <code>duplicate</code> means that processing rules made two series identical. <code>series_limit</code> means that the output reached its <code>limits.maxSeries</code>: the series already sent keep flowing, new ones are not sent; the Outputs page of the web UI says how many are held back. Raise the limit, or drop metrics with processing rules (<a href="../outputs/#series-and-limits">Series and limits</a>). With a disk buffer, <code>buffer_full</code> means that it reached its <code>maxSize</code> during a long outage, and <code>too_old</code> that samples waited longer than its <code>maxAge</code> (<a href="../outputs/#keeping-the-queue-on-disk">Keeping the queue on disk</a>).</p>
 <h3 id="tapyroutputfailing">TapyrOutputFailing<a class="headerlink" href="#tapyroutputfailing" title="Permanent link">&para;</a></h3>
 <p>A push output has not delivered anything for 10 minutes, or keeps failing without having ever delivered (a wrong URL or credentials from the start). The samples wait in the bounded queue, and the oldest are dropped when it is full. Check that the backend is up and reachable, and its authentication.</p>
+<h3 id="tapyroutputbehind">TapyrOutputBehind<a class="headerlink" href="#tapyroutputbehind" title="Permanent link">&para;</a></h3>
+<p>The oldest sample in the disk buffer of an output (<code>queue.disk</code>) has waited three quarters of its <code>maxAge</code>: the backend has not accepted samples for that long, and the buffered samples older than <code>maxAge</code> will be dropped (<code>too_old</code>). <code>TapyrOutputFailing</code> usually fires too: fix the backend first. If the backend accepts old samples (VictoriaMetrics, Mimir) and the outage is planned, raise <code>maxAge</code>; Prometheus refuses samples older than its head block unless it has an out-of-order window.</p>
+<h3 id="tapyroutputbuffernotwritable">TapyrOutputBufferNotWritable<a class="headerlink" href="#tapyroutputbuffernotwritable" title="Permanent link">&para;</a></h3>
+<p>The disk buffer of an output cannot be written (a full disk, permissions, a directory removed): the queue keeps its samples in memory only, as without a buffer, and loses them on a restart. <code>tapyr_output_buffer_errors_total{kind="write"}</code> counts the failures and the log says why. Free space or fix the permissions of the directory (<code>buffer/&lt;output name&gt;</code> next to the state store by default): the queue writes to the buffer again on its own.</p>
 <h3 id="tapyrconfigreloadfailed">TapyrConfigReloadFailed<a class="headerlink" href="#tapyrconfigreloadfailed" title="Permanent link">&para;</a></h3>
 <p>The last reload of the configuration was rejected; the previous configuration keeps running. <code>tapyr validate --config &lt;paths&gt;</code> prints every error with its file and line.</p>
 <h3 id="tapyrstateflushfailing">TapyrStateFlushFailing<a class="headerlink" href="#tapyrstateflushfailing" title="Permanent link">&para;</a></h3>
