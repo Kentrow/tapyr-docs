@@ -26,7 +26,7 @@
       
       
       <link rel="icon" href="../../tapyr-theme/images/favicon.svg">
-      <meta name="generator" content="zensical-0.1.1">
+      <meta name="generator" content="zensical-0.1.2">
     
     
       
@@ -1990,6 +1990,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#oauth2authorizationcode" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        OAuth2AuthorizationCode
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#oauth2clientcredentials" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -2744,6 +2755,8 @@
       
         
       
+        
+      
     
     
     
@@ -3193,6 +3206,33 @@
 
                 
               
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0016-oauth2-authorization-code/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0016 - OAuth 2.0 authorization code, bootstrapped by tapyr auth login
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
             </ul>
           </nav>
         
@@ -3409,6 +3449,17 @@
     <span class="md-ellipsis">
       <span class="md-typeset">
         HeaderAuth
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#oauth2authorizationcode" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        OAuth2AuthorizationCode
       </span>
     </span>
   </a>
@@ -3948,6 +3999,12 @@
 <td>Header sends a static value in a header (type header).</td>
 </tr>
 <tr>
+<td><code>oauth2AuthorizationCode</code></td>
+<td><a href="#oauth2authorizationcode">OAuth2AuthorizationCode</a></td>
+<td></td>
+<td><code>oauth2AuthorizationCode</code> renews tokens from a refresh token obtained once with tapyr auth login (type oauth2_authorization_code).</td>
+</tr>
+<tr>
 <td><code>oauth2ClientCredentials</code></td>
 <td><a href="#oauth2clientcredentials">OAuth2ClientCredentials</a></td>
 <td></td>
@@ -3969,7 +4026,7 @@
 <td><code>type</code></td>
 <td>string</td>
 <td>yes</td>
-<td>Type of authentication. One of <code>none</code>, <code>header</code>, <code>bearer</code>, <code>basic</code>, <code>oauth2_client_credentials</code>, <code>session_login</code>, <code>plugin</code>.</td>
+<td>Type of authentication. One of <code>none</code>, <code>header</code>, <code>bearer</code>, <code>basic</code>, <code>oauth2_client_credentials</code>, <code>oauth2_authorization_code</code>, <code>session_login</code>, <code>plugin</code>.</td>
 </tr>
 </tbody>
 </table>
@@ -3977,6 +4034,7 @@
 <li>When <code>type</code> is <code>basic</code>: <code>basic</code> is required.</li>
 <li>When <code>type</code> is <code>bearer</code>: <code>bearer</code> is required.</li>
 <li>When <code>type</code> is <code>header</code>: <code>header</code> is required.</li>
+<li>When <code>type</code> is <code>oauth2_authorization_code</code>: <code>oauth2AuthorizationCode</code> is required.</li>
 <li>When <code>type</code> is <code>oauth2_client_credentials</code>: <code>oauth2ClientCredentials</code> is required.</li>
 <li>When <code>type</code> is <code>plugin</code>: <code>plugin</code> is required.</li>
 <li>When <code>type</code> is <code>session_login</code>: <code>sessionLogin</code> is required.</li>
@@ -4322,6 +4380,110 @@
 <td><a href="#value">Value</a></td>
 <td>yes</td>
 <td>Value of the header, usually {secret: name}.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="oauth2authorizationcode">OAuth2AuthorizationCode<a class="headerlink" href="#oauth2authorizationcode" title="Permanent link">&para;</a></h2>
+<p>OAuth2AuthorizationCode is the OAuth 2.0 authorization code flow with refresh tokens (ADR 0016): tapyr auth login runs the consent once and writes the refresh token to the secret named by RefreshToken; tapyr run renews access tokens from it and stores the refreshed pair.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>apply</code></td>
+<td><a href="#tokenapply">TokenApply</a></td>
+<td></td>
+<td>Apply changes how the access token is sent; by default Authorization: Bearer &lt;token&gt;.</td>
+</tr>
+<tr>
+<td><code>authStyle</code></td>
+<td>string</td>
+<td></td>
+<td><code>authStyle</code> sends the client credentials in the Authorization header or in the body of token requests. Default <code>header</code>. One of <code>header</code>, <code>body</code>.</td>
+</tr>
+<tr>
+<td><code>authorizeParams</code></td>
+<td>map of string to string</td>
+<td></td>
+<td><code>authorizeParams</code> are added to the authorization URL.</td>
+</tr>
+<tr>
+<td><code>authorizeURL</code></td>
+<td><a href="#template">Template</a></td>
+<td>yes</td>
+<td><code>authorizeURL</code> is the authorization endpoint the person consents at. Template.</td>
+</tr>
+<tr>
+<td><code>clientId</code></td>
+<td><a href="#value">Value</a></td>
+<td>yes</td>
+<td><code>clientId</code> of the application registered at the vendor, a literal or {secret: name}.</td>
+</tr>
+<tr>
+<td><code>clientSecret</code></td>
+<td><a href="#value">Value</a></td>
+<td></td>
+<td><code>clientSecret</code> of the application, usually {secret: name}. Optional: a public client relies on PKCE alone.</td>
+</tr>
+<tr>
+<td><code>deviceAuthorizationURL</code></td>
+<td><a href="#template">Template</a></td>
+<td></td>
+<td><code>deviceAuthorizationURL</code> enables tapyr auth login --device, the device authorization grant (RFC 8628), when the API offers it. Template.</td>
+</tr>
+<tr>
+<td><code>pkce</code></td>
+<td>string</td>
+<td></td>
+<td><code>pkce</code> is the code challenge method: S256, or none for an API that rejects PKCE. Default <code>S256</code>. One of <code>S256</code>, <code>none</code>.</td>
+</tr>
+<tr>
+<td><code>redirectURL</code></td>
+<td><a href="#template">Template</a></td>
+<td></td>
+<td><code>redirectURL</code> registered for the application; the person's browser is sent there after the consent. Template. Default <code>http://127.0.0.1:8085/callback</code>.</td>
+</tr>
+<tr>
+<td><code>refreshBefore</code></td>
+<td><a href="#duration">Duration</a></td>
+<td></td>
+<td><code>refreshBefore</code> renews the access token this long before it expires. Default <code>5m</code>.</td>
+</tr>
+<tr>
+<td><code>refreshToken</code></td>
+<td><a href="#value">Value</a></td>
+<td>yes</td>
+<td><code>refreshToken</code> is the bootstrap refresh token, {secret: name}, written by tapyr auth login. A changed value replaces the stored token pair.</td>
+</tr>
+<tr>
+<td><code>scopeSeparator</code></td>
+<td>string</td>
+<td></td>
+<td><code>scopeSeparator</code> joins the scopes: a space by default (RFC 6749), or what the API wants instead (a comma for some).</td>
+</tr>
+<tr>
+<td><code>scopes</code></td>
+<td>list of string</td>
+<td></td>
+<td>Scopes requested at the consent.</td>
+</tr>
+<tr>
+<td><code>tokenParams</code></td>
+<td>map of string to string</td>
+<td></td>
+<td><code>tokenParams</code> are added to every token request.</td>
+</tr>
+<tr>
+<td><code>tokenURL</code></td>
+<td><a href="#template">Template</a></td>
+<td>yes</td>
+<td><code>tokenURL</code> is the token endpoint. Template.</td>
 </tr>
 </tbody>
 </table>

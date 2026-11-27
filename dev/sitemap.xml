@@ -49,6 +49,9 @@
         <loc>https://docs.tapyr.eu/dev/adr/0015-persistent-output-buffer/</loc>
       </url>
       <url>
+        <loc>https://docs.tapyr.eu/dev/adr/0016-oauth2-authorization-code/</loc>
+      </url>
+      <url>
         <loc>https://docs.tapyr.eu/dev/alerts/</loc>
       </url>
       <url>

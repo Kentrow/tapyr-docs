@@ -26,7 +26,7 @@
       
       
       <link rel="icon" href="../../tapyr-theme/images/favicon.svg">
-      <meta name="generator" content="zensical-0.1.1">
+      <meta name="generator" content="zensical-0.1.2">
     
     
       
@@ -2384,6 +2384,8 @@
       
         
       
+        
+      
     
     
     
@@ -2836,6 +2838,33 @@
 
                 
               
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0016-oauth2-authorization-code/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0016 - OAuth 2.0 authorization code, bootstrapped by tapyr auth login
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
             </ul>
           </nav>
         
@@ -3053,7 +3082,7 @@
 <li>Budget engine: rate (token bucket), concurrency, fixed-window quotas (minute, hour, day, week, month, with reset time and timezone), rolling-window quotas; scopes (instance, account, target, credential, endpoint, request variables); header sync; 429 and <code>Retry-After</code> handling; <abbr title="The part of every quota kept for retries and for critical jobs, 10% by default (settings.budget.retryReserve): the planner leaves it out, so that a retry never finds the quota empty.">retry reserve</abbr>; priority-aware planning; persistent ledger.</li>
 <li><code>tapyr plan</code>: offline estimation of call consumption per quota and effective intervals.</li>
 <li><code>tapyr validate</code>: config and provider validation, including CEL type-checking.</li>
-<li>Collection: auth types <code>none</code>, <code>header</code>, <code>bearer</code>, <code>basic</code>, <code>oauth2_client_credentials</code>, <code>session_login</code> (generic login flow), plus the <code>aruba_central_classic</code> auth plugin (rotating refresh tokens).</li>
+<li>Collection: auth types <code>none</code>, <code>header</code>, <code>bearer</code>, <code>basic</code>, <code>oauth2_client_credentials</code>, <code>oauth2_authorization_code</code> (refresh tokens obtained once with a consent), <code>session_login</code> (generic login flow), plus the <code>aruba_central_classic</code> auth plugin (rotating refresh tokens).</li>
 <li>Pagination: <code>none</code>, <code>offset</code>, <code>page</code>, <code>link_header</code>, <code>cursor</code>, <code>expression</code>.</li>
 <li>Discovery: jobs that fan out from the results of a parent job, with an inventory cache.</li>
 <li>Multi-target accounts (one account, N device endpoints, e.g. Teltonika RutOS routers).</li>

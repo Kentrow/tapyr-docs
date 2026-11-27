@@ -26,7 +26,7 @@
       
       
       <link rel="icon" href="../../tapyr-theme/images/favicon.svg">
-      <meta name="generator" content="zensical-0.1.1">
+      <meta name="generator" content="zensical-0.1.2">
     
     
       
@@ -2148,6 +2148,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#oauth2_authorization_code" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        <code>oauth2_authorization_code</code>
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#session_login" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -2437,6 +2448,8 @@
   
     
     
+      
+        
       
         
       
@@ -2920,6 +2933,33 @@
 
                 
               
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/0016-oauth2-authorization-code/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ADR 0016 - OAuth 2.0 authorization code, bootstrapped by tapyr auth login
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
             </ul>
           </nav>
         
@@ -2994,6 +3034,17 @@
     <span class="md-ellipsis">
       <span class="md-typeset">
         Declarative types
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#oauth2_authorization_code" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        <code>oauth2_authorization_code</code>
       </span>
     </span>
   </a>
@@ -3207,12 +3258,44 @@
 <td>Token cached until <code>expires_in - skew</code>; persisted</td>
 </tr>
 <tr>
+<td><code>oauth2_authorization_code</code></td>
+<td>see below</td>
+<td>Refresh tokens obtained once with a consent (<a href="../../adr/0016-oauth2-authorization-code/">ADR 0016</a>)</td>
+</tr>
+<tr>
 <td><code>session_login</code></td>
 <td>see below</td>
 <td>Generic login flow returning a token or cookie</td>
 </tr>
 </tbody>
 </table>
+<h3 id="oauth2_authorization_code"><code>oauth2_authorization_code</code><a class="headerlink" href="#oauth2_authorization_code" title="Permanent link">&para;</a></h3>
+<p>For APIs where a person consents once in a browser and the client lives on refresh tokens afterwards (the OAuth 2.0 authorization code flow, <a href="../../adr/0016-oauth2-authorization-code/">ADR 0016</a>).</p>
+<div class="highlight"><pre><span></span><code><span class="nt">auth</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">oauth2_authorization_code</span>
+<span class="w">  </span><span class="nt">oauth2AuthorizationCode</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">authorizeURL</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://www.example.com/oauth/authorize</span>
+<span class="w">    </span><span class="nt">tokenURL</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://www.example.com/oauth/token</span>
+<span class="w">    </span><span class="nt">clientId</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> secret</span><span class="p">:</span><span class="w"> </span><span class="nv">clientId</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">    </span><span class="nt">clientSecret</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> secret</span><span class="p">:</span><span class="w"> </span><span class="nv">clientSecret</span><span class="w"> </span><span class="p p-Indicator">}</span><span class="w">   </span><span class="c1"># optional: a public client relies on PKCE</span>
+<span class="w">    </span><span class="nt">refreshToken</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> secret</span><span class="p">:</span><span class="w"> </span><span class="nv">refreshToken</span><span class="w"> </span><span class="p p-Indicator">}</span><span class="w">   </span><span class="c1"># the bootstrap refresh token</span>
+<span class="w">    </span><span class="nt">scopes</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">read</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">scopeSeparator</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="nv"> </span><span class="s">"</span><span class="w">                      </span><span class="c1"># default; some APIs want ","</span>
+<span class="w">    </span><span class="nt">redirectURL</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://127.0.0.1:8085/callback</span>
+<span class="w">    </span><span class="nt">pkce</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">S256</span><span class="w">                               </span><span class="c1"># or none</span>
+<span class="w">    </span><span class="nt">authStyle</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">header</span><span class="w">                        </span><span class="c1"># or body</span>
+<span class="w">    </span><span class="nt">tokenParams</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span><span class="w">                          </span><span class="c1"># added to every token request</span>
+<span class="w">    </span><span class="nt">refreshBefore</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5m</span>
+</code></pre></div>
+<ul>
+<li>The access token is sent as <code>Authorization: Bearer &lt;token&gt;</code>, or as <code>apply</code> says (the block of <code>session_login</code>).</li>
+<li>Tapyr starts from the token pair stored for the account when the SHA-256 of the <code>refreshToken</code> secret matches the one the pair descends from, and from the secret otherwise: a new bootstrap refresh token (a reload re-reads file secrets) replaces the stored pair. The pair is stored under the provider and the account only, so that a package upgrade that changes the auth block keeps it, sealed like every token (<code>TAPYR_STATE_KEY</code>).</li>
+<li>It refreshes <code>refreshBefore</code> the expiry (at most halfway through a short lifetime), one refresh at a time per account, with the <code>refresh_token</code> grant and the client authentication of <code>authStyle</code> (a client without a secret sends its id in the body). An access token without <code>expires_in</code> is used until it is rejected.</li>
+<li>When a refresh answers a refresh token, the new pair is stored <strong>before</strong> the access token is used; when the store refuses it, the pair is kept in memory and stored before its first use. A refresh that answers no refresh token keeps the previous one: rotation is detected, not declared.</li>
+<li>Only <code>invalid_grant</code> sets the re-bootstrap condition (<code>tapyr_auth_reauth_required</code>, a <code>/readyz</code> reason, the status API), stored with the pair: the runs of the account then fail without calling the token endpoint again, until the bootstrap secret changes. Other rejections (<code>invalid_client</code>, any other 400, 401 or 403) are credential errors with the rejection backoff.</li>
+<li>Read-only (<code>tapyr record</code>), it never refreshes, since the refresh token may rotate: it uses the stored access token until its expiry, then fails.</li>
+<li>The token belongs to the account: a target cannot override the client or refresh token secrets, and the bootstrap refresh token does not enter the <code>credential</code> scope key, so a new bootstrap does not restart the budgets scoped by credential.</li>
+</ul>
 <h3 id="session_login"><code>session_login</code><a class="headerlink" href="#session_login" title="Permanent link">&para;</a></h3>
 <p>For APIs that require posting credentials to obtain a session token (e.g. Teltonika RutOS).</p>
 <div class="highlight"><pre><span></span><code><span class="nt">auth</span><span class="p">:</span>
