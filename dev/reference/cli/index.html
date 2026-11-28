@@ -406,6 +406,8 @@
       
         
       
+        
+      
     
     
     
@@ -1104,6 +1106,8 @@
       
         
       
+        
+      
     
     
     
@@ -1380,6 +1384,33 @@
   
   
     <li class="md-nav__item">
+      <a href="../../providers/example-oauth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  example-oauth
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../provider-ideas/" class="md-nav__link">
         
   
@@ -1555,6 +1586,17 @@
     <span class="md-ellipsis">
       <span class="md-typeset">
         Global flags
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tapyr-auth-login" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        tapyr auth login
       </span>
     </span>
   </a>
@@ -3003,6 +3045,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#tapyr-auth-login" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        tapyr auth login
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#tapyr-plan" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -3184,6 +3237,46 @@
 <td><code>--log-level string</code></td>
 <td></td>
 <td>log level: debug, info, warn, error (env TAPYR_LOG_LEVEL)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="tapyr-auth-login">tapyr auth login<a class="headerlink" href="#tapyr-auth-login" title="Permanent link">&para;</a></h2>
+<p>Run the OAuth 2.0 authorization code flow of an account once, and write the refresh token it yields to --secret-file (mode 0600), for the refreshToken secret of the account (ADR 0016). It prints the URL to open in a browser, on any machine, then reads the URL the browser was redirected to (or the code) from the standard input. --listen serves the redirect itself, for a redirectURL on the loopback interface of this machine; --device uses the device authorization grant of a package that declares it. It never prints a token and never opens the state store: run it anywhere, then reload tapyr run.</p>
+<div class="highlight"><pre><span></span><code>tapyr auth login &lt;account&gt; [flags]
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--device</code></td>
+<td></td>
+<td>use the device authorization grant (RFC 8628)</td>
+</tr>
+<tr>
+<td><code>--force</code></td>
+<td></td>
+<td>overwrite an existing --secret-file</td>
+</tr>
+<tr>
+<td><code>--listen</code></td>
+<td></td>
+<td>serve the redirect URL on this machine instead of reading a pasted URL</td>
+</tr>
+<tr>
+<td><code>--provider-path string</code></td>
+<td></td>
+<td>directory of provider packages, repeatable, after the providerPaths of the configuration</td>
+</tr>
+<tr>
+<td><code>--secret-file string</code></td>
+<td></td>
+<td>file receiving the refresh token (created with mode 0600)</td>
 </tr>
 </tbody>
 </table>

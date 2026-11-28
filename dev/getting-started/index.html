@@ -408,6 +408,8 @@
       
         
       
+        
+      
     
     
     
@@ -1228,6 +1230,8 @@
       
         
       
+        
+      
     
     
     
@@ -1485,6 +1489,33 @@
     
   
   example-sim
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../providers/example-oauth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  example-oauth
 
     
   </span>
@@ -3074,7 +3105,7 @@
 
 <span class="gp">$ </span><span class="nb">export</span><span class="w"> </span><span class="nv">TAPYR_EXAMPLE_API_KEY</span><span class="o">=</span>sim-api-key
 <span class="gp">$ </span>tapyr<span class="w"> </span>validate<span class="w"> </span>--config<span class="w"> </span>.<span class="w"> </span>--check-secrets
-<span class="go">configuration is valid: 1 account, 2 jobs, 1 output (8 provider packages and 32 job templates available)</span>
+<span class="go">configuration is valid: 1 account, 2 jobs, 1 output (9 provider packages and 34 job templates available)</span>
 </code></pre></div>
 <p><code>plan</code> projects the calls of every job against every quota, before a single request. Discovery has not run yet, so tell it how many instances to expect: 3 sites, and 5 networks in all.</p>
 <div class="highlight"><pre><span></span><code><span class="gp">$ </span>tapyr<span class="w"> </span>plan<span class="w"> </span>--config<span class="w"> </span>.<span class="w"> </span>--fanout<span class="w"> </span>example-sim-sites<span class="o">=</span><span class="m">3</span><span class="w"> </span>--fanout<span class="w"> </span>example-sim-networks<span class="o">=</span><span class="m">5</span>

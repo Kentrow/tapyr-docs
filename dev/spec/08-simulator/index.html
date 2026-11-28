@@ -406,6 +406,8 @@
       
         
       
+        
+      
     
     
     
@@ -1104,6 +1106,8 @@
       
         
       
+        
+      
     
     
     
@@ -1361,6 +1365,33 @@
     
   
   example-sim
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../providers/example-oauth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  example-oauth
 
     
   </span>
@@ -3197,6 +3228,13 @@
 </ul>
 <h2 id="auth-and-pagination">Auth and pagination<a class="headerlink" href="#auth-and-pagination" title="Permanent link">&para;</a></h2>
 <p>With <code>oauth2_client_credentials</code>, the simulator serves the path of the provider's token URL (rendered without account params, so its defaults point to the simulator) and accepts the client credentials listed in <code>auth.accept.clients</code> (<code>clientId</code>, <code>clientSecret</code>, in the Authorization header or the form); with <code>session_login</code>, it serves the login path under <code>basePath</code> and accepts a JSON body carrying both values of one of the <code>auth.accept.logins</code> username and password pairs. Both issue opaque tokens valid for <code>auth.tokenLifetime</code> (default 10m, simulated time), then accepted as the provider applies them (bearer, header with format, or cookie); expired tokens get the <code>authFailed</code> status. The token endpoint answers <code>access_token</code>, <code>token_type</code> and <code>expires_in</code>; the login endpoint answers <code>{"token": ..., "expiresIn": &lt;seconds&gt;}</code>, or the <code>auth.loginResponse</code> fixture with <code>{token}</code> and <code>{expiresIn}</code> replaced, to match the shape the provider's <code>token</code> expression reads. Token and login requests are checked against the limits as auth requests.</p>
+<p>With <code>oauth2_authorization_code</code> (<a href="../../adr/0016-oauth2-authorization-code/">ADR 0016</a>), the simulator serves the paths of the authorize, token and (when declared) device authorization URLs, for the clients of <code>auth.accept.authorizationCode</code> (<code>clientId</code>; <code>clientSecret</code>, empty for a public client that sends its id in the form; <code>refreshTokens</code>, bootstrap refresh tokens it accepts, for contract tests; <code>rotate</code>; <code>redirectURLs</code>, the registered redirect URLs, by default the <code>redirectURL</code> of the provider):</p>
+<ul>
+<li>the authorize endpoint consents at once: it redirects to the registered URL equal to <code>redirect_uri</code> with a single-use code (valid 10 minutes, simulated time) and the <code>state</code>; an unknown client or an unregistered redirect URL gets a 400 page, never a redirect;</li>
+<li>the token endpoint authenticates the client (Authorization header or form, <code>invalid_client</code> with 401 otherwise) and serves the <code>authorization_code</code> grant (checking the client, the redirect URL and the PKCE S256 verifier when a challenge was sent), the <code>refresh_token</code> grant (with <code>rotate</code>, every refresh returns a new refresh token and spends the one it was given) and the device code grant (<code>authorization_pending</code> at the first poll, the tokens at the second); a refused grant answers 400 <code>invalid_grant</code>, an unknown one <code>unsupported_grant_type</code>;</li>
+<li>the device authorization endpoint answers a device code, a user code, the authorize URL as <code>verification_uri</code> and an interval of 5 seconds.</li>
+</ul>
+<p>Access tokens are opaque, valid for <code>auth.tokenLifetime</code>, and accepted as the provider applies them. Token and device requests are checked against the limits as auth requests; the authorize endpoint, which a browser calls, is not.</p>
 <p>A provider whose auth is a plugin is simulated by the plugin itself: the plugin registers a simulator side that serves its token endpoints and validates its tokens, with the credentials of <code>auth.accept.plugin</code> (free-form, read by the plugin).</p>
 <p>Pagination <code>page</code> and <code>cursor</code> are served like <code>offset</code> and <code>link_header</code> (<code>expression</code> is client-side only); with <code>cursor</code>, the next cursor is an opaque value in the <code>X-Next-Cursor</code> response header (absent on the last page), read by templates with <code>default(response.headers['x-next-cursor'][0], '')</code>.</p>
 <h2 id="cli">CLI<a class="headerlink" href="#cli" title="Permanent link">&para;</a></h2>

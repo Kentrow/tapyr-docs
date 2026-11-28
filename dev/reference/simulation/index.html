@@ -406,6 +406,8 @@
       
         
       
+        
+      
     
     
     
@@ -1104,6 +1106,8 @@
       
         
       
+        
+      
     
     
     
@@ -1361,6 +1365,33 @@
     
   
   example-sim
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../providers/example-oauth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  example-oauth
 
     
   </span>
@@ -1982,6 +2013,17 @@
     <span class="md-ellipsis">
       <span class="md-typeset">
         SimulationResponse
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#simulationauthcodeclient" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        SimulationAuthCodeClient
       </span>
     </span>
   </a>
@@ -3093,6 +3135,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#simulationauthcodeclient" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        SimulationAuthCodeClient
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#simulationbasiccredential" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -3363,6 +3416,12 @@
 </thead>
 <tbody>
 <tr>
+<td><code>authorizationCode</code></td>
+<td>list of <a href="#simulationauthcodeclient">SimulationAuthCodeClient</a></td>
+<td></td>
+<td><code>authorizationCode</code> lists the clients of the authorize, token and device endpoints with auth type oauth2_authorization_code.</td>
+</tr>
+<tr>
 <td><code>basic</code></td>
 <td>list of <a href="#simulationbasiccredential">SimulationBasicCredential</a></td>
 <td></td>
@@ -3481,6 +3540,50 @@
 <ul>
 <li>Exactly one of <code>file</code>, <code>template</code> is set.</li>
 </ul>
+<h2 id="simulationauthcodeclient">SimulationAuthCodeClient<a class="headerlink" href="#simulationauthcodeclient" title="Permanent link">&para;</a></h2>
+<p>SimulationAuthCodeClient is an OAuth 2.0 client of the authorization code flow.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>clientId</code></td>
+<td>string</td>
+<td>yes</td>
+<td><code>clientId</code> accepted.</td>
+</tr>
+<tr>
+<td><code>clientSecret</code></td>
+<td>string</td>
+<td></td>
+<td><code>clientSecret</code> accepted; empty for a public client, which sends its id in the request body.</td>
+</tr>
+<tr>
+<td><code>redirectURLs</code></td>
+<td>list of string</td>
+<td></td>
+<td><code>redirectURLs</code> registered for the client: the authorize endpoint redirects only to one of them. Default: the redirectURL of the provider, rendered without account params.</td>
+</tr>
+<tr>
+<td><code>refreshTokens</code></td>
+<td>list of string</td>
+<td></td>
+<td><code>refreshTokens</code> are bootstrap refresh tokens the token endpoint accepts for this client, for contract tests (fake values, sim-...).</td>
+</tr>
+<tr>
+<td><code>rotate</code></td>
+<td>boolean</td>
+<td></td>
+<td>Rotate makes every refresh return a new refresh token and spend the one it was given, as rotating APIs do.</td>
+</tr>
+</tbody>
+</table>
 <h2 id="simulationbasiccredential">SimulationBasicCredential<a class="headerlink" href="#simulationbasiccredential" title="Permanent link">&para;</a></h2>
 <p>SimulationBasicCredential is a username and password pair.</p>
 <table>

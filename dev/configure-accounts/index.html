@@ -408,6 +408,8 @@
       
         
       
+        
+      
     
     
     
@@ -683,6 +685,23 @@
       </span>
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="2. Keep the credentials out of the configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#accounts-that-need-a-consent-in-a-browser" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Accounts that need a consent in a browser
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1206,6 +1225,8 @@
       
         
       
+        
+      
     
     
     
@@ -1463,6 +1484,33 @@
     
   
   example-sim
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../providers/example-oauth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  example-oauth
 
     
   </span>
@@ -2912,6 +2960,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="2. Keep the credentials out of the configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#accounts-that-need-a-consent-in-a-browser" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Accounts that need a consent in a browser
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2983,6 +3048,12 @@
 <div class="highlight"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">TAPYR_MERAKI_API_KEY</span><span class="o">=</span><span class="s1">'...'</span><span class="w">   </span><span class="c1"># or a file readable by Tapyr only</span>
 </code></pre></div>
 <p>With systemd, put the variables in the environment file of the unit (<a href="../examples/systemd/">systemd</a>); on Kubernetes, in a Secret (<a href="../examples/kubernetes/">Kubernetes</a>). The logs, the status API and the web UI never show a secret: Tapyr redacts their values everywhere.</p>
+<h3 id="accounts-that-need-a-consent-in-a-browser">Accounts that need a consent in a browser<a class="headerlink" href="#accounts-that-need-a-consent-in-a-browser" title="Permanent link">&para;</a></h3>
+<p>Some APIs (the <code>oauth2_authorization_code</code> auth type, <a href="../adr/0016-oauth2-authorization-code/">ADR 0016</a>) only give a refresh token after a person accepts in a browser. Run the consent once with <code>tapyr auth login</code>, anywhere (your laptop is fine), with the configuration and the client id and secret of the account:</p>
+<div class="highlight"><pre><span></span><code>tapyr<span class="w"> </span>auth<span class="w"> </span>login<span class="w"> </span>my-account<span class="w"> </span>--config<span class="w"> </span>config.yaml<span class="w"> </span>--secret-file<span class="w"> </span>./my-account-refresh-token
+</code></pre></div>
+<p>It prints a URL: open it in any browser, accept, and paste back the address the browser was sent to (the page itself may fail to load). <code>--listen</code> serves that address on the machine that runs the command instead, when the redirect URL of the package is on <code>127.0.0.1</code>; <code>--device</code> asks for a code to enter on a page, for packages whose API offers it. The refresh token goes to the file (mode 0600), never to the screen. Give it to the account like any secret (<code>refreshToken: { file: ... }</code>, an environment variable or a Kubernetes Secret), then reload Tapyr.</p>
+<p><code>tapyr run</code> then renews the tokens by itself and keeps the latest pair in its state store (sealed with <code>TAPYR_STATE_KEY</code>): the file goes stale after the first renewal when the API rotates its refresh tokens, and that is expected. Run <code>tapyr auth login</code> again only when Tapyr says so (the status API, <code>/readyz</code> and <code>tapyr_auth_reauth_required</code> name the account), for example after the access was revoked, or when the state store was lost.</p>
 <h2 id="3-write-the-configuration">3. Write the configuration<a class="headerlink" href="#3-write-the-configuration" title="Permanent link">&para;</a></h2>
 <p>One file or several, in one directory: Tapyr reads every <code>.yaml</code> and <code>.yml</code> file of the paths given to <code>--config</code>.</p>
 <div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tapyr/v1alpha1</span>

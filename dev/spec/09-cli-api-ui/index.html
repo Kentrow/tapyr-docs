@@ -406,6 +406,8 @@
       
         
       
+        
+      
     
     
     
@@ -1104,6 +1106,8 @@
       
         
       
+        
+      
     
     
     
@@ -1361,6 +1365,33 @@
     
   
   example-sim
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../providers/example-oauth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  example-oauth
 
     
   </span>
@@ -3262,6 +3293,11 @@
 <td><code>tapyr provider show &lt;name&gt; [--example] [--output text\|json] [--provider-path DIR ...]</code></td>
 <td>Describe a provider package: what it is and its validation, its secrets and params, its templates, its limits (<a href="#provider-show">example</a>); <code>--example</code> prints its example configuration, <code>json</code> its entry of the <a href="#provider-catalog-output">provider catalog output</a></td>
 <td>0 ok, 1 unknown provider</td>
+</tr>
+<tr>
+<td><code>tapyr auth login &lt;account&gt; --secret-file FILE [--force] [--listen \| --device] [--provider-path DIR ...]</code></td>
+<td>Run the consent of an <code>oauth2_authorization_code</code> account (<a href="../../adr/0016-oauth2-authorization-code/">ADR 0016</a>) and write its refresh token to <code>FILE</code> (mode 0600; an existing file needs <code>--force</code>). By default it prints the authorization URL and reads the URL the browser was redirected to (or the code) from the standard input, checking its <code>state</code>; <code>--listen</code> serves the loopback redirect URL itself; <code>--device</code> uses the device authorization grant. PKCE S256 unless the package says <code>pkce: none</code>. Its token requests go through an in-memory budget engine with the provider limits; it never prints a token and never opens the state store</td>
+<td>0 ok, 1 usage or flow error, 2 invalid configuration or account</td>
 </tr>
 <tr>
 <td><code>tapyr provider new &lt;name&gt; [--dir DIR]</code></td>
